@@ -185,7 +185,6 @@ if TC==0;
                            
 % Seed production - based on local input or overall input? Dependent on the
 % local population??
-%---------------------------------------------------------------------------------
 for i=1:m
 for j= 1:m                  
 %if TC(i,j)==1 and Age>AgeMP; % CHECK AND!! produces seeds in the cells occupied by
@@ -201,14 +200,12 @@ for j= 1:m
 %end
 
 % Seeds go to soil seed bank
-%--------------------------------------------------------------------------------------
 %SBS= SBS+SPS-mSS; % should this value be included in the random test for colonization or is
 %more correct to d the test independently from the number of seeds
 %available
 
 
 % Plot the CA at each time step
-%--------------------------------------------------------------------------------------
 white=[1 1 1];
 lightgreen=[0.5 1 0.5];
 green=[0 1 0];
