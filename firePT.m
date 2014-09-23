@@ -1,4 +1,3 @@
-
 %Model PT fire CASCADE
 %Asynchronous CA
 %Vasques et al. 2014
@@ -63,24 +62,22 @@ z= 8;            % Number of neighbours
 %--------------------------------------------------------------------------
 for i=1:m
     for j = 1:m
-        TC(4:4:100;4:4:100)= 1; % plants 1 pine every 4 meters - prodution stand
+        
         if dt==1
-           TC(i,j)= 1; %cell occupied by pine
+           TC(4:4:100,4:4:100)= 1; % plants 1 pine every 4 meters - prodution stand
            Pine=Pine+1; % number of pines
         else
             TC=TC;
+        end
+    end
+end
            
 %Dynamic
 %--------------------------------------------------------------------------
 
 while Time < EndTime
-    
-for i=1:m
-    for j= 1:m
-                     
-% Creates litter in the neighborhod of pine (8 neighbors of pine)  
+% Creates litter in the neighborhod of pine (8 neighbors)  
 % ---------------------------------------------------------------------------
-
 for i = 1 : m
     for j = 1 : m
         z = mod(j-1+m,m) ;
@@ -113,16 +110,17 @@ for i = 1 : m
         end
     end
 end  
+
             
-if D== int; % if Time/10 is an integer there is disturbance % interval of 10 years
- Lit(i,j)=0;
- TC(i,j)= TC(i,j)*AR; % check - the idea is to have 0 for pine and seeder and 1 for oak  
- Age(i,j)= Age(i,j*AR; % check - the idea is to have 0 for pine and seeder and 1 for oak  
-else
-    Lit(i,j)= Lit(i-1,j-1)+ 1; % this value should be the factor of accumulation of litter according to real values
-    TC(i,j)= TC(i,j);
-    Age(i,j)= Age(i-1, j-1)+ dt;
-end            
+%if D == (int); % if Time/10 is an integer there is disturbance % interval of 10 years
+ %Lit(i,j)=0;
+ %TC(i,j)= TC(i,j)*AR; % check - the idea is to have 0 for pine and seeder and 1 for oak  
+ %Age(i,j)= Age(i,j)*AR; % check - the idea is to have 0 for pine and seeder and 1 for oak  
+%else
+%    Lit(i,j)= Lit(i-1,j-1)+ 1; % this value should be the factor of accumulation of litter according to real values
+%   TC(i,j)= TC(i,j);
+%  Age(i,j)= Age(i-1, j-1)+ dt;
+%end            
             
 % Colonize an Empty cell
 %-----------------------------------------------------------------------------------------------------
@@ -132,25 +130,27 @@ end
 %Include here a term for the equation of the interaction of each seed type with
 %Litter in the cell and decide who wins;
 
-for i = 1 : m*m 
-if TC==0;
+%for i = 1 : m*m 
+%if TC==0;
 % SONIA'S PART OF CODE: TESTS TO COLONIZE AN EMPTY CELL   
 % identification of a cell randomly picked in the lattice
-    S = floor(rand*(m*m-1)) + 1; % Picks a cell randomly between 1 and n*n
-    Stest1 = floor(S/m) ;
-    Stest2 = S/m ;
-    if Stest1 == Stest2
-        Si = floor(S/m) ;        % Corresponding row in the lattice
-    else
-        Si = floor(S/m) + 1 ;
-    end
-    Sj = mod(S,m) ;              % Corresponding col in the lattice
-    if Si == 0
-        Si = m ;
-    end
-    if Sj == 0
-        Sj = m ;
-    end
+  %  S = floor(rand*(m*m-1)) + 1; % Picks a cell randomly between 1 and n*n
+  %  Stest1 = floor(S/m) ;
+  % Stest2 = S/m ;
+  %  if Stest1 == Stest2
+  %      Si = floor(S/m) ;        % Corresponding row in the lattice
+  %  else
+  %      Si = floor(S/m) + 1 ;
+  % end
+  %  Sj = mod(S,m) ;              % Corresponding col in the lattice
+  %  if Si == 0
+  %      Si = m ;
+  %  end
+  %  if Sj == 0
+  %      Sj = m ;
+  %  end
+%end
+%end
     
 %test=rand; % how to do this? there is a seedbank from the seeder but not
 %from the other species
@@ -165,29 +165,29 @@ if TC==0;
 %Change(Row,Col)=3;
            
 %Update number of cells occupied per each species
- if Change (Row,Col)==1
-     TC(Row-1,Col-1)=1
-     Pine=Pine+1;
- elseif Change (Row,Col)==2
-     TC(Row-1,Col-1)=2
-     Seeder=Seeder+1;
- elseif Change (Row,Col)==3
-     TC(Row-1,Col-1)=3
-     Oak=Oak+1;              
- else TC=TC
+ %if Change (Row,Col)==1;
+ %   TC(Row-1,Col-1)=1;
+ %  Pine=Pine+1;
+ %elseif Change (Row,Col)==2;
+ %    TC(Row-1,Col-1)=2;
+ %   Seeder=Seeder+1;
+ %elseif Change (Row,Col)==3;
+ %    TC(Row-1,Col-1)=3;
+ %   Oak=Oak+1;              
+ %else TC=TC;
+ %end
 
 %Update age
- if Change > 0 % Starts Age in the occupied cells
-     Age=1
- else Age=0;
- end
- end
+ %if Change > 0 % Starts Age in the occupied cells
+ %   Age=1
+ %else Age=0;
+ %end
                            
 % Seed production - based on local input or overall input? Dependent on the
 % local population??
 %---------------------------------------------------------------------------------
-for i=1:m
-for j= 1:m                  
+%for i=1:m
+%for j= 1:m                  
 %if TC(i,j)==1 and Age>AgeMP; % CHECK AND!! produces seeds in the cells occupied by
 %pine that are mature
 %SeedPP=SeedPP;
@@ -223,5 +223,6 @@ drawnow;
 
 Time= Time+dt
 end
+
                 
                 
