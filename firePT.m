@@ -25,7 +25,7 @@ LSS=30;        % Life span calluna % in woodland education centre [year]
 %Oak
 %-------------------------------------------------------------------------
 AgeMO=50;       % Age of maturity seeder % Kew % [year] 
-SeedPO=120;     % Seed production oak per occupied cell isolated tree in Martiník et al. 2014% [n/m2/year]
+SeedPO=120;     % Seed production oak per occupied cell isolated tree in Martin?k et al. 2014% [n/m2/year]
 SeedLongO=1;    %Does not subsist from one year to another %based on literature [year]
 LSO= 1000;      % Life span quercus robur % in forestar
 
@@ -33,6 +33,7 @@ LSO= 1000;      % Life span quercus robur % in forestar
 %mS=0.5;        % Random probability factor mortality pine (yearly)
 %mO=0.2;        % Probability factor seed mortality pine   (yearly)
 
+mort=1./[LSP,LSS,LS0]; % MORTALITY of Pine, seeder, Oak = 1/lifespan
 AR= [0,0,1]; % ability to resprout: pine=0, seeder=0, oak=1;
 
 %Control constants
@@ -44,10 +45,10 @@ m= 100;                         % [meter]
 %Control variables
 %--------------------------------------------------------------------------
 Time = StartTime;
-D=Time/10 % disturbance regime defined with ifs
-Pine=0 % will count the number of cells with pine
-Seeder=0 % will count the number of cells with pine
-Oak=0 % will count the number of cells with pine
+D=Time/10; % disturbance regime defined with ifs
+Pine=0; % will count the number of cells with pine
+Seeder=0; % will count the number of cells with pine
+Oak=0; % will count the number of cells with pine
 
 %%%Initialisation of the matrices 
 %TC - type cover; Age- plant age; SB- Seed Bank); Lit- Litter
@@ -60,6 +61,7 @@ z= 8;            % Number of neighbours
 
 % Fills the matrix TC with planted pines
 %--------------------------------------------------------------------------
+<<<<<<< HEAD
 for i=1:m
     for j = 1:m
         
@@ -71,6 +73,10 @@ for i=1:m
         end
     end
 end
+=======
+TC(4:4:100,4:4:100)= 1; % plants 1 pine every 4 meters - prodution stand
+Pine=sum(sum(TC));          
+>>>>>>> origin/master
            
 %Dynamic
 %--------------------------------------------------------------------------
@@ -78,51 +84,46 @@ end
 while Time < EndTime
 % Creates litter in the neighborhod of pine (8 neighbors)  
 % ---------------------------------------------------------------------------
-for i = 1 : m
-    for j = 1 : m
-        z = mod(j-1+m,m) ;
-        if z==0
-            z=m;
-        end
-        if TC(i,z) == 1
-            Lit(i,j) = Lit(i,j)+1 ;
-        end
-        z = mod(i-1+m,m) ;
-        if z==0
-            z=m;
-        end
-        if TC(z,j) == 1
-            Lit(i,j) = Lit(i,j)+1 ;
-        end
-        z = mod(j+1,m) ;
-        if z==0
-            z=m;
-        end
-        if TC(i,z) == 1
-            Lit(i,j) = Lit(i,j)+1 ;
-        end
-        z = mod(i+1,m);
-        if z==0
-            z=m;
-        end
-        if TC(z,j) == 1
-            Lit(i,j) = Lit(i,j)+1 ;
-        end
-    end
-end  
+[x,y]=find(TC==1);
+for i=1:length(x)
+    Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;    
+end
+% for i = 1 : m
+%     for j = 1 : m
+%         z = mod(j-1+m,m) ;
+%         if z==0
+%             z=m;
+%         end
+%         if TC(i,z) == 1
+%             Lit(i,j) = Lit(i,j)+1 ;
+%         end
+%         z = mod(i-1+m,m) ;
+%         if z==0
+%             z=m;
+%         end
+%         if TC(z,j) == 1
+%             Lit(i,j) = Lit(i,j)+1 ;
+%         end
+%         z = mod(j+1,m) ;
+%         if z==0
+%             z=m;
+%         end
+%         if TC(i,z) == 1
+%             Lit(i,j) = Lit(i,j)+1 ;
+%         end
+%         z = mod(i+1,m);
+%         if z==0
+%             z=m;
+%         end
+%         if TC(z,j) == 1
+%             Lit(i,j) = Lit(i,j)+1 ;
+%         end
+%     end
+% end  
 
             
-%if D == (int); % if Time/10 is an integer there is disturbance % interval of 10 years
- %Lit(i,j)=0;
- %TC(i,j)= TC(i,j)*AR; % check - the idea is to have 0 for pine and seeder and 1 for oak  
- %Age(i,j)= Age(i,j)*AR; % check - the idea is to have 0 for pine and seeder and 1 for oak  
-%else
-%    Lit(i,j)= Lit(i-1,j-1)+ 1; % this value should be the factor of accumulation of litter according to real values
-%   TC(i,j)= TC(i,j);
-%  Age(i,j)= Age(i-1, j-1)+ dt;
-%end            
             
-% Colonize an Empty cell
+% Colonize an Empty cell & mortality for vegetated cells
 %-----------------------------------------------------------------------------------------------------
 % Test who is going to colonize an empty cell in the lattice based on the
 % seed bank
@@ -130,25 +131,40 @@ end
 %Include here a term for the equation of the interaction of each seed type with
 %Litter in the cell and decide who wins;
 
-%for i = 1 : m*m 
+for i = 1 : m
+    for j=1:m
+        test=rand;
+        if TC(i,j)==0 % colonization/germination
+            % LITTER DEPENDENCE:
+            ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((Lit(i,j)-2)/amp(1)); % PINE
+            ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((2-Lit(i,j))/amp(2)); % SEEDER amp(2)=0.3
+            ProbG(3)=(maxG(3)+minG(3))/2+(maxG(3)-minG(3))/2*tanh((Lit(i,j)-2)/amp(3)); % QUERCUS
+            
+            ProbG=ProbG*dt;
+            
+            % SEED DEPENDENCE
+            %ProbG(2)=ProbG*%MULTIPLY BY PROBABILITY DUE TO SEED NUMBER
+            
+            if sum(ProbG)*dt>1
+                'sum of probability higher than 1! Please decrease dt'
+                break
+            else
+                ProbG=ProbG/sum(ProbG);
+                if test< litterfun
+                %%%%
+                end
+            end    
+        elseif test< mort(TC(i,j))*dt
+               TC(i,j)=0; 
+        end
+    end
+end
+
+        
 %if TC==0;
 % SONIA'S PART OF CODE: TESTS TO COLONIZE AN EMPTY CELL   
 % identification of a cell randomly picked in the lattice
-  %  S = floor(rand*(m*m-1)) + 1; % Picks a cell randomly between 1 and n*n
-  %  Stest1 = floor(S/m) ;
-  % Stest2 = S/m ;
-  %  if Stest1 == Stest2
-  %      Si = floor(S/m) ;        % Corresponding row in the lattice
-  %  else
-  %      Si = floor(S/m) + 1 ;
-  % end
-  %  Sj = mod(S,m) ;              % Corresponding col in the lattice
-  %  if Si == 0
-  %      Si = m ;
-  %  end
-  %  if Sj == 0
-  %      Sj = m ;
-  %  end
+  
 %end
 %end
     
@@ -182,7 +198,19 @@ end
  %   Age=1
  %else Age=0;
  %end
-                           
+       
+%%% DISTURBANCE
+%if D == (int); % if Time/10 is an integer there is disturbance % interval of 10 years
+ %Lit(i,j)=0;
+ %TC(i,j)= TC(i,j)*AR; % check - the idea is to have 0 for pine and seeder and 1 for oak  
+ %Age(i,j)= Age(i,j)*AR; % check - the idea is to have 0 for pine and seeder and 1 for oak  
+%else
+%    Lit(i,j)= Lit(i-1,j-1)+ 1; % this value should be the factor of accumulation of litter according to real values
+%   TC(i,j)= TC(i,j);
+%  Age(i,j)= Age(i-1, j-1)+ dt;
+%end            
+ 
+ 
 % Seed production - based on local input or overall input? Dependent on the
 % local population??
 %---------------------------------------------------------------------------------
