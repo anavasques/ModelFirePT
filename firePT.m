@@ -125,8 +125,10 @@ for i = 1 : m
             % ProbG(1)=; % PINE
             ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh(2-Lit(i,j)/amp(2)); % SEEDER amp(2)=0.3
             % ProbG(3)=;% QUERCUS
+            
             % SEED DEPENDENCE
-            ProbG(2)=ProbG*
+            %ProbG(2)=ProbG*%PROBABILITY DUT O SEED NUMBER
+            
             if sum(ProbG)*dt>1
                 'sum of probability higher than 1! Please decrease dt'
                 break
