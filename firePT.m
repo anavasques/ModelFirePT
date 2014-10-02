@@ -64,7 +64,7 @@ for i=1:m
     for j = 1:m
         
         if dt==1
-           TC(4:4:100,4:4:100)= 1; % plants 1 pine every 4 meters - prodution stand
+           TC(4:4:100,4:4:100)= 1; % plants 1 pine every 4 meters - production stand
            Pine=Pine+1; % number of pines
         else
             TC=TC;
