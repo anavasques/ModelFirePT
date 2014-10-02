@@ -122,12 +122,14 @@ for i = 1 : m
         test=rand;
         if TC(i,j)==0 % colonization/germination
             % LITTER DEPENDENCE:
-            % ProbG(1)=; % PINE
-            ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh(2-Lit(i,j)/amp(2)); % SEEDER amp(2)=0.3
-            % ProbG(3)=;% QUERCUS
+            ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((Lit(i,j)-2)/amp(1)); % PINE
+            ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((2-Lit(i,j))/amp(2)); % SEEDER amp(2)=0.3
+            ProbG(3)=(maxG(3)+minG(3))/2+(maxG(3)-minG(3))/2*tanh((Lit(i,j)-2)/amp(3)); % QUERCUS
+            
+            ProbG=ProbG*dt;
             
             % SEED DEPENDENCE
-            %ProbG(2)=ProbG*%PROBABILITY DUT O SEED NUMBER
+            %ProbG(2)=ProbG*%MULTIPLY BY PROBABILITY DUE TO SEED NUMBER
             
             if sum(ProbG)*dt>1
                 'sum of probability higher than 1! Please decrease dt'
@@ -137,12 +139,13 @@ for i = 1 : m
                 if test< litterfun
                 %%%%
                 end
-            elseif test< mort(TC(i,j))*dt
+            end    
+        elseif test< mort(TC(i,j))*dt
                TC(i,j)=0; 
-            end
         end
     end
 end
+
         
 %if TC==0;
 % SONIA'S PART OF CODE: TESTS TO COLONIZE AN EMPTY CELL   
