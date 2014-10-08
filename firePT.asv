@@ -11,26 +11,27 @@ clear all
 
 %Pine
 %-------------------------------------------------------------------------
-% %AgeMP=10;     % Age of maturity pine %start at 6 and regularly 10-15 % in Cronk and Fuller, 1995 [year] 
-% %SeedPP=0.5;   % Seed production pine per occupied cell % should prob increase with age [n/m2/year]
-% SeedLongP=2;  % Seed longevity pine one year % in "Dean et al. (1986)" [year]
-% LSP= 100;     % Life span of pine % in "practices centro pinus" [year]
-% %Seeder
-% %-------------------------------------------------------------------------
-% AgeMS=1;       % Age of maturity seeder % field obs % [year] 
-% SeedPS=500;    % Seed production seeder per occupied cell %invented value% increases with age [n/m2/year]
-% %SeedLongS=200;% Seed longevity seeder %invented value [year]
-% %mSS=XX         % Define mortality of seeds of seeder species
-% LSS=30;        % Life span calluna % in woodland education centre [year]
-% %Oak
-% %-------------------------------------------------------------------------
-% AgeMO=50;       % Age of maturity seeder % Kew % [year] 
-% SeedPO=120;     % Seed production oak per occupied cell isolated tree in Martin?k et al. 2014% [n/m2/year]
-% SeedLongO=1;    %Does not subsist from one year to another %based on literature [year]
-% LSO= 1000;      % Life span quercus robur % in forestar
+AgeMP=10;     % Age of maturity pine %start at 6 and regularly 10-15 % in Cronk and Fuller, 1995 [year] 
+SeedPP=0.5;   % Seed production pine per occupied cell % should prob increase with age [n/m2/year]
+SeedLongP=2;  % Seed longevity pine one year % in "Dean et al. (1986)" [year]
+LSP= 100;     % Life span of pine % in "practices centro pinus" [year]
+%Seeder
+%-------------------------------------------------------------------------
+AgeMS=1;       % Age of maturity seeder % field obs % [year] 
+SeedPS=500;    % Seed production seeder per occupied cell %invented value% increases with age [n/m2/year]
+%SeedLongS=200;% Seed longevity seeder %invented value [year]
+%mSS=XX         % Define mortality of seeds of seeder species
+LSS=30;        % Life span calluna % in woodland education centre [year]
+%Oak
+%-------------------------------------------------------------------------
+AgeMO=50;       % Age of maturity seeder % Kew % [year] 
+SeedPO=120;     % Seed production oak per occupied cell isolated tree in Martin?k et al. 2014% [n/m2/year]
+SeedLongO=1;    %Does not subsist from one year to another %based on literature [year]
+LSO= 1000;      % Life span quercus robur % in forestar
 
-%%% !!!!!!!!!
-%%%%% INITIALIZE ALL THE PARAMETERS
+%mP=0.5;        % Random probability factor mortality pine (yearly)
+%mS=0.5;        % Random probability factor mortality pine (yearly)
+%mO=0.2;        % Probability factor seed mortality pine   (yearly)
 
 mort=1./[LSP,LSS,LS0]; % MORTALITY of Pine, seeder, Oak = 1/lifespan
 AR= [0,0,1]; % ability to resprout: pine=0, seeder=0, oak=1;
@@ -100,11 +101,6 @@ while Time < EndTime
                     ProbG=ProbG*dt;
                     
                     % SEED DEPENDENCE
-                    % DEFINE THIS RELATION FOR EACH SPECIES TAKING INTO
-                    % ACCOUNT THE SPATIAL OCUPATION AND ALSO THE RESULT OF
-                    % THE PROBABILITY IN THE TERM THAT MULTIPLIES WITH
-                    % LITTER PROBABILITY (GETS SMALLER) - THINK
-                    
                     %ProbG(2)=ProbG*%MULTIPLY BY PROBABILITY DUE TO SEED NUMBER
                     
                     if sum(ProbG)*dt>1
@@ -133,17 +129,40 @@ while Time < EndTime
     end
     
     % SEED BANK CALCULATION ONLY ONCE A YEAR
-    %include the values for these parameters
     
+    %SBS % seed bank from the seeder
+    %SPP % seed production from year before
+    %SPO % seed production from year before
     
-    SB(1)=SBP1+SBP2+SeedFP*sum(sum(TC(Age>AgeMaturityPine)==1));
+    SB(1)=SBP1+SBP2+
     SB(2)=SB(2)+SeedFS*(sum(sum(TC==2)))-SeedLoss*SB(2);
     SB(3)=SeedFQ*(sum(sum(TC==3)))+randi(BirdSeedN,1);
     
-    SBP2=SBP1;
-    SBP1=SB(1);
+    %Change(Row,Col)=2;
     
-  
+    %Change(Row,Col)=1;
+    
+    %Change(Row,Col)=3;
+    
+    %Update number of cells occupied per each species
+    %if Change (Row,Col)==1;
+    %   TC(Row-1,Col-1)=1;
+    %  Pine=Pine+1;
+    %elseif Change (Row,Col)==2;
+    %    TC(Row-1,Col-1)=2;
+    %   Seeder=Seeder+1;
+    %elseif Change (Row,Col)==3;
+    %    TC(Row-1,Col-1)=3;
+    %   Oak=Oak+1;
+    %else TC=TC;
+    %end
+    
+    %Update age
+    %if Change > 0 % Starts Age in the occupied cells
+    %   Age=1
+    %else Age=0;
+    %end
+    
     %%% DISTURBANCE
     %if D == (int); % if Time/10 is an integer there is disturbance % interval of 10 years
     %Lit(i,j)=0;
@@ -155,8 +174,31 @@ while Time < EndTime
     %  Age(i,j)= Age(i-1, j-1)+ dt;
     %end
     
-
-   
+    
+    % Seed production - based on local input or overall input? Dependent on the
+    % local population??
+    %---------------------------------------------------------------------------------
+    %for i=1:m
+    %for j= 1:m
+    %if TC(i,j)==1 and Age>AgeMP; % CHECK AND!! produces seeds in the cells occupied by
+    %pine that are mature
+    %SeedPP=SeedPP;
+    %else SeedPP=0
+    %if TC(i,j)==2 and Age>AgeMS; % CHECK AND!! produces seeds in the cells occupied by
+    %seeder that are mature
+    %else SeedPS=0
+    %if TC(i,j)==2 and Age>AgeMO; % CHECK AND!! produces seeds in the cells occupied by
+    %oak that are mature
+    %else SeedPS=0
+    %end
+    
+    % Seeds go to soil seed bank
+    %--------------------------------------------------------------------------------------
+    %SBS= SBS+SPS-mSS; % should this value be included in the random test for colonization or is
+    %more correct to d the test independently from the number of seeds
+    %available
+    
+    
     % % Plot the CA at each time step
     % %--------------------------------------------------------------------------------------
     % white=[1 1 1];
