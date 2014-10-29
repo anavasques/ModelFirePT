@@ -35,7 +35,7 @@ LSO= 1000;                % Life span quercus robur % in forestar
 
 %GENERAL
 minG= [0 0 0.3];          % minumum germination first pine second seeder third oak
-maxG= [0.9 0.9 0.9];      % maximum germination first pine second seeder third oak
+maxG= [0.1 0.9 0.9];      % maximum germination first pine second seeder third oak
 SeedLoss= [0.50 0.05 1];  % rate seed loss first pine second seeder third oak
 
 lrate=0.42;               % rate of litter deposition [cm/year] Fernandes et al 2004
@@ -49,10 +49,12 @@ SB= [0 0 0];              % seed bank first pine second seeder third oak
 ProbS= [0 0 0];           % to calculate probability based on seed prod
 maxsedl= [7 400 1];       % max number of seedlings per cell CCD field
 
-mort=1./[LSP,LSS,LS0];    % MORTALITY of pine, seeder, oak = 1/lifespan
+mort=1./[LSP,LSS,LSO];    % MORTALITY of pine, seeder, oak = 1/lifespan
+
+canopyBank=0.5;
 
 
-AR= [0,0,1];              % ability to resprout: pine=0, seeder=0, oak=1;
+AR= [0,0,0,1];              % ability to resprout: first element is fake (bare soil); pine=0, seeder=0, oak=1;
 
 % Control constants
 StartTime= 0;                   % [year]
@@ -60,7 +62,7 @@ EndTime= 150;                   % [year]
 
 % NOTE: put dt smaller than one year in a way that the probabilities are <1 but not too small otherwise the model runs slowly
 dt= 1;                          % [year]
-m= 100;                         % for size of lattice [meter]
+m= 10;                         % for size of lattice [meter]
 
 %Control variables
 Time = StartTime;
@@ -80,7 +82,17 @@ z= 8;            % Number of neighbours
 
 % Fills the matrix TC with planted pines
 %--------------------------------------------------------------------------
-TC(4:4:96,4:4:96)= 1; % plants 1 pine every 4 meters - dense prodution stand excluding the borders
+TC(4:4:m-4,4:4:m-4)= 1; % plants 1 pine every 4 meters - dense prodution stand excluding the borders
+
+% Creates colormap
+figure
+white=[1 1 1];
+green=[0 1 0];
+red=[1 0 0];
+blue=[0 0 1];
+VegetationColormap=[white; green; red; blue];
+% Plot image
+colormap(VegetationColormap);
 
 %%%%%%%%%%%%%%%%%%%%%DYNAMIC%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--------------------------------------------------------------------------
@@ -88,7 +100,8 @@ while Time < EndTime
     for k=1:round(1/dt)
         % Creates litter in the neighborhod of pine (8 neighbors)+ the pine
         % site itself
-        [x,y]=find(TC==1);
+        [x,y]=find(TC(2:end-1,2:end-1)==1);
+        x=x+1;y=y+1;
         for i=1:length(x)
             Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;
         end
@@ -106,7 +119,7 @@ while Time < EndTime
                     ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((2-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
                     ProbG(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
                     
-                    ProbG=ProbG*dt; %this is the trick to get probability smal
+                    ProbG=ProbG*dt; %this is the trick to get probability small
                   
                     ProbS=1.*SB>0; % this term includes the seeds (ProbS) into the probability of establishment
                     
@@ -119,9 +132,8 @@ while Time < EndTime
                     %ProbS(3)=SB(3)*1/maxSedl(3);
                     
                     ProbG=ProbG.*ProbS;
-                    
-                    if sum(ProbG)*dt>1
                     %this step has the reference  of Alains' MSc thesis
+                    if sum(ProbG)*dt>1
                         'sum of probability higher than 1! Please decrease dt'
                         break
                     elseif test<ProbG(1)
@@ -165,15 +177,19 @@ while Time < EndTime
     %%% DISTURBANCE
     D=randi(10,1);
     if D == 1 % if Time/10 is an integer there is disturbance % interval of 10 years
+        'fire'
         Lit(:,:)=0;
         for i=1:m
             for j=1:m
-                TC(i,j)= TC(i,j)*AR(TC(i,j)); % check - the idea is to have 0 for pine and seeder and 1 for oak
-                Age(i,j)= Age(i,j)*AR(TC(i,j)); % check - the idea is to have 0 for pine and seeder and 1 for oak
-                %SBP1=SBC
+                TC(i,j)= TC(i,j)*AR(TC(i,j)+1); 
+                Age(i,j)= Age(i,j)*AR(TC(i,j)+1); 
+                SB(1)=SBPC;
+                SBP1=0;SBP2=0;
             end
         end
     end
+    imagesc(TC)
+    drawnow;pause
 end
     
     %%% update abundance of different species in the lattice
@@ -195,22 +211,22 @@ end
     % drawnow;
     
     % %Plot the relative abundance of plant species over time
-    % Creates colormap
-        figure
-        white=[1 1 1];
-        green=[0 1 0];
-        red=[1 0 0];
-        blue=[0 0 1];
-        VegetationColormap=[white; green; red; blue];
-        % Plot image
-        colormap(VegetationColormap);
+%     % Creates colormap
+%         figure
+%         white=[1 1 1];
+%         green=[0 1 0];
+%         red=[1 0 0];
+%         blue=[0 0 1];
+%         VegetationColormap=[white; green; red; blue];
+%         % Plot image
+%         colormap(VegetationColormap);
     %     %color 
     %     N=4;
-        showimage(TC);
+%         imagesc(TC);
     %     L = line(ones(N),ones(N), 'LineWidth',2);
     %     set(L,{'color'},mat2cell(VegetationColormap,ones(1,N),3));
     %     legend('empty','Pine','Seeder', 'Resprouter');
-        drawnow;
+     
 
     % Creates movie
     % showimagesc(TC);
