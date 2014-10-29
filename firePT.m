@@ -28,9 +28,9 @@ LSS=30;                   % Life span calluna % in woodland education centre [ye
 AgeMO=50;                 % Age of maturity seeder % Kew % [year] 
 %!!! here we assume that the oaks are always dominated in the understory
 %so seed production needs correction
-SeedFQ=120;               % Seed production oak per occupied cell isolated tree
-                          %in Martin?k et al. 2014% [n/m2/year] 
-BirdSeedN=0; %annual seed input by birds - oak
+SeedFQ=10;                % Seed production oak per occupied cell - value that is not fundamented by literature assumes that the tree is dominated and small if under cover of pinus
+                          % 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year] 
+BirdSeedN=50;             % Annual seed input by birds - based on average values Q. suber Pons and Pausas 2007 - this value depends on surrounding populations
 LSO= 1000;                % Life span quercus robur % in forestar
 
 %GENERAL
