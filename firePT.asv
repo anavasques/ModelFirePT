@@ -179,7 +179,7 @@ while Time < EndTime
 %   Oak= sum(sum(TC==3));
     
     % %Plot the relative abundance of plant species at each time step
-%     % This is done now with TC but could be done with Pine, Seeder and Oak
+    % This is done now with TC but could be done with Pine, Seeder and Oak
     % white=[1 1 1];
     % lightgreen=[0.5 1 0.5];
     % green=[0 1 0];
@@ -192,28 +192,22 @@ while Time < EndTime
     % drawnow;
     
     % %Plot the relative abundance of plant species over time
-    % Creates colormap
-   
-    figure
+    % Create colormap
     white=[1 1 1];
-        green=[0 1 0];
-        red=[1 0 0];
-        blue=[0 0 1];
-        VegetationColormap=[white; green; red; blue];
-        % Plot image
-        colormap(VegetationColormap);
-    %     %color 
-    %     N=4;
-    %     showimage(TC);
-    %     L = line(ones(N),ones(N), 'LineWidth',2);
-    %     set(L,{'color'},mat2cell(VegetationColormap,ones(1,N),3));
-    %     legend('empty','Pine','Seeder', 'Resprouter');
-    %     drawnow;
-
-    % Creates movie
+    green=[0 1 0];
+    red=[1 0 0];
+    blue=[0 0 1];
+    VegetationColormap=[white; green; red; blue];
+    % Plot image
+    colormap(VegetationColormap);
+    %color 
+    showimage(TC);
+    drawnow;
+    % Creating movie
     % showimagesc(TC);
     % movie(Frame)=getframe;
     % Frame=Frame+1;
+    
     
 end
 
