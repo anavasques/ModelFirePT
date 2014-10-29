@@ -121,7 +121,7 @@ while Time < EndTime
                     ProbG=ProbG.*ProbS;
                     
                     if sum(ProbG)*dt>1
-                    %this step has the reference of Alains' MSc thesis
+                    %this step has the reference  of Alains' MSc thesis
                         'sum of probability higher than 1! Please decrease dt'
                         break
                     elseif test<ProbG(1)
@@ -149,7 +149,7 @@ while Time < EndTime
     end
     
     % SEED BANK CALCULATION ONLY ONCE A YEAR
-    SB(1)=SBP1+SBP2+SeedFP/2*sum(sum(TC(Age>AgeMP)==1)); % TWO YEARS OF SEED LIFE
+    SB(1)=SBP1+SBP2+SeedFP*(1-canopyBank)*sum(sum(TC(Age>AgeMP)==1)); % TWO YEARS OF SEED LIFE
     SB(1)=SB(1)-SeedLoss(1)*SB(1);
     SB(2)=SB(2)+SeedFS*(sum(sum(TC==2)))-SeedLoss(2)*SB(2); % LONG SEED LIFE
     SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1); % NO MEMORY
@@ -159,7 +159,7 @@ while Time < EndTime
     SBP1=SB(1);% PINE SEED BANK OF 1 YEAR BEFORE
    
     % accumulation of seeds in the canopy
-    % SBPC=SeedFP/2*sum(TC(Age>AgeMP)==1)) %50% of the seeds stay in the
+    SBPC=SeedFP*canopyBank*sum(TC(Age>AgeMP)==1); %canoyBank=% of the seeds that stay in the
     % canopy and accumulate over time
     
     %%% DISTURBANCE
