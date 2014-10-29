@@ -50,6 +50,8 @@ ProbS= [0 0 0];           % to calculate probability based on seed prod
 maxsedl= [7 400 1];       % max number of seedlings per cell CCD field
 
 mort=1./[LSP,LSS,LS0];    % MORTALITY of pine, seeder, oak = 1/lifespan
+
+
 AR= [0,0,1];              % ability to resprout: pine=0, seeder=0, oak=1;
 
 % Control constants
@@ -101,7 +103,7 @@ while Time < EndTime
                 if TC(i,j)==0 % colonization/germination
                     % LITTER DEPENDENCE:
                     ProbG(1)=(maxG(1)+minG(1))/2;%(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((Lit(i,j)-2)/amp(1)); % PINE
-                    ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((2-Lit(i,j))/ampS); % SEEDER ampS=0.3 max=.9 min=0.
+                    ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((2-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
                     ProbG(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
                     
                     ProbG=ProbG*dt; %this is the trick to get probability smal
@@ -150,7 +152,7 @@ while Time < EndTime
     SB(1)=SBP1+SBP2+SeedFP/2*sum(sum(TC(Age>AgeMP)==1)); % TWO YEARS OF SEED LIFE
     SB(1)=SB(1)-SeedLoss(1)*SB(1);
     SB(2)=SB(2)+SeedFS*(sum(sum(TC==2)))-SeedLoss(2)*SB(2); % LONG SEED LIFE
-    SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMQ)==3)))+randi(BirdSeedN,1); % NO MEMORY
+    SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1); % NO MEMORY
     SB(3)=SB(3)-SeedLoss(3)*SB(3);
     
     SBP2=SBP1; % PINE SEED BANK OF TWO YEARS BEFORE
@@ -172,6 +174,7 @@ while Time < EndTime
             end
         end
     end
+end
     
     %%% update abundance of different species in the lattice
 %   Pine=sum(sum(TC==1));
@@ -193,9 +196,8 @@ while Time < EndTime
     
     % %Plot the relative abundance of plant species over time
     % Creates colormap
-   
-    figure
-    white=[1 1 1];
+        figure
+        white=[1 1 1];
         green=[0 1 0];
         red=[1 0 0];
         blue=[0 0 1];
@@ -204,18 +206,16 @@ while Time < EndTime
         colormap(VegetationColormap);
     %     %color 
     %     N=4;
-    %     showimage(TC);
+        showimage(TC);
     %     L = line(ones(N),ones(N), 'LineWidth',2);
     %     set(L,{'color'},mat2cell(VegetationColormap,ones(1,N),3));
     %     legend('empty','Pine','Seeder', 'Resprouter');
-    %     drawnow;
+        drawnow;
 
     % Creates movie
     % showimagesc(TC);
     % movie(Frame)=getframe;
     % Frame=Frame+1;
-    
-end
 
                 
                 
