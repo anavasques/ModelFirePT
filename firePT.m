@@ -213,18 +213,18 @@ while Time < EndTime
             end
         end
     end
-%     imagesc(TC)
-%     set(h,'Clim',[-0.5 3.5]);
-%     colormap(VegetationColormap);
-%     colorbar
-%  
-%     drawnow;pause
+    imagesc(TC)
+    set(h,'Clim',[-0.5 3.5]);
+    colormap(VegetationColormap);
+    colorbar
+ 
+    drawnow;pause
 end
-imagesc(TC)
-set(h,'Clim',[-0.5 3.5]);
-colormap(VegetationColormap);
-
-colorbar
+% imagesc(TC)
+% set(h,'Clim',[-0.5 3.5]);
+% colormap(VegetationColormap);
+% 
+% colorbar
 
 
 
