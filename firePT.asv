@@ -87,7 +87,7 @@ TC(4:4:m-4,4:4:m-4)= 1; % plants 1 pine every 4 meters - dense prodution stand e
 
 % Puts seeds in the matrix
 %--------------------------------------------------------------------------
-%SB=[100 1000 10]
+
 
 % Creates colormap
 figure
@@ -98,7 +98,6 @@ blue=[0 0 1];
 VegetationColormap=[white; green; red; blue];
 % Plot image
 colormap(VegetationColormap);
-showimage(TC)
 
 %%%%%%%%%%%%%%%%%%%%%DYNAMIC%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--------------------------------------------------------------------------
