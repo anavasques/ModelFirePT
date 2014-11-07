@@ -48,7 +48,7 @@ SBP2=0;
 SBPC=0;                    % Inicialization seed bank pine canopy
 SB= [0 0 0];              % seed bank first pine second seeder third oak
 ProbS= [0 0 0];           % to calculate probability based on seed prod
-maxsedl= [7 400 1];       % max number of seedlings per cell CCD field
+est= [7 400];       % max number of seedlings per cell CCD field
 
 mort=1./[LSP,LSS,LSO];    % MORTALITY of pine, seeder, oak = 1/lifespan
 
@@ -63,7 +63,7 @@ EndTime= 150;                   % [year]
 
 % NOTE: put dt smaller than one year in a way that the probabilities are <1 but not too small otherwise the model runs slowly
 dt= 1;                          % [year]
-m= 10;                         % for size of lattice [meter]
+m= 100;                         % for size of lattice [meter]
 
 %Control variables
 Time = StartTime;
@@ -87,7 +87,12 @@ TC(4:4:m-4,4:4:m-4)= 1; % plants 1 pine every 4 meters - dense prodution stand e
 
 % Puts seeds in the matrix
 %--------------------------------------------------------------------------
-%SB=[100 1000 10]
+SB=[100 1000 0+randi(BirdSeedN,1)];
+
+if SB(3)>0
+    coordseed=randi(m,SB(3),2);
+end
+
 
 % Creates colormap
 figure
@@ -97,8 +102,15 @@ red=[1 0 0];
 blue=[0 0 1];
 VegetationColormap=[white; green; red; blue];
 % Plot image
+h=subplot(1,1,1);
+imagesc(TC)
+set(h,'Clim',[-0.5 3.5]);
 colormap(VegetationColormap);
-showimage(TC)
+
+colorbar
+
+% colorbar; set(gco,'Clim',[1 4]);
+
 
 %%%%%%%%%%%%%%%%%%%%%DYNAMIC%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--------------------------------------------------------------------------
@@ -126,19 +138,23 @@ while Time < EndTime
                     ProbG(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
                     
                     ProbG=ProbG*dt; %this is the trick to get probability small
-                  
-                    ProbS=1.*SB>0; % this term includes the seeds (ProbS) into the probability of establishment
+                    
+                   
+                    
+                    
                     
                     %%% Term for the relation between available seeds and
-                    %%% Prob S. careful that the probability is lower than
-                    %%% 1!
-                    
-                    %ProbS(1)=SB(1)*1/maxSedl(1);
-                    %ProbS(2)=SB(2)*1/maxSedl(2); 
-                    %ProbS(3)=SB(3)*1/maxSedl(3);
+                    %%% Prob S.                      
+                    ProbS(1:2)=1-(1-1./est(1:2)).^(SB(1:2)/m/m); % FOR PINE AND SEEDERS, SEEDS ARE EQUALLY PSREAD THROUGHOUT THE CELLS
+                    ProbS(3)=0;
+                    for ii=1:length(coordseed)
+                        ProbS(3)=ProbS(3)+(coordseed(ii,1)==i&coordseed(ii,2)==j);
+                    end
+                    ProbS(3)=ProbS(3)>1;
                     
                     ProbG=ProbG.*ProbS;
-                    %this step has the reference  of Alains' MSc thesis
+                    %this step has the reference  of Alains' MSc thesis ->
+                    %CAN BE IMPROVED
                     if sum(ProbG)*dt>1
                         'sum of probability higher than 1! Please decrease dt'
                         break
@@ -172,6 +188,9 @@ while Time < EndTime
     SB(2)=SB(2)+SeedFS*(sum(sum(TC==2)))-SeedLoss(2)*SB(2); % LONG SEED LIFE
     SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1); % NO MEMORY
     SB(3)=SB(3)-SeedLoss(3)*SB(3);
+    if SB(3)>0
+        coordseed=randi(m,SB(3),2);
+    end
     
     SBP2=SBP1; % PINE SEED BANK OF TWO YEARS BEFORE
     SBP1=SB(1);% PINE SEED BANK OF 1 YEAR BEFORE
@@ -187,17 +206,30 @@ while Time < EndTime
         Lit(:,:)=0;
         for i=1:m
             for j=1:m
-                TC(i,j)= TC(i,j)*AR(TC(i,j)+1); 
+                TC(i,j)= TC(i,j)*AR(TC(i,j)+1);  
                 Age(i,j)= Age(i,j)*AR(TC(i,j)+1); 
                 SB(1)=SBPC;
                 SBP1=0;SBP2=0;
             end
         end
     end
-    imagesc(TC)
-    drawnow;pause
+%     imagesc(TC)
+%     set(h,'Clim',[-0.5 3.5]);
+%     colormap(VegetationColormap);
+%     colorbar
+%  
+%     drawnow;pause
 end
-    
+imagesc(TC)
+set(h,'Clim',[-0.5 3.5]);
+colormap(VegetationColormap);
+
+colorbar
+
+
+
+
+
     %%% update abundance of different species in the lattice
 %   Pine=sum(sum(TC==1));
 %   Seeder=sum(sum(TC==2));
