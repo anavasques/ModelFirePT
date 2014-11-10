@@ -214,18 +214,20 @@ while Time < EndTime
         end
     end
     
-    %%% update abundance of different species in the lattice
-    
-    Pine=sum(sum(TC==1));
-    Seeder=sum(sum(TC==2));
-    Oak=sum(sum(TC==3));
-    
+
     imagesc(TC)
     set(h,'Clim',[-0.5 3.5]);
     colormap(VegetationColormap);
     colorbar
  
     drawnow;%pause
+    
+    %%% update abundance of different species in the lattice
+    
+    Pine=sum(sum(TC==1));
+    Seeder=sum(sum(TC==2));
+    Oak=sum(sum(TC==3));
+    
     
     %%%%%%%%%%%%%%%% STORING AND VISUALIZATION %%%%%%%%%%%%%%%%%
     StoreTime = StoreTime - Time;
