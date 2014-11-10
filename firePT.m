@@ -40,11 +40,11 @@ maxG= [0.9 0.9 0.9];      % maximum germination first pine second seeder third o
 LitThreshP=3;             % Litter threshold for Pine above which ~no germination (cm)
 LitThreshS=2;             % Litter threshold for seeders above which ~no germination (cm)
 ProbPZeroL=0.7;           % Germination probability for pine when litter=0 cm  
-SeedLoss= [0.50 0.05 1];  % rate seed loss first pine second seeder third oak
+SeedLoss= [0.50 0.05];    % rate seed loss first pine second seeder third oak
 
 lrate=0.42;               % rate of litter deposition [cm/year] Fernandes et al 2004
 ProbG=[0 0 0];            % probability of germination first pine second seeder third oak
-amp=[0 0.3 0];            % amplitude of curve interaction with litter
+amp=[0.3 0.3 0];            % amplitude of curve interaction with litter
 
 SBP1=0;                   % !SBP1 and SBP2 are only ways of initializing the seed bank every year
 SBP2=0;
@@ -62,7 +62,7 @@ AR= [0,0,0,1];            % ability to resprout: first element is fake (bare soi
 
 % Control constants
 StartTime= 0;             % [year]
-EndTime= 200;             % [year]
+EndTime= 1000;             % [year]
 PlotStep = 1;             % [year]
 StoreStep = 1;            % [year]
 
@@ -139,32 +139,30 @@ while Time < EndTime
                 test=rand;
                 if TC(i,j)==0 % colonization/germination
                     % LITTER DEPENDENCE:
-                    ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp) ... 
+                    ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ... 
                         -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
                     ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
                     ProbG(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
                     
-                    ProbG=ProbG*dt; %this is the trick to get probability small
-                    
-<<<<<<< HEAD
-                                   
                     
                     %%% Term for the relation between available seeds and
                     %%% Prob S.                      
-=======
+
                     %%% Term for the relation between available seeds and Prob S.                      
->>>>>>> FETCH_HEAD
+
                     ProbS(1:2)=1-(1-1./est(1:2)).^(SB(1:2)/m/m); % FOR PINE AND SEEDERS, SEEDS ARE EQUALLY PSREAD THROUGHOUT THE CELLS
-                    ProbS(3)=1;                                  % Check this again; it was zero that's why there were never quercus
-                    for ii=1:length(coordseed)
+                    ProbS(3)=0;                                  
+                    for ii=1:size(coordseed,1)
                         ProbS(3)=ProbS(3)+(coordseed(ii,1)==i&coordseed(ii,2)==j);
                     end
                     ProbS(3)=ProbS(3)>1;
                     
                     ProbG=ProbG.*ProbS;
+                    
                     %this step has the reference  of Alains' MSc thesis ->
                     %CAN BE IMPROVED
-                    if sum(ProbG)*dt>1
+                    ProbG=ProbG*dt; %this is the trick to get probability small
+                    if sum(ProbG)>1
                         'sum of probability higher than 1! Please decrease dt'
                         break
                     elseif test<ProbG(1)
@@ -196,7 +194,6 @@ while Time < EndTime
     SB(1)=SB(1)-SeedLoss(1)*SB(1);
     SB(2)=SB(2)+SeedFS*(sum(sum(TC==2)))-SeedLoss(2)*SB(2);           % LONG SEED LIFE
     SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1);     % NO MEMORY
-    SB(3)=SB(3)-SeedLoss(3)*SB(3);
     if SB(3)>0
         coordseed=randi(m,SB(3),2);
     end
@@ -210,7 +207,9 @@ while Time < EndTime
     
     %%% DISTURBANCE
     
-    D=randi(10,1);%%% !!!! CHANGE THIS TO MAKE IT MORE INTUITIVE AND REALISTIC!!!
+    if Time>100
+        D=randi(10,1);%%% !!!! CHANGE THIS TO MAKE IT MORE INTUITIVE AND REALISTIC!!!
+    end
     % if Time/10 is an integer there is a probability of 1/10 of fire every year and this does not depend from previous events
     if D == 1 
         'fire'
@@ -243,31 +242,25 @@ while Time < EndTime
     %%%%%%%%%%%%%%%% STORING AND VISUALIZATION %%%%%%%%%%%%%%%%%
     StoreTime = StoreTime - Time;
     if StoreTime <= 0
-    StorePine(NrStore,:) = [Time Pine]; 
-    StoreSeeder(NrStore,:) = [Time Seeder];
-    StoreOak(NrStore,:) = [Time Oak]; 
-    VectorTime(NrStore,:)= [Time];
-    NrStore = NrStore+1;
-    StoreTime = StoreStep;
+        StorePine(NrStore,:) = [Pine];
+        StoreSeeder(NrStore,:) = [Seeder];
+        StoreOak(NrStore,:) = [Oak];
+        VectorTime(NrStore,:)= [Time];
+        NrStore = NrStore+1;
+        StoreTime = StoreStep;
     end %if StoreTime <= 0
   
     
 end
-    %%% Improve this part to get the final plot working
-    PlotTime = PlotTime-dt;
-    if PlotTime <= 0
-  
-    x = VectorTime;
-    y1 = StorePine;
-    y2 = StoreSeeder;
-    y3= StoreOak;
-    figure
-    plot(x,y1,x,y2,x,y3)
-    legend('Pine','Seeder','Resprouter');
+%%% Improve this part to get the final plot working
+figure
+plot(VectorTime,StorePine/m/m*100,VectorTime,StoreSeeder/m/m*100,VectorTime,StoreOak/m/m*100)
+legend('Pine','Seeder','Resprouter')
+set(gca,'fontsize',14);
+set(gcf,'Position',[560         582        1090         366],'PaperPositionMode','auto')
+% saveas(gcf,'figureTime.png','png')
 
-    PlotTime = PlotStep;
-    end
-  
+
 %     Creates movie
 %     showimagesc(TC);
 %     movie(Frame)=getframe;
