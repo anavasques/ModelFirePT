@@ -37,9 +37,10 @@ LSO= 1000;                % Life span quercus robur % in forestar
 %GENERAL
 minG= [0 0 0.3];          % minumum germination first pine second seeder third oak
 maxG= [0.9 0.9 0.9];      % maximum germination first pine second seeder third oak
+ProbPZeroL=0.7;           % Germination probability for pine when litter=0 cm  
+
 LitThreshP=3;             % Litter threshold for Pine above which ~no germination (cm)
 LitThreshS=2;             % Litter threshold for seeders above which ~no germination (cm)
-ProbPZeroL=0.7;           % Germination probability for pine when litter=0 cm  
 SeedLoss= [0.50 0.05 1];  % rate seed loss first pine second seeder third oak
 
 lrate=0.42;               % rate of litter deposition [cm/year] Fernandes et al 2004
@@ -55,9 +56,6 @@ est= [7 400];             % max number of seedlings per cell CCD field
 
 mort=1./[LSP,LSS,LSO];    % MORTALITY of pine, seeder, oak = 1/lifespan
 
-
-
-
 AR= [0,0,0,1];            % ability to resprout: first element is fake (bare soil); pine=0, seeder=0, oak=1;
 
 % Control constants
@@ -67,7 +65,7 @@ PlotStep = 1;             % [year]
 StoreStep = 1;            % [year]
 
 % NOTE: put dt smaller than one year in a way that the probabilities are <1 but not too small otherwise the model runs slowly
-dt= 1;                    % [year]
+dt= 1;                 % improve!![year] very small dt for calculating probabilities
 m= 100;                   % for size of lattice [meter]
 
 % Control Variables
@@ -76,7 +74,7 @@ PlotTime = PlotStep;
 StoreTime = StoreStep;
 Time = StartTime;
 
-D= 0;                     % initialization only
+D=0;                     % initialization only
 Pine=0;                   % will count the number of cells with pine
 Seeder=0;                 % will count the number of cells with pine
 Oak=0;                    % will count the number of cells with pine
@@ -139,21 +137,18 @@ while Time < EndTime
                 test=rand;
                 if TC(i,j)==0 % colonization/germination
                     % LITTER DEPENDENCE:
-                    ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp) ... 
-                        -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
+                    ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp)-(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
                     ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
                     ProbG(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
                     
                     ProbG=ProbG*dt; %this is the trick to get probability small
-                    
-<<<<<<< HEAD
-                                   
+                                         
                     
                     %%% Term for the relation between available seeds and
                     %%% Prob S.                      
-=======
+
                     %%% Term for the relation between available seeds and Prob S.                      
->>>>>>> FETCH_HEAD
+                    
                     ProbS(1:2)=1-(1-1./est(1:2)).^(SB(1:2)/m/m); % FOR PINE AND SEEDERS, SEEDS ARE EQUALLY PSREAD THROUGHOUT THE CELLS
                     ProbS(3)=1;                                  % Check this again; it was zero that's why there were never quercus
                     for ii=1:length(coordseed)
@@ -210,6 +205,7 @@ while Time < EndTime
     
     %%% DISTURBANCE
     
+    if Time>=12
     D=randi(10,1);%%% !!!! CHANGE THIS TO MAKE IT MORE INTUITIVE AND REALISTIC!!!
     % if Time/10 is an integer there is a probability of 1/10 of fire every year and this does not depend from previous events
     if D == 1 
@@ -224,8 +220,8 @@ while Time < EndTime
             end
         end
     end
+    end
     
-
     imagesc(TC)
     set(h,'Clim',[-0.5 3.5]);
     colormap(VegetationColormap);
@@ -253,7 +249,8 @@ while Time < EndTime
   
     
 end
-    %%% Improve this part to get the final plot working
+    %%%!!!!!!!!!! 
+    %%%Improve this part to get the final plot working
     PlotTime = PlotTime-dt;
     if PlotTime <= 0
   
@@ -269,9 +266,9 @@ end
     end
   
 %     Creates movie
-%     showimagesc(TC);
-%     movie(Frame)=getframe;
-%     Frame=Frame+1;
+    showimagesc(TC);
+    movie(Frame)=getframe;
+    Frame=Frame+1;
 
                 
                 
