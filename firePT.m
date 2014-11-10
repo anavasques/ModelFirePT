@@ -214,7 +214,7 @@ while Time < EndTime
         for i=1:m
             for j=1:m
                 TC(i,j)= TC(i,j)*AR(TC(i,j)+1);  
-                Age(i,j)= Age(i,j)*AR(Age(i,j)+1); 
+                Age(i,j)= Age(i,j)*AR(TC(i,j)+1); 
                 SB(1)=SBPC;
                 SBP1=0;SBP2=0;
             end
