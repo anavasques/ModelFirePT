@@ -36,7 +36,10 @@ LSO= 1000;                % Life span quercus robur % in forestar
 
 %GENERAL
 minG= [0 0 0.3];          % minumum germination first pine second seeder third oak
-maxG= [0.1 0.9 0.9];      % maximum germination first pine second seeder third oak
+maxG= [0.9 0.9 0.9];      % maximum germination first pine second seeder third oak
+LitThreshP=3;             % Litter threshold for Pine above which ~no germination (cm)
+LitThreshS=2;             % Litter threshold for seeders above which ~no germination (cm)
+ProbPZeroL=0.7;           % Germination probability for pine when litter=0 cm  
 SeedLoss= [0.50 0.05 1];  % rate seed loss first pine second seeder third oak
 
 lrate=0.42;               % rate of litter deposition [cm/year] Fernandes et al 2004
@@ -133,15 +136,14 @@ while Time < EndTime
                 test=rand;
                 if TC(i,j)==0 % colonization/germination
                     % LITTER DEPENDENCE:
-                    ProbG(1)=(maxG(1)+minG(1))/2;%(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((Lit(i,j)-2)/amp(1)); % PINE
-                    ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((2-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
+                    ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp) ... 
+                        -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
+                    ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
                     ProbG(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
                     
                     ProbG=ProbG*dt; %this is the trick to get probability small
                     
-                   
-                    
-                    
+                                   
                     
                     %%% Term for the relation between available seeds and
                     %%% Prob S.                      
