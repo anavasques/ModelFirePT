@@ -45,41 +45,46 @@ amp=[0 0.3 0];            % amplitude of curve interaction with litter
 
 SBP1=0;                   % !SBP1 and SBP2 are only ways of initializing the seed bank every year
 SBP2=0;
-SBPC=0;                    % Inicialization seed bank pine canopy
+SBPC=0;                   % Inicialization seed bank pine canopy
 SB= [0 0 0];              % seed bank first pine second seeder third oak
 ProbS= [0 0 0];           % to calculate probability based on seed prod
-est= [7 400];       % max number of seedlings per cell CCD field
+est= [7 400];             % max number of seedlings per cell CCD field
 
 mort=1./[LSP,LSS,LSO];    % MORTALITY of pine, seeder, oak = 1/lifespan
 
 
 
 
-AR= [0,0,0,1];              % ability to resprout: first element is fake (bare soil); pine=0, seeder=0, oak=1;
+AR= [0,0,0,1];            % ability to resprout: first element is fake (bare soil); pine=0, seeder=0, oak=1;
 
 % Control constants
-StartTime= 0;                   % [year]
-EndTime= 150;                   % [year]
+StartTime= 0;             % [year]
+EndTime= 30;              % [year]
+PlotStep = 1;             % [year]
+StoreStep = 1;            % [year]
 
 % NOTE: put dt smaller than one year in a way that the probabilities are <1 but not too small otherwise the model runs slowly
-dt= 1;                          % [year]
-m= 100;                         % for size of lattice [meter]
+dt= 1;                    % [year]
+m= 100;                   % for size of lattice [meter]
 
-%Control variables
+% Control Variables
+NrStore = 0;
+PlotTime = PlotStep;
+StoreTime = StoreStep;
 Time = StartTime;
 
-D= 0;                           % initialization only
-Pine=0;                         % will count the number of cells with pine
-Seeder=0;                       % will count the number of cells with pine
-Oak=0;                          % will count the number of cells with pine
+D= 0;                     % initialization only
+Pine=0;                   % will count the number of cells with pine
+Seeder=0;                 % will count the number of cells with pine
+Oak=0;                    % will count the number of cells with pine
 
 %%%Initialization of the matrices 
 %TC - Type of Cover: 1- pine; 2- seeder; 3- oak; Age- plant age; SB- Seed Bank); Lit- Litter
 % -------------------------------------------------------------------------
-TC= zeros(m,m);  % Creates a matrix of size m*m filled with zeros       
-Age= zeros(m,m); % Creates a matrix of size m*m filled with zeros    
-Lit= zeros(m,m); % Creates a matrix of size m*m filled with zeros
-z= 8;            % Number of neighbours
+TC= zeros(m,m);           % Creates a matrix of size m*m filled with zeros       
+Age= zeros(m,m);          % Creates a matrix of size m*m filled with zeros    
+Lit= zeros(m,m);          % Creates a matrix of size m*m filled with zeros
+z= 8;                     % Number of neighbours
 
 % Fills the matrix TC with planted pines
 %--------------------------------------------------------------------------
@@ -179,7 +184,7 @@ while Time < EndTime
                 end
             end
         end
-        Time= Time+dt
+      Time= Time+dt  
     end
     
     % SEED BANK CALCULATION ONLY ONCE A YEAR
@@ -200,8 +205,9 @@ while Time < EndTime
     % canopy and accumulate over time
     
     %%% DISTURBANCE
-    D=randi(10,1);
-    if D == 1 % if Time/10 is an integer there is disturbance % interval of 10 years
+    %%% !!!! CHANGE THIS TO MAKE IT MORE INTUITIVE AND REALISTIC!!!
+    D=randi(25,1);
+    if D == 1 % if Time/25 is an integer there is a probability of 1/25 of fire every year and this does not depend from previous events
         'fire'
         Lit(:,:)=0;
         for i=1:m
@@ -213,59 +219,50 @@ while Time < EndTime
             end
         end
     end
+    
+
+    
+    %%% update abundance of different species in the lattice
+    
+    Pine=sum(TC==1);
+    Seeder=sum(TC==2);
+    Oak=sum(TC==3);
+    
     imagesc(TC)
     set(h,'Clim',[-0.5 3.5]);
     colormap(VegetationColormap);
     colorbar
  
     drawnow;pause
-end
-% imagesc(TC)
-% set(h,'Clim',[-0.5 3.5]);
-% colormap(VegetationColormap);
-% 
-% colorbar
+    %%%%%%%%%%%%%%%% STORING AND VISUALIZATION %%%%%%%%%%%%%%%%%
+    StoreTime = StoreTime - Time;
+   if StoreTime <= 0
+    StorePine(NrStore,:) = [Time Pine]; 
+    StoreSeeder(NrStore,:) = [Time Seeder];
+    StoreOak(NrStore,:) = [Time Oak]; 
+    VectorTime(NrStore,:)= [Time]
+    NrStore = NrStore+1;
+    StoreTime = StoreStep;
+    end %if StoreTime <= 0
+  
+    % These statements should be activated for dynamic visualization 
+    PlotTime = PlotTime-dt;
+    if PlotTime <= 0
+  
+    x = VectorTime;
+    y1 = StorePine;
+    y2 = StoreSeeder;
+    y3= StoreOak;
+    figure
+    plot(x,y1,x,y2,x,y3)
+    legend('Pine','Seeder', 'Resprouter');
 
+    PlotTime = PlotStep;
+    end
+  
+  end
 
-
-
-
-    %%% update abundance of different species in the lattice
-%   Pine=sum(sum(TC==1));
-%   Seeder=sum(sum(TC==2));
-%   Oak= sum(sum(TC==3));
-    
-    % %Plot the relative abundance of plant species at each time step
-%     % This is done now with TC but could be done with Pine, Seeder and Oak
-    % white=[1 1 1];
-    % lightgreen=[0.5 1 0.5];
-    % green=[0 1 0];
-    % darkgreen=[0 0.5 0.5];
-    % TCmap=[white; green; lightgreen; darkgreen];
-    % %Plot image
-    % colormap(TCmap);
-    % color
-    % showimage(TC);
-    % drawnow;
-    
-    % %Plot the relative abundance of plant species over time
-%     % Creates colormap
-%         figure
-%         white=[1 1 1];
-%         green=[0 1 0];
-%         red=[1 0 0];
-%         blue=[0 0 1];
-%         VegetationColormap=[white; green; red; blue];
-%         % Plot image
-%         colormap(VegetationColormap);
-    %     %color 
-    %     N=4;
-%         imagesc(TC);
-    %     L = line(ones(N),ones(N), 'LineWidth',2);
-    %     set(L,{'color'},mat2cell(VegetationColormap,ones(1,N),3));
-    %     legend('empty','Pine','Seeder', 'Resprouter');
-     
-
+ 
     % Creates movie
     % showimagesc(TC);
     % movie(Frame)=getframe;
