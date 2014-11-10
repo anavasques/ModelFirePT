@@ -41,7 +41,7 @@ ProbPZeroL=0.7;           % Germination probability for pine when litter=0 cm
 
 LitThreshP=3;             % Litter threshold for Pine above which ~no germination (cm)
 LitThreshS=2;             % Litter threshold for seeders above which ~no germination (cm)
-SeedLoss= [0.50 0.05 1];  % rate seed loss first pine second seeder third oak
+SeedLoss= [1 0.10 1];  % rate seed loss first pine second seeder third oak
 ProbPZeroL=0.7;           % Germination probability for pine when litter=0 cm  
 SeedLoss= [0.50 0.05];    % rate seed loss first pine second seeder third oak
 lrate=0.42;               % rate of litter deposition [cm/year] Fernandes et al 2004
@@ -61,8 +61,7 @@ AR= [0,0,0,1];            % ability to resprout: first element is fake (bare soi
 
 % Control constants
 StartTime= 0;             % [year]
-EndTime= 1000;             % [year]
-PlotStep = 1;             % [year]
+EndTime= 100;             % [year]
 StoreStep = 1;            % [year]
 
 % NOTE: put dt smaller than one year in a way that the probabilities are <1 but not too small otherwise the model runs slowly
@@ -71,7 +70,6 @@ m= 100;                   % for size of lattice [meter]
 
 % Control Variables
 NrStore = 1;
-PlotTime = PlotStep;
 StoreTime = StoreStep;
 Time = StartTime;
 
@@ -111,12 +109,9 @@ h=subplot(1,1,1);
 imagesc(TC)
 set(h,'Clim',[-0.5 3.5]);
 colormap(VegetationColormap);
-
 colorbar
 
 % colorbar; set(gco,'Clim',[1 4]);
-
-
 %%%%%%%%%%%%%%%%%%%%%DYNAMIC%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--------------------------------------------------------------------------
 while Time < EndTime
@@ -126,7 +121,7 @@ while Time < EndTime
         [x,y]=find(TC(2:end-1,2:end-1)==1);
         x=x+1;y=y+1;
         for i=1:length(x)
-            Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;
+            Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)
         end
         % Colonization of an empty cell & mortality for vegetated cells
         %------------------------------------------------------------------
@@ -138,7 +133,7 @@ while Time < EndTime
                 test=rand;
                 if TC(i,j)==0 % colonization/germination
                     % LITTER DEPENDENCE:
-                    ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp)-(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
+                    ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh(LitThreshP-Lit(i,j))/amp(1)-(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
                     ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
                     ProbG(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
                     
@@ -152,12 +147,11 @@ while Time < EndTime
                     %%% Term for the relation between available seeds and Prob S.                      
 
                     ProbS(1:2)=1-(1-1./est(1:2)).^(SB(1:2)/m/m); % FOR PINE AND SEEDERS, SEEDS ARE EQUALLY PSREAD THROUGHOUT THE CELLS
-                    ProbS(3)=0;                                  
+                    ProbS(3)=0;   %!!!this should be checked!!!                                
                     for ii=1:size(coordseed,1)
                         ProbS(3)=ProbS(3)+(coordseed(ii,1)==i&coordseed(ii,2)==j);
                     end
-                    ProbS(3)=ProbS(3)>1;
-                    
+                    ProbS(3)=ProbS(3)>1; % !!!this should be checked!!!
                     ProbG=ProbG.*ProbS;
                     
                     %this step has the reference  of Alains' MSc thesis ->
@@ -180,6 +174,7 @@ while Time < EndTime
                     end
                 else
                     Age(i,j)=Age(i,j)+dt;
+                    
                     if test< mort(TC(i,j))*dt
                         TC(i,j)=0;
                         Age(i,j)=0;
@@ -196,7 +191,7 @@ while Time < EndTime
     SB(2)=SB(2)+SeedFS*(sum(sum(TC==2)))-SeedLoss(2)*SB(2);           % LONG SEED LIFE
     SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1);     % NO MEMORY - !!!Before seed loss was 1 now there is no seed loss
     if SB(3)>0
-   coordseed=randi(m,SB(3),2); % puts the 
+   coordseed=randi(m,SB(3),2); % puts the seeds that arrive in random coordinates of the lattice
     end
     
     SBP2=SBP1; % PINE SEED BANK OF TWO YEARS BEFORE
@@ -210,10 +205,7 @@ while Time < EndTime
     
 
     if Time>=12
-    D=randi(10,1);%%% !!!! CHANGE THIS TO MAKE IT MORE INTUITIVE AND REALISTIC!!!
-
-    if Time>100
-        D=randi(10,1);%%% !!!! CHANGE THIS TO MAKE IT MORE INTUITIVE AND REALISTIC!!!
+    D=randi(10,1);%%% !!!! CHANGE THIS TO MAKE IT MORE INTUITIVE AND REALISTIC!!! Now we let pine reproduce once without disturbance
     end
     % if Time/10 is an integer there is a probability of 1/10 of fire every year and this does not depend from previous events
     if D == 1 
@@ -222,13 +214,14 @@ while Time < EndTime
         for i=1:m
             for j=1:m
                 TC(i,j)= TC(i,j)*AR(TC(i,j)+1);  
-                Age(i,j)= Age(i,j)*AR(TC(i,j)+1); 
+                Age(i,j)= Age(i,j)*AR(Age(i,j)+1); 
                 SB(1)=SBPC;
                 SBP1=0;SBP2=0;
             end
         end
-    end
-    end
+  
+                
+end
     
     imagesc(TC)
     set(h,'Clim',[-0.5 3.5]);
@@ -254,22 +247,16 @@ while Time < EndTime
         NrStore = NrStore+1;
         StoreTime = StoreStep;
     end %if StoreTime <= 0  
-end
-    %%%Plotting over time
-    figure
-    plot(VectorTime,StorePine,VectorTime,StoreSeeder,VectorTime, StoreOak)
-    legend('Pine','Seeder','Resprouter');
-%%% Improve this part to get the final plot working
+    
+%%%Plotting over time
 figure
 plot(VectorTime,StorePine/m/m*100,VectorTime,StoreSeeder/m/m*100,VectorTime,StoreOak/m/m*100)
 legend('Pine','Seeder','Resprouter')
 set(gca,'fontsize',14);
 set(gcf,'Position',[560         582        1090         366],'PaperPositionMode','auto')
 % saveas(gcf,'figureTime.png','png')
-%     Creates movie
-    showimagesc(TC);
-    movie(Frame)=getframe;
-    Frame=Frame+1;
 
-                
-                
+% Creates movie
+%     showimagesc(TC);
+%     movie(Frame)=getframe;
+%     Frame=Frame+1;
