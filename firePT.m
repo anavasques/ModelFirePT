@@ -21,7 +21,7 @@ canopyBank=0.5;           % Percent of the seeds that are stored in the canopy a
 %%% SEEDER
 AgeMS=1;                  % Age of maturity seeder % field obs Calluna% [year]
                           % Cistus 3 years ref
-SeedFS=1000;              % Seed production per plant/occupied cell approx value
+SeedFS=100;               % Seed production per plant/occupied cell approx value ADJUST
                           % check in lit
 LSS=30;                   % Life span calluna % in woodland education centre [year]
 
@@ -59,7 +59,7 @@ AR= [0,0,0,1];            % ability to resprout: first element is fake (bare soi
 
 % Control constants
 StartTime= 0;             % [year]
-EndTime= 30;              % [year]
+EndTime= 200;             % [year]
 PlotStep = 1;             % [year]
 StoreStep = 1;            % [year]
 
@@ -68,7 +68,7 @@ dt= 1;                    % [year]
 m= 100;                   % for size of lattice [meter]
 
 % Control Variables
-NrStore = 0;
+NrStore = 1;
 PlotTime = PlotStep;
 StoreTime = StoreStep;
 Time = StartTime;
@@ -97,8 +97,6 @@ SB=[100 1000 0+randi(BirdSeedN,1)];
 if SB(3)>0
     coordseed=randi(m,SB(3),2);
 end
-
-
 % Creates colormap
 figure
 white=[1 1 1];
@@ -144,14 +142,9 @@ while Time < EndTime
                     
                     ProbG=ProbG*dt; %this is the trick to get probability small
                     
-                   
-                    
-                    
-                    
-                    %%% Term for the relation between available seeds and
-                    %%% Prob S.                      
+                    %%% Term for the relation between available seeds and Prob S.                      
                     ProbS(1:2)=1-(1-1./est(1:2)).^(SB(1:2)/m/m); % FOR PINE AND SEEDERS, SEEDS ARE EQUALLY PSREAD THROUGHOUT THE CELLS
-                    ProbS(3)=0;
+                    ProbS(3)=1;                                  % Check this again; it was zero that's why there were never quercus
                     for ii=1:length(coordseed)
                         ProbS(3)=ProbS(3)+(coordseed(ii,1)==i&coordseed(ii,2)==j);
                     end
@@ -190,8 +183,8 @@ while Time < EndTime
     % SEED BANK CALCULATION ONLY ONCE A YEAR
     SB(1)=SBP1+SBP2+SeedFP*(1-canopyBank)*sum(sum(TC(Age>AgeMP)==1)); % TWO YEARS OF SEED LIFE
     SB(1)=SB(1)-SeedLoss(1)*SB(1);
-    SB(2)=SB(2)+SeedFS*(sum(sum(TC==2)))-SeedLoss(2)*SB(2); % LONG SEED LIFE
-    SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1); % NO MEMORY
+    SB(2)=SB(2)+SeedFS*(sum(sum(TC==2)))-SeedLoss(2)*SB(2);           % LONG SEED LIFE
+    SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1);     % NO MEMORY
     SB(3)=SB(3)-SeedLoss(3)*SB(3);
     if SB(3)>0
         coordseed=randi(m,SB(3),2);
@@ -205,9 +198,10 @@ while Time < EndTime
     % canopy and accumulate over time
     
     %%% DISTURBANCE
-    %%% !!!! CHANGE THIS TO MAKE IT MORE INTUITIVE AND REALISTIC!!!
-    D=randi(25,1);
-    if D == 1 % if Time/25 is an integer there is a probability of 1/25 of fire every year and this does not depend from previous events
+    
+    D=randi(10,1);%%% !!!! CHANGE THIS TO MAKE IT MORE INTUITIVE AND REALISTIC!!!
+    % if Time/10 is an integer there is a probability of 1/10 of fire every year and this does not depend from previous events
+    if D == 1 
         'fire'
         Lit(:,:)=0;
         for i=1:m
@@ -220,32 +214,33 @@ while Time < EndTime
         end
     end
     
-
-    
     %%% update abundance of different species in the lattice
     
-    Pine=sum(TC==1);
-    Seeder=sum(TC==2);
-    Oak=sum(TC==3);
+    Pine=sum(sum(TC==1));
+    Seeder=sum(sum(TC==2));
+    Oak=sum(sum(TC==3));
     
     imagesc(TC)
     set(h,'Clim',[-0.5 3.5]);
     colormap(VegetationColormap);
     colorbar
  
-    drawnow;pause
+    drawnow;%pause
+    
     %%%%%%%%%%%%%%%% STORING AND VISUALIZATION %%%%%%%%%%%%%%%%%
     StoreTime = StoreTime - Time;
-   if StoreTime <= 0
+    if StoreTime <= 0
     StorePine(NrStore,:) = [Time Pine]; 
     StoreSeeder(NrStore,:) = [Time Seeder];
     StoreOak(NrStore,:) = [Time Oak]; 
-    VectorTime(NrStore,:)= [Time]
+    VectorTime(NrStore,:)= [Time];
     NrStore = NrStore+1;
     StoreTime = StoreStep;
     end %if StoreTime <= 0
   
-    % These statements should be activated for dynamic visualization 
+    
+end
+    %%% Improve this part to get the final plot working
     PlotTime = PlotTime-dt;
     if PlotTime <= 0
   
@@ -255,18 +250,15 @@ while Time < EndTime
     y3= StoreOak;
     figure
     plot(x,y1,x,y2,x,y3)
-    legend('Pine','Seeder', 'Resprouter');
+    legend('Pine','Seeder','Resprouter');
 
     PlotTime = PlotStep;
     end
   
-  end
-
- 
-    % Creates movie
-    % showimagesc(TC);
-    % movie(Frame)=getframe;
-    % Frame=Frame+1;
+%     Creates movie
+%     showimagesc(TC);
+%     movie(Frame)=getframe;
+%     Frame=Frame+1;
 
                 
                 
