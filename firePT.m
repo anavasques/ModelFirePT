@@ -190,8 +190,8 @@ while Time < EndTime
 
                     %%% Term for the relation between available seeds and Prob S.                      
 
-                    ProbS(1:2)=1-(1-1./est(1:2)).^(SB(1:2)/m/m); % FOR PINE AND SEEDERS, SEEDS ARE EQUALLY SPREAD THROUGHOUT THE CELLS
-                    ProbS(3)=0;   %!!!check what it does exactly!!!                                
+                    ProbS(1:2)=1-(1-1./est(1:2)).^(SB(1:2)/m/m); % FOR PINE AND SEEDERS, SEEDS ARE EQUALLY SPREAD THROUGHOUT THE CELLS; this was taken in the paper: Cannas et al. 2003
+                    ProbS(3)=0;                                   %!!!check what this part does exactly!!!                                
                     for ii=1:size(coordseed,1)
                         ProbS(3)=ProbS(3)+(coordseed(ii,1)==i&coordseed(ii,2)==j);
                     end
