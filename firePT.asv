@@ -312,8 +312,8 @@ set(gca,'fontsize',14);
 set(gcf,'Position',[560         582        800         366],'PaperPositionMode','auto');
 % saveas(gcf,'figureTime.png','png')
 
-% Creates movie - not working yet
-%     imagesc(TC);
-%     movie(Frame)=getframe;
-%     Frame=Frame+1;
+% Creates movie
+    movie(imagesc(TC);
+    movie(Frame)=getframe;
+    Frame=Frame+1;
     
