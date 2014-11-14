@@ -102,7 +102,7 @@ TC(4:4:m-4,4:4:m-4)= 1; % plants 1 pine every 4 meters - dense prodution stand e
 
 % Puts seeds in the matrix
 %--------------------------------------------------------------------------
-SB=[0 200 0+randi(BirdSeedN,1)]; %changing initial conditions !now same number of cells per seeder and oak
+SB=[100 200 0+randi(BirdSeedN,1)]; %changing initial conditions !now same number of cells per seeder and oak
 
 if SB(3)>0
     coordseed=randi(m,SB(3),2);
