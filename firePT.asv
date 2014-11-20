@@ -102,7 +102,7 @@ TC(4:4:m-4,4:4:m-4)= 1; % plants 1 pine every 4 meters - dense prodution stand e
 
 % Puts seeds in the matrix
 %--------------------------------------------------------------------------
-SB=[0 200 0+randi(BirdSeedN,1)]; %changing initial conditions !now same number of cells per seeder and oak
+SB=[100 200 0+randi(BirdSeedN,1)]; %changing initial conditions !now same number of cells per seeder and oak
 
 if SB(3)>0
     coordseed=randi(m,SB(3),2);
@@ -312,8 +312,9 @@ set(gca,'fontsize',14);
 set(gcf,'Position',[560         582        800         366],'PaperPositionMode','auto');
 % saveas(gcf,'figureTime.png','png')
 
-% Creates movie
-    movie(imagesc(TC);
-    movie(Frame)=getframe;
-    Frame=Frame+1;
+% Creates movie - not working yet
+%     imagesc(TC);
+%     movie(Frame)=getframe;
+%     Frame=Frame+1;
+writerObj = VideoWriter() %constructs a VideoWriter object to write video data to an AVI file with Motion JPEG compression.
     

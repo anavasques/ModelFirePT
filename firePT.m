@@ -32,8 +32,8 @@ AgeMO=50;                 % Age of maturity seeder % Kew % [year]
                  
 SeedFQ=10;                % Seed production oak per occupied cell - value that is not fundamented by literature assumes that the tree is dominated and small if under cover of pinus
                           % 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year] 
-%BirdSeedN=50;             % Annual seed input by birds - based on average values Q. suber Pons and Pausas 2007 - this value depends on surrounding populations
-BirdSeedN=200; 
+BirdSeedN=50;             % Annual seed input by birds - based on average values Q. suber Pons and Pausas 2007 - this value depends on surrounding populations
+%BirdSeedN=200; 
 LSO= 1000;                % Life span quercus robur % in forestar
 
 %GENERAL
@@ -120,6 +120,7 @@ imagesc(TC)
 set(h,'Clim',[-0.5 3.5]);
 colormap(VegetationColormap);
 colorbar
+
 
 % colorbar; set(gco,'Clim',[1 4]);
 %%%%%%%%%%%%%%%%%%%%%DYNAMIC%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -316,4 +317,5 @@ set(gcf,'Position',[560         582        800         366],'PaperPositionMode',
 %     imagesc(TC);
 %     movie(Frame)=getframe;
 %     Frame=Frame+1;
+%writerObj = VideoWriter(imageTC) %constructs a VideoWriter object to write video data to an AVI file with Motion JPEG compression.
     
