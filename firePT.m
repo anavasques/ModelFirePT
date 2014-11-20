@@ -69,7 +69,7 @@ StoreStep = 1;            % [year]
 
 % NOTE: put dt smaller than one year in a way that the probabilities are <1 but not too small otherwise the model runs slowly
 % IMPROVE!!! dt needs to be smaller or change probab to max 3
-dt= 1;                    % improve!![year] very small dt for calculating probabilities
+dt=0.5;                 % improve!![year] very small dt for calculating probabilities
 m= 100;                   % for size of lattice [meter]
 
 % Control Variables
@@ -138,16 +138,16 @@ while Time < EndTime
         end
         
          % SEED BANK CALCULATION ONLY ONCE A YEAR
-    SB(1)=SBP1+SBP2+SeedFP*(1-canopyBank)*sum(sum(TC(Age>AgeMP)==1))+ReleaseSeeds; % TWO YEARS OF SEED LIFE; 1-canopybank is doing the same as canopy bank, i.e. *0.5
-    SB(1)=SB(1)-SeedLoss(1)*SB(1);
+    SB(1)=SBP1+SBP2+SeedFP*(1-canopyBank)*sum(sum(TC(Age>AgeMP)==1))+ReleaseSeeds;% TWO YEARS OF SEED LIFE; 1-canopybank is doing the same as canopy bank, i.e. *0.5
+%     SB(1)=SB(1)-SeedLoss(1)*SB(1);      %!!This term should be excluded
+%     or corrected!!
     SB(2)=SB(2)+SeedFS*(sum(sum(TC==2)))-SeedLoss(2)*SB(2);           % LONG SEED LIFE
     SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1);     % NO MEMORY - !!!Before seed loss was 1 now there is no seed loss
     if SB(3)>0
    coordseed=randi(m,SB(3),2); % puts the seeds that arrive in random coordinates of the lattice
     end
     
-    SBP2=SBP1; % PINE SEED BANK OF TWO YEARS BEFORE
-    SBP1=SB(1);% PINE SEED BANK OF 1 YEAR BEFORE
+    
    
     % accumulation of seeds in the canopy
     SBPC=SeedFP*canopyBank*sum(TC(Age>AgeMP)==1); %canoyBank=% of the seeds that stay in the
@@ -249,12 +249,13 @@ while Time < EndTime
                     end
                 end
             end
+            SBP2=SBP1; % PINE SEED BANK OF TWO YEARS BEFORE
+            SBP1=SB(1);% PINE SEED BANK OF 1 YEAR BEFORE
         end
       Time= Time+dt  
     end
     
-   
-    
+  
     %%% DISTURBANCE
     
     if Time>=12   % initial time for plant development before disturbance - we let pine establish
@@ -268,7 +269,7 @@ while Time < EndTime
             for j=1:m
                 TC(i,j)= TC(i,j)*AR(TC(i,j)+1);  
                 Age(i,j)= Age(i,j)*AR(TC(i,j)+1); 
-                ReleaseSeeds= sum(SBPC)*dt; %the production of seeds when there is a fire is the total of the canopy seeds produced until that moment
+                ReleaseSeeds= sum(SBPC); %the production of seeds when there is a fire is the total of the canopy seeds produced until that moment
                 SBP1=0;SBP2=0;
                 
     % !! check!! the canopy seed bank should be released when there is
