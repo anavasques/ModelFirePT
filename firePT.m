@@ -16,7 +16,7 @@ AgeMP=10;                 % Age of maturity pine %start at 6 and regularly 10-15
 SeedFP=945;               % Seed production per pine mature tree number of seeds per
                           % cone (63)* cone per tree (15) Vega et al 2008
 LSP= 100;                 % Life span of pine % in "practices centro pinus" [year]
-canopyBank=0.5;           % Percent of the seeds that are stored in the canopy and released with fire
+canopyBank=0.5;           % Percent of the seeds that are stored in the canopy
 ReleaseSeeds=0;           % Pine seeds in the canopy that are released after the fire
 
 %%% SEEDER
@@ -30,10 +30,11 @@ LSS=30;                   % Life span calluna % in woodland education centre [ye
 AgeMO=50;                 % Age of maturity seeder % Kew % [year]
                           % !!! Pausas 1999 has maturity = 15!!!
                  
-SeedFQ=10;                % Seed production oak per occupied cell - value that is not fundamented by literature assumes that the tree is dominated and small if under cover of pinus
+SeedFQ=120;               % Seed production oak per occupied cell - value that is not fundamented by literature assumes that the tree is dominated and small if under cover of pinus
                           % 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year] 
 BirdSeedN=50;             % Annual seed input by birds - based on average values Q. suber Pons and Pausas 2007 - this value depends on surrounding populations
 %BirdSeedN=200; 
+%!!!!Check life span of oak (not maximum but average)
 LSO= 1000;                % Life span quercus robur % in forestar
 
 %GENERAL
@@ -44,7 +45,12 @@ ProbPZeroL=0.7;           % Germination probability for pine when litter=0 cm
 
 LitThreshP=3;             % Litter threshold for Pine above which ~no germination (cm)
 LitThreshS=2;             % Litter threshold for seeders above which ~no germination (cm)
+%!!!check seed loss for pine!!!!
 SeedLoss= [1 0.10 1];     % rate seed loss first pine second seeder third oak
+
+%!!!!! INCLUDE LITTER DECOMPOSITION RATE - include that litter only starts
+%to be accumulated after 10 or 12 years (with pine maturity) and it
+%decomposes for e.g. at a rate of 1/10.
 
 lrate=0.42;               % rate of litter deposition [cm/year] Fernandes et al 2004
 ProbG=[0 0 0];            % probability of germination first pine second seeder third oak
@@ -64,7 +70,7 @@ AR= [0,0,0,1];            % ability to resprout: first element is fake (bare soi
 
 % Control constants
 StartTime= 0;             % [year]
-EndTime= 100;             % [year]
+EndTime= 500;             % [year]
 StoreStep = 1;            % [year]
 
 % NOTE: put dt smaller than one year in a way that the probabilities are <1 but not too small otherwise the model runs slowly
