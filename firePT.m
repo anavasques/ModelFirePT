@@ -48,10 +48,6 @@ LitThreshS=2;             % Litter threshold for seeders above which ~no germina
 %!!!check seed loss for pine!!!!
 SeedLoss= [1 0.10 1];     % rate seed loss first pine second seeder third oak
 
-%!!!!! INCLUDE LITTER DECOMPOSITION RATE - include that litter only starts
-%to be accumulated after 10 or 12 years (with pine maturity) and it
-%decomposes for e.g. at a rate of 1/10.
-
 lrate=0.42;               % rate of litter deposition [cm/year] Fernandes et al 2004
 ProbG=[0 0 0];            % probability of germination first pine second seeder third oak
 amp=[0.3 0.3 0];          % amplitude of curve interaction with litter
@@ -67,6 +63,7 @@ est= [7 400];             % max number of seedlings per cell CCD field from whic
 mort=1./[LSP,LSS,LSO];    % MORTALITY of pine, seeder, oak = 1/lifespan
 
 AR= [0,0,0,1];            % ability to resprout: first element is fake (bare soil); pine=0, seeder=0, oak=1;
+%initialize coordseed??
 
 % Control constants
 StartTime= 0;             % [year]
@@ -75,7 +72,7 @@ StoreStep = 1;            % [year]
 
 % NOTE: put dt smaller than one year in a way that the probabilities are <1 but not too small otherwise the model runs slowly
 % IMPROVE!!! dt needs to be smaller or change probab to max 3
-dt=0.5;                 % improve!![year] very small dt for calculating probabilities
+dt=0.5;                    % improve!![year] very small dt for calculating probabilities
 m= 100;                   % for size of lattice [meter]
 
 % Control Variables
@@ -108,7 +105,7 @@ TC(4:4:m-4,4:4:m-4)= 1; % plants 1 pine every 4 meters - dense prodution stand e
 
 % Puts seeds in the matrix
 %--------------------------------------------------------------------------
-SB=[100 200 0+randi(BirdSeedN,1)]; %changing initial conditions !now same number of cells per seeder and oak
+SB=[0 200 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 
 if SB(3)>0
     coordseed=randi(m,SB(3),2);
@@ -133,46 +130,43 @@ colorbar
 %--------------------------------------------------------------------------
 while Time < EndTime
     for k=1:round(1/dt)
-        % Creates litter in the neighborhod of pine (8 neighbors)+ the pine
+        % Creates LITTER in the neighborhod of pine (8 neighbors)+ the pine
         % site itself
-        [x,y]=find(TC(2:end-1,2:end-1)==1);
+        %if TC(Age>AgeMP)==1 %because in the first years pine do not create litter
+        [x,y]=find(TC(2:end-1,2:end-1)==1)
         x=x+1;y=y+1;
         for i=1:length(x)
             Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;
-% !!! Consider adding litter in the neighbourhood of oak when it is dominant
+% !!! maybe consider adding litter in the neighbourhood of oak when it is dominant
 % and adult
         end
+        %end
         
-         % SEED BANK CALCULATION ONLY ONCE A YEAR
+    % SEED BANK CALCULATION ONLY ONCE A YEAR
     SB(1)=SBP1+SBP2+SeedFP*(1-canopyBank)*sum(sum(TC(Age>AgeMP)==1))+ReleaseSeeds;% TWO YEARS OF SEED LIFE; 1-canopybank is doing the same as canopy bank, i.e. *0.5
-%     SB(1)=SB(1)-SeedLoss(1)*SB(1);      %!!This term should be excluded
-%     or corrected!!
+%   SB(1)=SB(1)-SeedLoss(1)*SB(1);      %!!This term should be excluded or corrected; SeedLoss(1)=1 so this would eliminate seeds from pine. Without the term there is no mortality in two years and then all seeds die 
     SB(2)=SB(2)+SeedFS*(sum(sum(TC==2)))-SeedLoss(2)*SB(2);           % LONG SEED LIFE
     SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1);     % NO MEMORY - !!!Before seed loss was 1 now there is no seed loss
     if SB(3)>0
    coordseed=randi(m,SB(3),2); % puts the seeds that arrive in random coordinates of the lattice
     end
-    
-    
-   
     % accumulation of seeds in the canopy
-    SBPC=SeedFP*canopyBank*sum(TC(Age>AgeMP)==1); %canoyBank=% of the seeds that stay in the
+    SBPC=SBPC+SeedFP*canopyBank*sum(TC(Age>AgeMP)==1); %canoyBank=% of the seeds that stay in the
     % canopy and accumulate over time
         
-        % Colonization of an empty cell & mortality for vegetated cells
+        % COLONIZATION OF AN EMPTY CELL AND MORTALITY FOR VEGETATED CELLS
         %------------------------------------------------------------------
         % At each time step tests who is going to colonize an empty cell in the lattice based on the
-        % existent seed bank
-        
-        
+        % availiable seeds (seed production and seed bank) 
         for i = 1 : m
             for j=1:m
                 test=rand;
                 if TC(i,j)==0 % colonization/germination
                     
-                    % LITTER DEPENDENCE FOR COLONIZATION:
+                    % COLONIZATION vs LITTER
                     
-% !! check this and maybe change it to sum total and divide by nrsp - should it be multiplying both terms of prob (ProbG and ProbS)? Understand what it does exactly
+                    % !! check this and maybe change it to sum total and
+                    % divide by nrsp - should it be multiplying both terms of prob (ProbG and ProbS)
                     ProbG=ProbG*dt;                     %this is the trick to get probability small
                     ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ... 
                         -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
@@ -215,7 +209,7 @@ while Time < EndTime
 %                   axis([0 6 0 1])
                   
 
-                    %%% Term for the relation between available seeds and Prob S.                      
+                    %%% TERM FOR PROBABILITY OF COLONIZATION vs. NUMBER OF SEEDS AND ESTABLISHMENT                   
 
                     ProbS(1:2)=1-(1-1./est(1:2)).^(SB(1:2)/m/m); % FOR PINE AND SEEDERS, SEEDS ARE EQUALLY SPREAD THROUGHOUT THE CELLS; this was taken in the paper: Cannas et al. 2003
                     ProbS(3)=0;                                   %!!!check what this part does exactly!!!                                
@@ -223,7 +217,7 @@ while Time < EndTime
                         ProbS(3)=ProbS(3)+(coordseed(ii,1)==i&coordseed(ii,2)==j);
                     end
                     ProbS(3)=ProbS(3)>1; % !!!check what it does exactly!!!
-                    ProbG=ProbG.*ProbS;
+                    ProbG=ProbG.*ProbS;  % call ProbG another name? Combination between the two probabilities
                     
 % this step has the reference  of Alains' MSc thesis ->
 %CAN BE IMPROVED
@@ -247,11 +241,11 @@ while Time < EndTime
                     end
                 else
                     Age(i,j)=Age(i,j)+dt;
+                    Lit(i,j)=0.90.*Lit(i,j); %10% of the accumulated litter is degraded each year and 90% remains
                     
                     if test< mort(TC(i,j))*dt
                         TC(i,j)=0;
                         Age(i,j)=0;
-% !! term for litter when a pine dies (same cell) - same or not?
                     end
                 end
             end
