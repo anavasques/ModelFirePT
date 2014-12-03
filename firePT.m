@@ -30,8 +30,7 @@ LSS=30;                   % Life span calluna % in woodland education centre [ye
 AgeMO=50;                 % Age of maturity seeder % Kew % [year]
                           % !!! Pausas 1999 has maturity = 15!!!
                  
-SeedFQ=120;               % Seed production oak per occupied cell - value that is not fundamented by literature assumes that the tree is dominated and small if under cover of pinus
-                          % 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year] 
+SeedFQ=120;               % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year] 
 BirdSeedN=50;             % Annual seed input by birds - based on average values Q. suber Pons and Pausas 2007 - this value depends on surrounding populations
 %BirdSeedN=200; 
 %!!!!Check life span of oak (not maximum but average)
@@ -133,7 +132,7 @@ while Time < EndTime
         % Creates LITTER in the neighborhod of pine (8 neighbors)+ the pine
         % site itself
         %if TC(Age>AgeMP)==1 %because in the first years pine do not create litter
-        [x,y]=find(TC(2:end-1,2:end-1)==1)
+        [x,y]=find(TC(2:end-1,2:end-1)==1);
         x=x+1;y=y+1;
         for i=1:length(x)
             Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;
@@ -167,12 +166,13 @@ while Time < EndTime
                     
                     % !! check this and maybe change it to sum total and
                     % divide by nrsp - should it be multiplying both terms of prob (ProbG and ProbS)
-                    ProbG=ProbG*dt;                     %this is the trick to get probability small
+                   
                     ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ... 
                         -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
                     ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
                     ProbG(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
                     
+                    ProbG=ProbG*dt;                     %this is the trick to get probability small
                     % Term to plot the sp relation with litter
                     % independently
                     % Pine
