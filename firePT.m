@@ -172,7 +172,9 @@ while Time < EndTime
                     ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
                     ProbG(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
                     
-                    ProbG=ProbG*dt;                     %this is the trick to get probability small
+%                   ProbG=ProbG*dt;                     %this is the trick
+%                   to get probability smal - not needed here and down
+%                   also right?
                     % Term to plot the sp relation with litter
                     % independently
                     % Pine
