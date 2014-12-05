@@ -2,7 +2,7 @@
 %CASCADE project
 %Asynchronous CA
 %Vasques et al. 2014 (model development)
-% PROBABILITY MARA'S - MODIFIED FROM ALAIN'S
+%PROBABILITY MARA'S - MODIFIED FROM ALAIN'S
 % ------------------------------------------------------------------------
 
 close all
