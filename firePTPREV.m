@@ -45,7 +45,7 @@ ProbPZeroL=0.7;           % Germination probability for pine when litter=0 cm
 LitThreshP=3;             % Litter threshold for Pine above which ~no germination (cm)
 LitThreshS=2;             % Litter threshold for seeders above which ~no germination (cm)
 %!!!check seed loss for pine!!!!
-SeedLoss= [1 0.10 1];     % rate seed loss first pine second seeder third oak
+SeedLoss= [0 0.10 1];     % rate seed loss first pine second seeder third oak
 
 lrate=0.42;               % rate of litter deposition [cm/year] Fernandes et al 2004
 ProbG=[0 0 0];            % probability of germination first pine second seeder third oak
@@ -130,34 +130,33 @@ colorbar
 while Time < EndTime
     for k=1:round(1/dt)
         % Creates LITTER in the neighborhod of pine (8 neighbors)+ the pine
-%         % site itself
-%         %if TC(Age>AgeMP)==1 %because in the first years pine do not create litter
-%         [x,y]=find(TC(2:end-1,2:end-1)==1);
-%         x=x+1;y=y+1;
-%         for i=1:length(x)
-%             Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;
-
-% !!! maybe consider adding litter in the neighbourhood of oak when it is dominant
-% and adult
+        % site itself
+        %if TC(Age>AgeMP)==1 %because in the first years pine do not create litter
+        [x,y]=find(TC(2:end-1,2:end-1)==1);
+        x=x+1;y=y+1;
+        for i=1:length(x)
+            Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;
+            % !!! maybe consider adding litter in the neighbourhood of oak when it is dominant
+            % and adult
         end
         %end
         
-    % SEED BANK CALCULATION ONLY ONCE A YEAR
-    SB(1)=SBP1+SBP2+SeedFP*(1-canopyBank)*sum(sum(TC(Age>AgeMP)==1))+ReleaseSeeds;% TWO YEARS OF SEED LIFE; 1-canopybank is doing the same as canopy bank, i.e. *0.5
-%   SB(1)=SB(1)-SeedLoss(1)*SB(1);      %!!This term should be excluded or corrected; SeedLoss(1)=1 so this would eliminate seeds from pine. Without the term there is no mortality in two years and then all seeds die 
-    SB(2)=SB(2)+SeedFS*(sum(sum(TC==2)))-SeedLoss(2)*SB(2);           % LONG SEED LIFE
-    SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1);     % NO MEMORY - !!!Before seed loss was 1 now there is no seed loss
-    if SB(3)>0
-   coordseed=randi(m,SB(3),2); % puts the seeds that arrive in random coordinates of the lattice
-    end
-    % accumulation of seeds in the canopy
-    SBPC=SBPC+SeedFP*canopyBank*sum(TC(Age>AgeMP)==1); %canoyBank=% of the seeds that stay in the
-    % canopy and accumulate over time
+        % SEED BANK CALCULATION ONLY ONCE A YEAR
+        SB(1)=SBP1+SBP2+SeedFP*(1-canopyBank)*sum(sum(TC(Age>AgeMP)==1))+ReleaseSeeds;% TWO YEARS OF SEED LIFE; 1-canopybank is doing the same as canopy bank, i.e. *0.5
+        %SB(1)=SB(1)-SeedLoss(1)*SB(1);      %!!This term should be excluded or corrected;
+        SB(2)=SB(2)+SeedFS*(sum(sum(TC==2)))-SeedLoss(2)*SB(2);           % LONG SEED LIFE
+        SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1);     % NO MEMORY - !!!Before seed loss was 1 now there is no seed loss
+        if SB(3)>0
+            coordseed=randi(m,SB(3),2); % puts the seeds that arrive in random coordinates of the lattice
+        end
+        % accumulation of seeds in the canopy
+        SBPC=SBPC+SeedFP*canopyBank*sum(TC(Age>AgeMP)==1); %canopyBank=% of the seeds that stay in the
+        % canopy and accumulate over time
         
         % COLONIZATION OF AN EMPTY CELL AND MORTALITY FOR VEGETATED CELLS
         %------------------------------------------------------------------
         % At each time step tests who is going to colonize an empty cell in the lattice based on the
-        % availiable seeds (seed production and seed bank) 
+        % availiable seeds (seed production and seed bank)
         for i = 1 : m
             for j=1:m
                 test=rand;
@@ -167,78 +166,78 @@ while Time < EndTime
                     
                     % !! check this and maybe change it to sum total and
                     % divide by nrsp - should it be multiplying both terms of prob (ProbG and ProbS)
-                   
-%                     ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ... 
-%                         -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
-%                     ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
-%                     ProbG(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
-%                     
-                    ProbG=ProbG*dt;                     %this is the trick to get probability small
+                    
+                    ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ...
+                        -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
+                    ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
+                    ProbG(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
+                    
+                    %                   ProbG=ProbG*dt;                     %this is the trick
+                    %                   to get probability smal - not needed here and down
+                    %                   also right?
                     % Term to plot the sp relation with litter
                     % independently
                     % Pine
-%                   Lit=0:0.1:6;
-%                   maxGP=0.9;
-%                   minGP=0;
-%                   ProbZeroL=0.7;
-%                   LitThreshP=3;
-%                   ampP=0.3;
-%                   ProbGP=(maxGP+minGP)/2+(maxGP-minGP)/2*tanh((LitThreshP-Lit)/ampP) ... 
-%                         -(maxGP-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit);
-%                   plot(Lit,ProbGP)
-%                   xlabel('litter (cm)'), ylabel('Probability')
-%                   axis([0 6 0 1])
-%                     
+                    %                   Lit=0:0.1:6;
+                    %                   maxGP=0.9;
+                    %                   minGP=0;
+                    %                   ProbZeroL=0.7;
+                    %                   LitThreshP=3;
+                    %                   ampP=0.3;
+                    %                   ProbGP=(maxGP+minGP)/2+(maxGP-minGP)/2*tanh((LitThreshP-Lit)/ampP) ...
+                    %                         -(maxGP-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit);
+                    %                   plot(Lit,ProbGP)
+                    %                   xlabel('litter (cm)'), ylabel('Probability')
+                    %                   axis([0 6 0 1])
+                    %
                     % Seeder
-%                   Lit=0:0.1:6;
-%                   maxGS=0.9;
-%                   minGS=0;
-%                   LitThreshS=2;
-%                   ampS=0.3;
-%                   ProbGS=(maxGS+minGS)/2+(maxGS-minGS)/2*tanh(LitThreshS-Lit/ampS);
-%                   plot(Lit,ProbGS)
-%                   xlabel('litter (cm)'), ylabel('Probability')
-%                   axis([0 6 0 1])
+                    %                   Lit=0:0.1:6;
+                    %                   maxGS=0.9;
+                    %                   minGS=0;
+                    %                   LitThreshS=2;
+                    %                   ampS=0.3;
+                    %                   ProbGS=(maxGS+minGS)/2+(maxGS-minGS)/2*tanh(LitThreshS-Lit/ampS);
+                    %                   plot(Lit,ProbGS)
+                    %                   xlabel('litter (cm)'), ylabel('Probability')
+                    %                   axis([0 6 0 1])
                     
                     % Oak
-%                   Lit=0:0.1:6;
-%                   maxGQ=0.9;
-%                   minGQ=0.3
-%                   ProbGQ=maxGQ-(maxGQ-minGQ)*exp(-Lit);
-%                   plot(Lit,ProbGQ)
-%                   xlabel('litter (cm)'), ylabel('Probability')
-%                   axis([0 6 0 1])
-                  
-
-                    %%% TERM FOR PROBABILITY OF COLONIZATION vs. NUMBER OF SEEDS AND ESTABLISHMENT                   
-
+                    %                   Lit=0:0.1:6;
+                    %                   maxGQ=0.9;
+                    %                   minGQ=0.3
+                    %                   ProbGQ=maxGQ-(maxGQ-minGQ)*exp(-Lit);
+                    %                   plot(Lit,ProbGQ)
+                    %                   xlabel('litter (cm)'), ylabel('Probability')
+                    %                   axis([0 6 0 1])
+                    
+                    
+                    %%% TERM FOR PROBABILITY OF COLONIZATION vs. NUMBER OF SEEDS AND ESTABLISHMENT
+                    
                     ProbS(1:2)=1-(1-1./est(1:2)).^(SB(1:2)/m/m); % FOR PINE AND SEEDERS, SEEDS ARE EQUALLY SPREAD THROUGHOUT THE CELLS; this was taken in the paper: Cannas et al. 2003
-                    ProbS(3)=0;                                   %!!!check what this part does exactly!!!                                
+                    ProbS(3)=0;                                   %!!!check what this part does exactly!!!
                     for ii=1:size(coordseed,1)
                         ProbS(3)=ProbS(3)+(coordseed(ii,1)==i&coordseed(ii,2)==j);
                     end
-                    ProbS(3)=ProbS(3)>1; % !!!check what it does exactly!!!
-                    ProbG=ProbG.*ProbS;  % call ProbG another name? Combination between the two probabilities
+                    ProbS(3)=ProbS(3)>=1; % if there is one seed or more -> prob=1
+                    ProbG=ProbG.*ProbS;  % trick get prob small
                     
-% this step has the reference  of Alains' MSc thesis ->
-%CAN BE IMPROVED
-                      ProbG=ProbS*dt; %this is to run without 
-
-%                     ProbG=ProbG*dt; %this is the trick to get probability small
+                    % this step has the reference  of Alains' MSc thesis ->
+                    %CAN BE IMPROVED
+                    ProbG=ProbG*dt; %this is the trick to get probability small
                     if sum(ProbG)>1
                         'sum of probability higher than 1! Please decrease dt'
                         break
-% !!! check how changes in dt affect (or not) the age etc
-
-                    elseif test<ProbG(1)
+                        % !!! check how changes in dt affect (or not) the age etc
+                        
+                    elseif test<=ProbG(1)
                         TC(i,j)=1;
                         Age(i,j)=dt;
                         
-                    elseif test<ProbG(1)+ProbG(2)
+                    elseif test<=ProbG(1)+ProbG(2)
                         TC(i,j)=2;
                         Age(i,j)=dt;
                         
-                    elseif test<ProbG(1)+ProbG(2)+ProbG(3)
+                    elseif test<=ProbG(1)+ProbG(2)+ProbG(3)
                         TC(i,j)=3;
                         Age(i,j)=dt;
                     end
@@ -255,39 +254,39 @@ while Time < EndTime
             SBP2=SBP1; % PINE SEED BANK OF TWO YEARS BEFORE
             SBP1=SB(1);% PINE SEED BANK OF 1 YEAR BEFORE
         end
-      Time= Time+dt  
+        Time= Time+dt
     end
     
-  
+    
     %%% DISTURBANCE
     
     if Time>=12   % initial time for plant development before disturbance - we let pine establish
-    D=randi(10,1);%%% !!!! CHANGE THIS TO MAKE IT MORE INTUITIVE AND REALISTIC!!! Now we let pine reproduce once without disturbance
+        D=randi(10,1);%%% !!!! CHANGE THIS TO MAKE IT MORE INTUITIVE AND REALISTIC!!! Now we let pine reproduce once without disturbance
     end
     % if Time/10 is an integer there is a probability of 1/10 of fire every year and this does not depend from previous events
-    if D == 1 
+    if D == 1
         'fire'
         Lit(:,:)=0;
         for i=1:m
             for j=1:m
-                TC(i,j)= TC(i,j)*AR(TC(i,j)+1);  
-                Age(i,j)= Age(i,j)*AR(TC(i,j)+1); 
+                TC(i,j)= TC(i,j)*AR(TC(i,j)+1);
+                Age(i,j)= Age(i,j)*AR(TC(i,j)+1);
                 ReleaseSeeds= sum(SBPC); %the production of seeds when there is a fire is the total of the canopy seeds produced until that moment
                 SBP1=0;SBP2=0;
                 
-    % !! check!! the canopy seed bank should be released when there is
-    % disturbance - fire or tree harvesting
+                % !! check!! the canopy seed bank should be released when there is
+                % disturbance - fire or tree harvesting
             end
         end
-  
-                
-end
+        
+        
+    end
     
     imagesc(TC)
     set(h,'Clim',[-0.5 3.5]);
     colormap(VegetationColormap);
     colorbar
- 
+    
     drawnow;%pause
     
     %%% update abundance of different species in the lattice
@@ -306,7 +305,7 @@ end
         VectorTime(NrStore,:)= [Time];
         NrStore = NrStore+1;
         StoreTime = StoreStep;
-    end %if StoreTime <= 0  
+    end %if StoreTime <= 0
 end
     
 %%%Plotting over time
