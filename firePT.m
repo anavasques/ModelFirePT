@@ -17,13 +17,13 @@ AgeMP=10;                 % Age of maturity pine %start at 6 and regularly 10-15
 SeedFP=945;               % Seed production per pine mature tree number of seeds per
 % cone (63)* cone per tree (15) Vega et al 2008
 LSP= 100;                 % Life span of pine % in "practices centro pinus" [year]
-canopyBank=0.3;           % Percent of the seeds that are stored in the canopy was reduced dec 2014 too many pines
+canopyBank=0.5;           % Percent of the seeds that are stored in the canopy maybe reduce it too many pines
 ReleaseSeeds=0;           % Pine seeds in the canopy that are released after the fire
 
 %%% SEEDER
 AgeMS=1;                  % Age of maturity seeder % field obs Calluna% [year]
 % Cistus 3 years ref
-SeedFS=100;               % Seed production per plant/occupied cell approx value ADJUST
+SeedFS=400;               % Seed production per plant/occupied cell approx value ADJUST
 % check in lit
 LSS=30;                   % Life span calluna % in woodland education centre [year]
 
@@ -205,8 +205,6 @@ while Time < EndTime
     end
     Time= Time+dt
     
-    
-    
     %%% DISTURBANCE
     
     if Time>=12   % initial time for plant development before disturbance - we let pine establish
@@ -214,7 +212,7 @@ while Time < EndTime
     end
     % if Time/10 is an integer there is a probability of 1/10 of fire every year and this does not depend from previous events
     if D == 1
-        'fire'
+        'fire';
         Lit(:,:)=0;
         for i=1:m
             for j=1:m

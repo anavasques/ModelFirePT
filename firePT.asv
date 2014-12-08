@@ -17,13 +17,13 @@ AgeMP=10;                 % Age of maturity pine %start at 6 and regularly 10-15
 SeedFP=945;               % Seed production per pine mature tree number of seeds per
 % cone (63)* cone per tree (15) Vega et al 2008
 LSP= 100;                 % Life span of pine % in "practices centro pinus" [year]
-canopyBank=0.5;           % Percent of the seeds that are stored in the canopy
+canopyBank=0.5;           % Percent of the seeds that are stored in the canopy maybe reduce it too many pines
 ReleaseSeeds=0;           % Pine seeds in the canopy that are released after the fire
 
 %%% SEEDER
 AgeMS=1;                  % Age of maturity seeder % field obs Calluna% [year]
 % Cistus 3 years ref
-SeedFS=100;               % Seed production per plant/occupied cell approx value ADJUST
+SeedFS=400;               % Seed production per plant/occupied cell approx value ADJUST
 % check in lit
 LSS=30;                   % Life span calluna % in woodland education centre [year]
 
@@ -46,7 +46,7 @@ LitThreshS=2;             % Litter threshold for seeders above which ~no germina
 SeedLoss= [0 0.10 1];     % rate seed loss first pine second seeder third oak
 
 lrate=0.42;               % rate of litter deposition [cm/year] Fernandes et al 2004
-eflit=0.90;               % effective litter: if 0
+eflit=0.90;               % effective litter: if 0.90 then 0.10 of the total litter is decomposed - estimated value not from literature
 ProbG=[0 0 0];            % probability of germination first pine second seeder third oak
 amp=[0.3 0.3 0];          % amplitude of curve interaction with litter
 
@@ -78,10 +78,10 @@ D=0;                      % initialization only
 Pine=0;                   % will count the number of cells with pine
 Seeder=0;                 % will count the number of cells with pine
 Oak=0;                    % will count the number of cells with pine
-StorePine= 0;
-StoreSeeder=0;
-StoreOak=0;
-VectorTime= Time;
+StorePine= zeros(m,m);
+StoreSeeder=zeros(m,m);
+StoreOak=zeros(m,m);
+VectorTime= [StartTime, EndTime];
 
 
 %%%Initialization of the matrices
@@ -99,11 +99,6 @@ TC(4:4:m-4,4:4:m-4)= 1; % plants 1 pine every 4 meters - dense prodution stand e
 % Puts seeds in the matrix
 %--------------------------------------------------------------------------
 SB=[0 1000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
-
-% if SB(3)>0            %it seems we don't need it here - calculated already later
-%     coordseed=randi(m,SB(3),2);
-% end
-
 
 % Creates colormap
 figure
@@ -128,7 +123,7 @@ while Time < EndTime
     % Creates LITTER in the neighborhod of pine (8 neighbors)+ the pine
     % site itself
     %if TC(Age>AgeMP)==1 %because in the first years pine do not create litter
-    [x,y]=find(TC(2:end-1,2:end-1)==1);
+    [x,y]=find(TC(2:end-1,2:end-1)==1); %consider including here litter deposition only after a certain age
     x=x+1;y=y+1;
     for i=1:length(x)
         Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;
@@ -268,7 +263,6 @@ end
 % set(h,'Clim',[-0.5 3.5]);
 % colormap(VegetationColormap);
 % colorbar
-
 
 
 %%%Plotting over time
