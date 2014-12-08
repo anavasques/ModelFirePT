@@ -78,10 +78,10 @@ D=0;                      % initialization only
 Pine=0;                   % will count the number of cells with pine
 Seeder=0;                 % will count the number of cells with pine
 Oak=0;                    % will count the number of cells with pine
-StorePine= zeros(m,m);
-StoreSeeder=zeros(m,m);
-StoreOak=zeros(m,m);
-VectorTime= [StartTime, EndTime];
+StorePine=[StartTime, EndTime];
+StoreSeeder=[StartTime, EndTime];
+StoreOak=[StartTime, EndTime];
+VectorTime=[StartTime, EndTime];
 
 
 %%%Initialization of the matrices
@@ -114,7 +114,7 @@ h=subplot(1,1,1);
 % colormap(VegetationColormap);
 % colorbar
 
-
+tic
 % colorbar; set(gco,'Clim',[1 4]);
 %%%%%%%%%%%%%%%%%%%%%DYNAMIC%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--------------------------------------------------------------------------
@@ -235,7 +235,7 @@ while Time < EndTime
 %     colorbar
 %     
 %     drawnow;pause
-    
+   toc 
     %%% update abundance of different species in the lattice
     
     Pine=sum(sum(TC==1));
