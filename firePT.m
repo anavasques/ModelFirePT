@@ -7,7 +7,7 @@
 
 close all
 clear all
-
+tic
 %Parameter values
 %-------------------------------------------------------------------------
 %PER SPECIES
@@ -21,7 +21,7 @@ canopyBank=0.5;           % Percent of the seeds that are stored in the canopy m
 ReleaseSeeds=0;           % Pine seeds in the canopy that are released after the fire
 
 %%% SEEDER
-AgeMS=1;                  % Age of maturity seeder % field obs Calluna% [year]
+AgeMS=2;                  % Age of maturity seeder % field obs Calluna 1 [year]
 % Cistus 3 years ref
 SeedFS=400;               % Seed production per plant/occupied cell approx value ADJUST
 % check in lit
@@ -78,10 +78,10 @@ D=0;                      % initialization only
 Pine=0;                   % will count the number of cells with pine
 Seeder=0;                 % will count the number of cells with pine
 Oak=0;                    % will count the number of cells with pine
-StorePine=[StartTime, EndTime];
-StoreSeeder=[StartTime, EndTime];
-StoreOak=[StartTime, EndTime];
-VectorTime=[StartTime, EndTime];
+StorePine=[EndTime];
+StoreSeeder=[EndTime];
+StoreOak=[EndTime];
+VectorTime=[EndTime];
 
 
 %%%Initialization of the matrices
@@ -101,20 +101,20 @@ TC(4:4:m-4,4:4:m-4)= 1; % plants 1 pine every 4 meters - dense prodution stand e
 SB=[0 1000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 
 % Creates colormap
-figure
-white=[1 1 1];
-green=[0 1 0];
-red=[1 0 0];
-blue=[0 0 1];
-VegetationColormap=[white; green; red; blue];
-% Plot image
-h=subplot(1,1,1);
+% figure
+% white=[1 1 1];
+% green=[0 1 0];
+% red=[1 0 0];
+% blue=[0 0 1];
+% VegetationColormap=[white; green; red; blue];
+% % Plot image
+% h=subplot(1,1,1);
 % imagesc(TC)
 % set(h,'Clim',[-0.5 3.5]);
 % colormap(VegetationColormap);
 % colorbar
 
-tic
+
 % colorbar; set(gco,'Clim',[1 4]);
 %%%%%%%%%%%%%%%%%%%%%DYNAMIC%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--------------------------------------------------------------------------
@@ -228,6 +228,7 @@ while Time < EndTime
         
         
     end
+    toc
     
 %     imagesc(TC)
 %     set(h,'Clim',[-0.5 3.5]);
@@ -235,7 +236,7 @@ while Time < EndTime
 %     colorbar
 %     
 %     drawnow;pause
-   toc 
+    
     %%% update abundance of different species in the lattice
     
     Pine=sum(sum(TC==1));

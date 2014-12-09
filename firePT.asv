@@ -78,10 +78,10 @@ D=0;                      % initialization only
 Pine=0;                   % will count the number of cells with pine
 Seeder=0;                 % will count the number of cells with pine
 Oak=0;                    % will count the number of cells with pine
-StorePine= zeros(m,m);
-StoreSeeder=zeros(m,m);
-StoreOak=zeros(m,m);
-VectorTime= [StartTime, EndTime];
+StorePine=[EndTime];
+StoreSeeder=[EndTime];
+StoreOak=[EndTime];
+VectorTime=[EndTime];
 
 
 %%%Initialization of the matrices
@@ -114,7 +114,7 @@ h=subplot(1,1,1);
 % colormap(VegetationColormap);
 % colorbar
 
-
+tic
 % colorbar; set(gco,'Clim',[1 4]);
 %%%%%%%%%%%%%%%%%%%%%DYNAMIC%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--------------------------------------------------------------------------
@@ -205,8 +205,6 @@ while Time < EndTime
     end
     Time= Time+dt
     
-    
-    
     %%% DISTURBANCE
     
     if Time>=12   % initial time for plant development before disturbance - we let pine establish
@@ -214,7 +212,7 @@ while Time < EndTime
     end
     % if Time/10 is an integer there is a probability of 1/10 of fire every year and this does not depend from previous events
     if D == 1
-        'fire'
+        'fire';
         Lit(:,:)=0;
         for i=1:m
             for j=1:m
@@ -230,13 +228,14 @@ while Time < EndTime
         
         
     end
+    toc
     
-%     imagesc(TC)
-%     set(h,'Clim',[-0.5 3.5]);
-%     colormap(VegetationColormap);
-%     colorbar
-%     
-%     drawnow;pause
+    imagesc(TC)
+    set(h,'Clim',[-0.5 3.5]);
+    colormap(VegetationColormap);
+    colorbar
+    
+    drawnow;%pause;
     
     %%% update abundance of different species in the lattice
     
@@ -259,10 +258,10 @@ end
 
 
 
-% imagesc(TC)
-% set(h,'Clim',[-0.5 3.5]);
-% colormap(VegetationColormap);
-% colorbar
+imagesc(TC)
+set(h,'Clim',[-0.5 3.5]);
+colormap(VegetationColormap);
+colorbar
 
 
 %%%Plotting over time
