@@ -78,10 +78,10 @@ D=0;                      % initialization only
 Pine=0;                   % will count the number of cells with pine
 Seeder=0;                 % will count the number of cells with pine
 Oak=0;                    % will count the number of cells with pine
-StorePine=[EndTime];
-StoreSeeder=[EndTime];
-StoreOak=[EndTime];
-VectorTime=[EndTime];
+StorePine=zeros(EndTime,1);
+StoreSeeder=zeros(EndTime,1);
+StoreOak=zeros(EndTime,1);
+VectorTime=zeros(EndTime,1);
 
 
 %%%Initialization of the matrices
@@ -244,15 +244,18 @@ while Time < EndTime
     
     
     %%%%%%%%%%%%%%%% STORING AND VISUALIZATION %%%%%%%%%%%%%%%%%
-    StoreTime = StoreTime - Time;
-    if StoreTime <= 0
-        StorePine(NrStore,:) = Pine;
-        StoreSeeder(NrStore,:) = Seeder;
-        StoreOak(NrStore,:) = Oak;
-        VectorTime(NrStore,:)= Time;
+%     StoreTime = StoreTime - Time; % I COMMENTED THIS BECAUSE YOU WANT TO
+%     STORE EVERY TIME STEP SO IT' NOT USEFUL TO HAVE THIS EXTRA IF. TO BE
+%     RESTORED (AND CHANGED DIMENSIONS OF THE VECTORS BELOW) IF DT<1 YEAR
+%     OR YOU WANT TO SAVE EVERY E.G. 10 YEARS 
+%     if StoreTime <= 0
+        StorePine(NrStore) = Pine; % NOTICE THESE VECTORS ARE AS LONG AS ENDTIMES, and as wide as 1 (vector not matrices) NOT M BY M AS YOU DEFINED THEM.. -> REDIFINING ABOVE SHOULD TAKE LESS TIME -> LET ME KNOW!
+        StoreSeeder(NrStore) = Seeder;
+        StoreOak(NrStore) = Oak;
+        VectorTime(NrStore)= Time;
         NrStore = NrStore+1;
-        StoreTime = StoreStep;
-    end %if StoreTime <= 0
+%         StoreTime = StoreStep;
+%     end %if StoreTime <= 0
 end
 
 tic
