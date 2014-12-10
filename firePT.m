@@ -7,7 +7,7 @@
 
 close all
 clear all
-tic
+
 %Parameter values
 %-------------------------------------------------------------------------
 %PER SPECIES
@@ -228,7 +228,6 @@ while Time < EndTime
         
         
     end
-    toc
     
 %     imagesc(TC)
 %     set(h,'Clim',[-0.5 3.5]);
@@ -256,7 +255,7 @@ while Time < EndTime
     end %if StoreTime <= 0
 end
 
-
+tic
 
 % imagesc(TC)
 % set(h,'Clim',[-0.5 3.5]);
@@ -272,6 +271,7 @@ set(gca,'fontsize',14);
 set(gcf,'Position',[560         582        800         366],'PaperPositionMode','auto');
 % saveas(gcf,'figureTime.png','png')
 
+toc 
 % Creates movie - not working yet
 %     imagesc(TC);
 %     movie(Frame)=getframe;
