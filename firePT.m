@@ -23,15 +23,15 @@ ReleaseSeeds=0;           % Pine seeds in the canopy that are released after the
 %%% SEEDER
 AgeMS=2;                  % Age of maturity seeder % field obs Calluna 1 [year]
 % Cistus 3 years ref
-SeedFS=400;               % Seed production per plant/occupied cell approx value ADJUST
+SeedFS=4000;               % Seed production per plant/occupied cell approx value ADJUST
 % check in lit
 LSS=30;                   % Life span calluna % in woodland education centre [year]
 
 %%% OAK
 AgeMO=50;                 % Age of maturity seeder % Kew % [year]% !!! Pausas 1999 has maturity = 15!!!
 
-SeedFQ=12;               % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
-BirdSeedN=5;             % Annual seed input by birds - based on average values Q. suber Pons and Pausas 2007 - this value depends on surrounding populations
+SeedFQ=120;               % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
+BirdSeedN=50;             % Annual seed input by birds - based on average values Q. suber Pons and Pausas 2007 - this value depends on surrounding populations
 
 LSO= 1000;                % Life span quercus robur % in forestar
 
@@ -98,7 +98,7 @@ TC(4:4:m-4,4:4:m-4)= 1; % plants 1 pine every 4 meters - dense prodution stand e
 
 % Puts seeds in the matrix
 %--------------------------------------------------------------------------
-SB=[0 1000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
+SB=[0 10000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 
 % Creates colormap
 % figure
