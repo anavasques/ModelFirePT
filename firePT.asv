@@ -21,7 +21,7 @@ canopyBank=0.5;           % Percent of the seeds that are stored in the canopy m
 ReleaseSeeds=0;           % Pine seeds in the canopy that are released after the fire
 
 %%% SEEDER
-AgeMS=1;                  % Age of maturity seeder % field obs Calluna% [year]
+AgeMS=2;                  % Age of maturity seeder % field obs Calluna 1 [year]
 % Cistus 3 years ref
 SeedFS=400;               % Seed production per plant/occupied cell approx value ADJUST
 % check in lit
@@ -30,8 +30,8 @@ LSS=30;                   % Life span calluna % in woodland education centre [ye
 %%% OAK
 AgeMO=50;                 % Age of maturity seeder % Kew % [year]% !!! Pausas 1999 has maturity = 15!!!
 
-SeedFQ=120;               % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
-BirdSeedN=50;             % Annual seed input by birds - based on average values Q. suber Pons and Pausas 2007 - this value depends on surrounding populations
+SeedFQ=12;               % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
+BirdSeedN=5;             % Annual seed input by birds - based on average values Q. suber Pons and Pausas 2007 - this value depends on surrounding populations
 
 LSO= 1000;                % Life span quercus robur % in forestar
 
@@ -78,10 +78,10 @@ D=0;                      % initialization only
 Pine=0;                   % will count the number of cells with pine
 Seeder=0;                 % will count the number of cells with pine
 Oak=0;                    % will count the number of cells with pine
-StorePine=[EndTime];
-StoreSeeder=[EndTime];
-StoreOak=[EndTime];
-VectorTime=[EndTime];
+StorePine=zeros(EndTime,1);
+StoreSeeder=zeros(EndTime,1);
+StoreOak=zeros(EndTime,1);
+VectorTime=zeros(EndTime,1);
 
 
 %%%Initialization of the matrices
@@ -101,20 +101,20 @@ TC(4:4:m-4,4:4:m-4)= 1; % plants 1 pine every 4 meters - dense prodution stand e
 SB=[0 1000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 
 % Creates colormap
-figure
-white=[1 1 1];
-green=[0 1 0];
-red=[1 0 0];
-blue=[0 0 1];
-VegetationColormap=[white; green; red; blue];
-% Plot image
-h=subplot(1,1,1);
+% figure
+% white=[1 1 1];
+% green=[0 1 0];
+% red=[1 0 0];
+% blue=[0 0 1];
+% VegetationColormap=[white; green; red; blue];
+% % Plot image
+% h=subplot(1,1,1);
 % imagesc(TC)
 % set(h,'Clim',[-0.5 3.5]);
 % colormap(VegetationColormap);
 % colorbar
 
-tic
+
 % colorbar; set(gco,'Clim',[1 4]);
 %%%%%%%%%%%%%%%%%%%%%DYNAMIC%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--------------------------------------------------------------------------
@@ -167,11 +167,20 @@ while Time < EndTime
                 %%% TERM FOR PROBABILITY OF COLONIZATION vs. NUMBER OF SEEDS AND ESTABLISHMENT
                 
                 ProbS(1:2)=1-(1-1./est(1:2)).^(SB(1:2)/m/m); % FOR PINE AND SEEDERS, SEEDS ARE EQUALLY SPREAD THROUGHOUT THE CELLS; this was taken in the paper: Cannas et al. 2003
-                ProbS(3)=0;                                
-                for ii=1:size(coordseed,1)
-                    ProbS(3)=ProbS(3)+(coordseed(ii,1)==i&coordseed(ii,2)==j);
-                end
-                ProbS(3)=ProbS(3)>=1; % if there is one seed or more -> prob=1
+                % QUERCUS HAS PROB 1 IF THERE IS A SEED IN THAT CELL
+                % VERSION 2
+               
+                ProbS(3)=0; 
+                mm=find(sum(ismember(coordseed(:,1:2),[i,j]),2)>=2);
+                ProbS(3)=ProbS(3)+round(length(mm)/(length(mm)+eps));
+               
+% %                 % VERSION 1
+%                 for ii=1:size(coordseed,1)
+%                     ProbS(3)=ProbS(3)+(coordseed(ii,1)==i&coordseed(ii,2)==j);
+%                 end
+%                 ProbS(3)=ProbS(3)>=1; % if there is one seed or more -> prob=1
+                
+               
                 
                 % combining probabilities of establishment due to litter and seed numbers
                 ProbG=ProbG.*ProbS;  %
@@ -228,14 +237,13 @@ while Time < EndTime
         
         
     end
-    toc
     
-    imagesc(TC)
-    set(h,'Clim',[-0.5 3.5]);
-    colormap(VegetationColormap);
-    colorbar
-    
-    drawnow;%pause;
+%     imagesc(TC)
+%     set(h,'Clim',[-0.5 3.5]);
+%     colormap(VegetationColormap);
+%     colorbar
+%     
+%     drawnow;pause
     
     %%% update abundance of different species in the lattice
     
@@ -245,23 +253,27 @@ while Time < EndTime
     
     
     %%%%%%%%%%%%%%%% STORING AND VISUALIZATION %%%%%%%%%%%%%%%%%
-    StoreTime = StoreTime - Time;
-    if StoreTime <= 0
-        StorePine(NrStore,:) = Pine;
-        StoreSeeder(NrStore,:) = Seeder;
-        StoreOak(NrStore,:) = Oak;
-        VectorTime(NrStore,:)= Time;
+%     StoreTime = StoreTime - Time; % I COMMENTED THIS BECAUSE YOU WANT TO
+%     STORE EVERY TIME STEP SO IT' NOT USEFUL TO HAVE THIS EXTRA IF. TO BE
+%     RESTORED (AND CHANGED DIMENSIONS OF THE VECTORS BELOW) IF DT<1 YEAR
+%     OR YOU WANT TO SAVE EVERY E.G. 10 YEARS 
+%     if StoreTime <= 0
+        StorePine(NrStore) = Pine; % NOTICE THESE VECTORS ARE AS LONG AS ENDTIMES, and as wide as 1 (vector not matrices) NOT M BY M AS YOU DEFINED THEM.. -> REDIFINING ABOVE SHOULD TAKE LESS TIME -> LET ME KNOW!
+        StoreSeeder(NrStore) = Seeder;
+        StoreOak(NrStore) = Oak;
+        VectorTime(NrStore)= Time;
         NrStore = NrStore+1;
-        StoreTime = StoreStep;
-    end %if StoreTime <= 0
+%         StoreTime = StoreStep;
+%     end %if StoreTime <= 0
 end
 
+StoreSpecies=[StorePine StoreSeeder StoreOak]
+xlswrite('Sp abundance pine,seeder,oak',StoreSpecies)
 
-
-imagesc(TC)
-set(h,'Clim',[-0.5 3.5]);
-colormap(VegetationColormap);
-colorbar
+% imagesc(TC)
+% set(h,'Clim',[-0.5 3.5]);
+% colormap(VegetationColormap);
+% colorbar
 
 
 %%%Plotting over time

@@ -30,8 +30,8 @@ LSS=30;                   % Life span calluna % in woodland education centre [ye
 %%% OAK
 AgeMO=50;                 % Age of maturity seeder % Kew % [year]% !!! Pausas 1999 has maturity = 15!!!
 
-SeedFQ=120;               % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
-BirdSeedN=50;             % Annual seed input by birds - based on average values Q. suber Pons and Pausas 2007 - this value depends on surrounding populations
+SeedFQ=12;               % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
+BirdSeedN=5;             % Annual seed input by birds - based on average values Q. suber Pons and Pausas 2007 - this value depends on surrounding populations
 
 LSO= 1000;                % Life span quercus robur % in forestar
 
@@ -266,9 +266,9 @@ while Time < EndTime
 %         StoreTime = StoreStep;
 %     end %if StoreTime <= 0
 end
-xlswrite('Pine',StorePine)
-xlswrite('Seeders',StoreSeeder)
-xlswrite('Oak',StoreOak)
+
+StoreSpecies=[StorePine StoreSeeder StoreOak]
+xlswrite('Sp abundance pine,seeder,oak',StoreSpecies)
 
 % imagesc(TC)
 % set(h,'Clim',[-0.5 3.5]);
