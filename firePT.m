@@ -114,7 +114,7 @@ SB=[0 1000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oa
 % colormap(VegetationColormap);
 % colorbar
 
-
+tic
 % colorbar; set(gco,'Clim',[1 4]);
 %%%%%%%%%%%%%%%%%%%%%DYNAMIC%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--------------------------------------------------------------------------
@@ -263,7 +263,7 @@ while Time < EndTime
 %     end %if StoreTime <= 0
 end
 
-tic
+toc
 
 % imagesc(TC)
 % set(h,'Clim',[-0.5 3.5]);
@@ -279,7 +279,6 @@ set(gca,'fontsize',14);
 set(gcf,'Position',[560         582        800         366],'PaperPositionMode','auto');
 % saveas(gcf,'figureTime.png','png')
 
-toc 
 % Creates movie - not working yet
 %     imagesc(TC);
 %     movie(Frame)=getframe;
