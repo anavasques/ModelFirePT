@@ -114,7 +114,7 @@ SB=[0 1000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oa
 % colormap(VegetationColormap);
 % colorbar
 
-tic
+
 % colorbar; set(gco,'Clim',[1 4]);
 %%%%%%%%%%%%%%%%%%%%%DYNAMIC%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--------------------------------------------------------------------------
@@ -169,14 +169,18 @@ while Time < EndTime
                 ProbS(1:2)=1-(1-1./est(1:2)).^(SB(1:2)/m/m); % FOR PINE AND SEEDERS, SEEDS ARE EQUALLY SPREAD THROUGHOUT THE CELLS; this was taken in the paper: Cannas et al. 2003
                 % QUERCUS HAS PROB 1 IF THERE IS A SEED IN THAT CELL
                 % VERSION 2
+               
                 ProbS(3)=0; 
                 mm=find(sum(ismember(coordseed(:,1:2),[i,j]),2)>=2);
                 ProbS(3)=ProbS(3)+round(length(mm)/(length(mm)+eps));
-%                 % VERSION 1
+               
+% %                 % VERSION 1
 %                 for ii=1:size(coordseed,1)
 %                     ProbS(3)=ProbS(3)+(coordseed(ii,1)==i&coordseed(ii,2)==j);
 %                 end
 %                 ProbS(3)=ProbS(3)>=1; % if there is one seed or more -> prob=1
+                
+               
                 
                 % combining probabilities of establishment due to litter and seed numbers
                 ProbG=ProbG.*ProbS;  %
@@ -262,8 +266,9 @@ while Time < EndTime
 %         StoreTime = StoreStep;
 %     end %if StoreTime <= 0
 end
-
-toc
+xlswrite('Pine',StorePine)
+xlswrite('Seeders',StoreSeeder)
+xlswrite('Oak',StoreOak)
 
 % imagesc(TC)
 % set(h,'Clim',[-0.5 3.5]);
