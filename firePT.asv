@@ -23,7 +23,7 @@ ReleaseSeeds=0;           % Pine seeds in the canopy that are released after the
 %%% SEEDER
 AgeMS=2;                  % Age of maturity seeder % field obs Calluna 1 [year]
 % Cistus 3 years ref
-SeedFS=400;               % Seed production per plant/occupied cell approx value ADJUST
+SeedFS=4000;               % Seed production per plant/occupied cell approx value ADJUST
 % check in lit
 LSS=30;                   % Life span calluna % in woodland education centre [year]
 
@@ -36,25 +36,26 @@ BirdSeedN=5;             % Annual seed input by birds - based on average values 
 LSO= 1000;                % Life span quercus robur % in forestar
 
 %GENERAL
-minG= [0 0 0.3];          % minumum germination first pine second seeder third oak
-maxG= [0.9 0.9 0.9];      % maximum germination first pine second seeder third oak
+% minG= [0 0 0.3];          % minumum germination first pine second seeder third oak
+% maxG= [0.9 0.9 0.9];      % maximum germination first pine second seeder third oak
 
-ProbPZeroL=0.7;           % Germination probability for pine when litter=0 cm
+% ProbPZeroL=0.7;           % Germination probability for pine when litter=0 cm
 
-LitThreshP=3;             % Litter threshold for Pine above which ~no germination (cm)
-LitThreshS=2;             % Litter threshold for seeders above which ~no germination (cm)
-SeedLoss= [0 0.10 1];     % rate seed loss first pine second seeder third oak
+% LitThreshP=3;             % Litter threshold for Pine above which ~no germination (cm)
+% LitThreshS=2;             % Litter threshold for seeders above which ~no germination (cm)
 
-lrate=0.42;               % rate of litter deposition [cm/year] Fernandes et al 2004
-eflit=0.90;               % effective litter: if 0.90 then 0.10 of the total litter is decomposed - estimated value not from literature
-ProbG=[0 0 0];            % probability of germination first pine second seeder third oak
-amp=[0.3 0.3 0];          % amplitude of curve interaction with litter
+
+% lrate=0.42;               % rate of litter deposition [cm/year] Fernandes et al 2004
+% eflit=0.90;               % effective litter: if 0.90 then 0.10 of the total litter is decomposed - estimated value not from literature
+% ProbG=[0 0 0];            % probability of germination first pine second seeder third oak
+% amp=[0.3 0.3 0];          % amplitude of curve interaction with litter
 
 SBP1=0;                   % !SBP1 and SBP2 are only ways of initializing the seed bank every year
 SBP2=0;
 SBPC=0;                   % Inicialization seed bank pine canopy
 ProbS= [0 0 0];           % to calculate probability based on seed prod
 est= [7 400];             % max number of seedlings per cell CCD field from which we infered a probability of establishment in one cell
+SeedLoss= [0 0.10 1];     % rate seed loss first pine second seeder third oak
 %nrsp=3                   % number of species used in the model - to put in the prob expression
 
 mort=1./[LSP,LSS,LSO];    % MORTALITY of pine, seeder, oak = 1/lifespan
@@ -72,7 +73,7 @@ m= 100;                   % for size of lattice [meter]
 % Control Variables
 NrStore = 1;
 StoreTime = StoreStep;
-Time = StartTime;
+Time = StartTime
 
 D=0;                      % initialization only
 Pine=0;                   % will count the number of cells with pine
@@ -89,8 +90,8 @@ VectorTime=zeros(EndTime,1);
 % -------------------------------------------------------------------------
 TC= zeros(m,m);           % Creates a matrix of size m*m filled with zeros
 Age= zeros(m,m);          % Creates a matrix of size m*m filled with zeros
-Lit= zeros(m,m);          % Creates a matrix of size m*m filled with zeros
-z= 8;                     % Number of neighbours
+% Lit= zeros(m,m);          % Creates a matrix of size m*m filled with zeros
+% z= 8;                     % Number of neighbours
 
 % Fills the matrix TC with planted pines
 %--------------------------------------------------------------------------
@@ -98,9 +99,9 @@ TC(4:4:m-4,4:4:m-4)= 1; % plants 1 pine every 4 meters - dense prodution stand e
 
 % Puts seeds in the matrix
 %--------------------------------------------------------------------------
-SB=[0 1000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
+SB=[0 10000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 
-% Creates colormap
+% %Creates colormap
 % figure
 % white=[1 1 1];
 % green=[0 1 0];
@@ -112,9 +113,6 @@ SB=[0 1000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oa
 % imagesc(TC)
 % set(h,'Clim',[-0.5 3.5]);
 % colormap(VegetationColormap);
-% colorbar
-
-
 % colorbar; set(gco,'Clim',[1 4]);
 %%%%%%%%%%%%%%%%%%%%%DYNAMIC%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--------------------------------------------------------------------------
@@ -123,10 +121,10 @@ while Time < EndTime
     % Creates LITTER in the neighborhod of pine (8 neighbors)+ the pine
     % site itself
     %if TC(Age>AgeMP)==1 %because in the first years pine do not create litter
-    [x,y]=find(TC(2:end-1,2:end-1)==1); %consider including here litter deposition only after a certain age
-    x=x+1;y=y+1;
-    for i=1:length(x)
-        Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;
+%     [x,y]=find(TC(2:end-1,2:end-1)==1); %consider including here litter deposition only after a certain age
+%     x=x+1;y=y+1;
+%     for i=1:length(x)
+%         Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;
         % !!! maybe consider adding litter in the neighbourhood of oak when it is dominant
         % and adult
     end
@@ -134,7 +132,8 @@ while Time < EndTime
     
     % SEED BANK CALCULATION ONLY ONCE A YEAR
     SB(1)=SBP1+SBP2+SeedFP*(1-canopyBank)*sum(sum(TC(Age>AgeMP)==1))+ReleaseSeeds;% TWO YEARS OF SEED LIFE; 1-canopybank is doing the same as canopy bank, i.e. *0.5
-    %SB(1)=SB(1)-SeedLoss(1)*SB(1);      %!!This term should be excluded or corrected;
+    %SB(1)=SB(1)-SeedLoss(1)*SB(1);      %not needed as pine seeds only
+    %last 2 years and then die
     SB(2)=SB(2)+SeedFS*(sum(sum(TC==2)))-SeedLoss(2)*SB(2);           % LONG SEED LIFE
     SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1);     % NO MEMORY - !!!Before seed loss was 1 now there is no seed loss
     if SB(3)>0
@@ -148,6 +147,8 @@ while Time < EndTime
     %------------------------------------------------------------------
     % At each time step tests who is going to colonize an empty cell in the lattice based on the
     % availiable seeds (seed production and seed bank)
+   
+    ProbG=[1 1 1]; % %!!!!!!!!!!!THIS TERM IS for test
     for i = 1 : m
         for j=1:m
             test=rand*length(ProbG); %RANDOM NUMBER BETWEEN 0 AND THE NUMBER OF SPECIES (LENGTH(PROBg=3))
@@ -158,10 +159,10 @@ while Time < EndTime
                 %  maybe later change it to sum total and
                 % divide by nrsp - should it be multiplying both terms of prob (ProbG and ProbS)
                 
-                ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ...
-                    -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
-                ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
-                ProbG(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
+%                 ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ...
+%                     -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
+%                 ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
+%                 ProbG(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
                 
                 
                 %%% TERM FOR PROBABILITY OF COLONIZATION vs. NUMBER OF SEEDS AND ESTABLISHMENT
@@ -183,6 +184,10 @@ while Time < EndTime
                
                 
                 % combining probabilities of establishment due to litter and seed numbers
+                
+              
+              
+                
                 ProbG=ProbG.*ProbS;  %
                 
                 % this step has the improved version (Mara's) of Alains' MSc thesis trick
@@ -265,7 +270,7 @@ while Time < EndTime
         NrStore = NrStore+1;
 %         StoreTime = StoreStep;
 %     end %if StoreTime <= 0
-end
+%end
 
 StoreSpecies=[StorePine StoreSeeder StoreOak]
 xlswrite('Sp abundance pine,seeder,oak',StoreSpecies)
