@@ -14,7 +14,7 @@ clear all
 
 %%% PINE
 AgeMP=10;                 % Age of maturity pine %start at 6 and regularly 10-15 % in Cronk and Fuller, 1995 [year]
-SeedFP=945;               % Seed production per pine mature tree number of seeds per
+SeedFP=95;               % Seed production per pine mature tree number of seeds per
 % cone (63)* cone per tree (15) Vega et al 2008
 LSP= 100;                 % Life span of pine % in "practices centro pinus" [year]
 canopyBank=0.5;           % Percent of the seeds that are stored in the canopy maybe reduce it too many pines
