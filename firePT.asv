@@ -23,19 +23,19 @@ ReleaseSeeds=0;           % Pine seeds in the canopy that are released after the
 %%% SEEDER
 AgeMS=2;                  % Age of maturity seeder % field obs Calluna 1 [year]
 % Cistus 3 years ref
-SeedFS=4000;              % Seed production per plant/occupied cell approx value ADJUST
+SeedFS=400;              % Seed production per plant/occupied cell approx value ADJUST
 % check in lit
 LSS=30;                   % Life span calluna % in woodland education centre [year]
 
 %%% OAK
 AgeMO=50;                 % Age of maturity seeder % Kew % [year]% !!! Pausas 1999 has maturity = 15!!!
 
-SeedFQ=12;                % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
-BirdSeedN=5;              % Annual seed input by birds - based on average values Q. suber Pons and Pausas 2007 - this value depends on surrounding populations
+SeedFQ=120;                % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
+BirdSeedN=50;              % Annual seed input by birds - based on average values Q. suber Pons and Pausas 2007 - this value depends on surrounding populations
 
 LSO= 1000;                % Life span quercus robur % in forestar
 
-GENERAL
+% GENERAL
 minG= [0 0 0.3];          % minimum germination first pine second seeder third oak
 maxG= [0.9 0.9 0.9];      % maximum germination first pine second seeder third oak
 
@@ -99,7 +99,7 @@ TC(4:4:m-4,4:4:m-4)= 1; % plants 1 pine every 4 meters - dense prodution stand e
 
 % Puts seeds in the matrix
 %--------------------------------------------------------------------------
-SB=[0 10000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
+SB=[0 1000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 
 % %Creates colormap
 % figure
@@ -116,6 +116,7 @@ SB=[0 10000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and o
 % colorbar; set(gco,'Clim',[1 4]);
 %%%%%%%%%%%%%%%%%%%%%DYNAMIC%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--------------------------------------------------------------------------
+For k=1:nruns 
 while Time < EndTime
     
 %     Creates LITTER in the neighborhod of pine (8 neighbors)+ the pine
@@ -158,8 +159,7 @@ while Time < EndTime
                 
 %                 COLONIZATION vs LITTER
 %                 
-%                  maybe later change it to sum total and
-%                 divide by nrsp - should it be multiplying both terms of prob (ProbG and ProbS)
+
                 
                 ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ...
                     -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
@@ -224,7 +224,7 @@ while Time < EndTime
     %%% DISTURBANCE
     
     if Time>=12   % initial time for plant development before disturbance - we let pine establish
-        D=randi(10,1);%%% !!!! CHANGE THIS TO MAKE IT MORE INTUITIVE AND REALISTIC!!! Now we let pine reproduce once without disturbance
+        D=randi(40,1);%%% Now we let pine reproduce once without disturbance
     end
     % if Time/10 is an integer there is a probability of 1/10 of fire every year and this does not depend from previous events
     if D == 1

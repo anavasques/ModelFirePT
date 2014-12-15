@@ -23,15 +23,15 @@ ReleaseSeeds=0;           % Pine seeds in the canopy that are released after the
 %%% SEEDER
 AgeMS=2;                  % Age of maturity seeder % field obs Calluna 1 [year]
 % Cistus 3 years ref
-SeedFS=4000;              % Seed production per plant/occupied cell approx value ADJUST
+SeedFS=400;              % Seed production per plant/occupied cell approx value ADJUST
 % check in lit
 LSS=30;                   % Life span calluna % in woodland education centre [year]
 
 %%% OAK
 AgeMO=50;                 % Age of maturity seeder % Kew % [year]% !!! Pausas 1999 has maturity = 15!!!
 
-SeedFQ=12;                % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
-BirdSeedN=5;              % Annual seed input by birds - based on average values Q. suber Pons and Pausas 2007 - this value depends on surrounding populations
+SeedFQ=120;                % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
+BirdSeedN=50;              % Annual seed input by birds - based on average values Q. suber Pons and Pausas 2007 - this value depends on surrounding populations
 
 LSO= 1000;                % Life span quercus robur % in forestar
 
@@ -83,6 +83,7 @@ StorePine=zeros(EndTime,1);
 StoreSeeder=zeros(EndTime,1);
 StoreOak=zeros(EndTime,1);
 VectorTime=zeros(EndTime,1);
+nruns=10;
 
 
 %%%Initialization of the matrices
@@ -99,7 +100,7 @@ TC(4:4:m-4,4:4:m-4)= 1; % plants 1 pine every 4 meters - dense prodution stand e
 
 % Puts seeds in the matrix
 %--------------------------------------------------------------------------
-SB=[0 10000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
+SB=[0 1000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 
 % %Creates colormap
 % figure
@@ -116,6 +117,7 @@ SB=[0 10000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and o
 % colorbar; set(gco,'Clim',[1 4]);
 %%%%%%%%%%%%%%%%%%%%%DYNAMIC%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--------------------------------------------------------------------------
+for k=1:nruns 
 while Time < EndTime
     
 %     Creates LITTER in the neighborhod of pine (8 neighbors)+ the pine
@@ -271,17 +273,16 @@ while Time < EndTime
         NrStore = NrStore+1;
 %         StoreTime = StoreStep;
 %     end %if StoreTime <= 0
+
 end
 
-StoreSpecies=[StorePine StoreSeeder StoreOak]
+StoreSpecies=[Time StorePine StoreSeeder StoreOak]
 xlswrite('Sp abundance pine,seeder,oak',StoreSpecies)
 
 % imagesc(TC)
 % set(h,'Clim',[-0.5 3.5]);
 % colormap(VegetationColormap);
 % colorbar
-
-
 %%%Plotting over time
 figure
 plot(VectorTime,StorePine/m/m*100,VectorTime,StoreSeeder/m/m*100,VectorTime,StoreOak/m/m*100)
@@ -289,6 +290,7 @@ legend('Pine','Seeder','Resprouter')
 set(gca,'fontsize',14);
 set(gcf,'Position',[560         582        800         366],'PaperPositionMode','auto');
 % saveas(gcf,'figureTime.png','png')
+end
 
 % Creates movie - not working yet
 %     imagesc(TC);
