@@ -23,7 +23,7 @@ ReleaseSeeds=0;           % Pine seeds in the canopy that are released after the
 %%% SEEDER
 AgeMS=2;                  % Age of maturity seeder % field obs Calluna 1 [year]
 % Cistus 3 years ref
-SeedFS=400;              % Seed production per plant/occupied cell approx value ADJUST
+SeedFS=400;               % Seed production per plant/occupied cell approx value ADJUST
 % check in lit
 LSS=30;                   % Life span calluna % in woodland education centre [year]
 
@@ -117,7 +117,7 @@ SB=[0 1000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oa
 % colorbar; set(gco,'Clim',[1 4]);
 %%%%%%%%%%%%%%%%%%%%%DYNAMIC%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--------------------------------------------------------------------------
-for k=1:nruns 
+
 while Time < EndTime
     
 %     Creates LITTER in the neighborhod of pine (8 neighbors)+ the pine
@@ -276,7 +276,7 @@ while Time < EndTime
 
 end
 
-StoreSpecies=[Time StorePine StoreSeeder StoreOak]
+StoreSpecies=[StorePine StoreSeeder StoreOak]
 xlswrite('Sp abundance pine,seeder,oak',StoreSpecies)
 
 % imagesc(TC)
@@ -290,7 +290,6 @@ legend('Pine','Seeder','Resprouter')
 set(gca,'fontsize',14);
 set(gcf,'Position',[560         582        800         366],'PaperPositionMode','auto');
 % saveas(gcf,'figureTime.png','png')
-end
 
 % Creates movie - not working yet
 %     imagesc(TC);
