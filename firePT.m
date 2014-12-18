@@ -17,7 +17,7 @@ AgeMP=10;                 % Age of maturity pine %start at 6 and regularly 10-15
 SeedFP=945;               % Seed production per pine mature tree number of seeds per
 % cone (63)* cone per tree (15) Vega et al 2008
 LSP= 100;                 % Life span of pine % in "practices centro pinus" [year]
-canopyBank=0.5;           % Percent of the seeds that are stored in the canopy maybe reduce it too many pines
+canopyBank=0.1;           % Percent of the seeds that are stored in the canopy maybe reduce it too many pines
 ReleaseSeeds=0;           % Pine seeds in the canopy that are released after the fire
 
 %%% SEEDER
@@ -225,7 +225,7 @@ while Time < EndTime
     %%% DISTURBANCE
     
     if Time>=12   % initial time for plant development before disturbance - we let pine establish
-        D=randi(40,1);%%% Now we let pine reproduce once without disturbance
+        D=randi(10,1);%%% Now we let pine reproduce once without disturbance
     end
     % if Time/10 is an integer there is a probability of 1/10 of fire every year and this does not depend from previous events
     if D == 1
@@ -286,7 +286,7 @@ xlswrite('Sp abundance pine,seeder,oak',StoreSpecies)
 %%%Plotting over time
 figure
 plot(VectorTime,StorePine/m/m*100,VectorTime,StoreSeeder/m/m*100,VectorTime,StoreOak/m/m*100)
-legend('Pine','Seeder','Resprouter')
+legend('Pine','PTR','Resprouter')
 set(gca,'fontsize',14);
 set(gcf,'Position',[560         582        800         366],'PaperPositionMode','auto');
 % saveas(gcf,'figureTime.png','png')
