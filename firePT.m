@@ -46,7 +46,7 @@ LitThreshS=2;             % Litter threshold for seeders above which ~no germina
 
 
 lrate=0.42;               % rate of litter deposition [cm/year] Fernandes et al 2004
-eflit=0.90;               % effective litter: if 0.90 then 0.10 of the total litter is decomposed - estimated value not from literature
+eflit=0.70;               % effective litter: if 0.90 then 0.10 of the total litter is decomposed - estimated value not from literature
 ProbG=[0 0 0];            % probability of germination first pine second seeder third oak
 amp=[0.3 0.3 0];          % amplitude of curve interaction with litter
 
