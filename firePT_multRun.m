@@ -127,10 +127,13 @@ TC(4:4:m-4,4:4:m-4)= 1; % plants 1 pine every 4 meters - dense prodution stand e
 % colorbar; set(gco,'Clim',[1 4]);
 
 maxseedSeed=100:100:1000;
+save('par.mat') % SAVE ALL THE PARS THAT ARE COMMON TO ALL THE RUNS
 
 for k=1:length(maxseedSeed)
     
     SB=[0 maxseedSeed(k) 0+randi(BirdSeedN,1)];
+%     filename=strcat(['par',num2str(k),'.mat']);
+%     save(filename)
     %%%%%%%%%%%%%%%%%%%%%DYNAMIC%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %--------------------------------------------------------------------------
     while Time < EndTime
@@ -272,8 +275,12 @@ for k=1:length(maxseedSeed)
         end %if StoreTime <= 0
     end
     
+%     filename=strcat(['fire',num2str(k),'.mat' ]);
+%     save(filename,'StorePine','StoreSeeder','StoreOak','VectorTime','')
     filename=strcat(['seedstart',num2str(maxseedSeed(k)),'.mat' ]);
-    save(filename,'StorePine','StoreSeeder','StoreOak','VectorTime')
+    save(filename,'StorePine','StoreSeeder','StoreOak','VectorTime','SB')
+    %matr=[StorePine,StoreSeeder,StoreOak,VectorTime];
+    %  save(filename,'matr','-ascii')
 end
 
 

@@ -35,6 +35,9 @@ BirdSeedN=5;              % Annual seed input by birds - based on average values
 
 LSO= 1000;                % Life span quercus robur % in forestar
 
+% FIRE
+fireret=5;                  %year
+
 % GENERAL
 minG= [0 0 0.3];          % minimum germination first pine second seeder third oak
 maxG= [0.9 0.9 0.9];      % maximum germination first pine second seeder third oak
@@ -65,14 +68,14 @@ AR= [0,0,0,1];            % ability to resprout: first element is fake (bare soi
 % Control constants
 StartTime= 0;             % [year]
 EndTime= 500;             % [year]
-StoreStep = 1;            % [year]
+StoreTime = 1;            % [year]
 
 dt=1;                    % [year] 
 m= 100;                   % for size of lattice [meter]
 
 % Control Variables
 NrStore = 1;
-StoreTime = StoreStep;
+StoreStep = StoreTime;
 Time = StartTime;
 
 D=0;                      % initialization only
@@ -102,6 +105,14 @@ TC(4:4:m-4,4:4:m-4)= 1; % plants 1 pine every 4 meters - dense prodution stand e
 %--------------------------------------------------------------------------
 SB=[0 1000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 
+% VECTOR OF FIRE OCCURRENCE
+D=0*[StartTime:dt:EndTime]; %#ok<NBRAK>
+tf=12;
+while tf<EndTime
+    tf=tf-fireret*log(rand(1,1));
+    D(round(tf))=1;
+end
+
 % %Creates colormap
 % figure
 % white=[1 1 1];
@@ -119,7 +130,7 @@ SB=[0 1000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oa
 %--------------------------------------------------------------------------
 
 while Time < EndTime
-    
+    Time= Time+dt
 %     Creates LITTER in the neighborhod of pine (8 neighbors)+ the pine
 %     site itself
     if TC(Age>AgeMP)==1 %because in the first years pine do not create litter
@@ -171,13 +182,12 @@ while Time < EndTime
                 %%% TERM FOR PROBABILITY OF COLONIZATION vs. NUMBER OF SEEDS AND ESTABLISHMENT
                 
                 ProbS(1:2)=1-(1-1./est(1:2)).^(SB(1:2)/m/m); % FOR PINE AND SEEDERS, SEEDS ARE EQUALLY SPREAD THROUGHOUT THE CELLS; this was taken in the paper: Cannas et al. 2003
-                %ProbS(1:3)=1-(1-1./est(1:3)).^(SB(1:3)/m/m);
                 % QUERCUS HAS PROB 1 IF THERE IS A SEED IN THAT CELL
                 % VERSION 2
                
                 ProbS(3)=0; 
                 mm=find(sum(ismember(coordseed(:,1:2),[i,j]),2)>=2);
-                ProbS(3)=ProbS(3)+round(length(mm)/(length(mm)+eps));
+                ProbS(3)=ProbS(3)+round(length(mm)/(length(mm)+eps))*.8;
                
 % %                 % VERSION 1
 %                 for ii=1:size(coordseed,1)
@@ -221,15 +231,17 @@ while Time < EndTime
         SBP2=SBP1; % PINE SEED BANK OF TWO YEARS BEFORE
         SBP1=SB(1);% PINE SEED BANK OF 1 YEAR BEFORE
     end
-    Time= Time+dt
+
+    
     
     %%% DISTURBANCE
     
     %if Time>=12   % initial time for plant development before disturbance - we let pine establish %%% Now we let pine reproduce once without disturbance
-        D=randi(10,1)*(Time>=12);
+     %   D=randi(10,1)*(Time>=12);
    % end
     % if Time/10 is an integer there is a probability of 1/10 of fire every year and this does not depend from previous events
-    if D == 1
+    D1=D(Time);
+    if D1== 1
         'fire';
         Lit(:,:)=0;
         for i=1:m
@@ -260,7 +272,7 @@ while Time < EndTime
     Seeder=sum(sum(TC==2));
     Oak=sum(sum(TC==3));
     
-    
+
     %%%%%%%%%%%%%%%% STORING AND VISUALIZATION %%%%%%%%%%%%%%%%%
 %     StoreTime = StoreTime - Time; % I COMMENTED THIS BECAUSE YOU WANT TO
 %     STORE EVERY TIME STEP SO IT' NOT USEFUL TO HAVE THIS EXTRA IF. TO BE
@@ -290,7 +302,7 @@ figure
 plot(VectorTime,StorePine/m/m*100,VectorTime,StoreSeeder/m/m*100,VectorTime,StoreOak/m/m*100)
 legend('Pine','Seeder','Resprouter')
 set(gca,'fontsize',14);
-set(gcf,'Position',[560         582        800         366],'PaperPositionMode','auto');
+set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
 % saveas(gcf,'figureTime.png','png')
 
 % Creates movie - not working yet
