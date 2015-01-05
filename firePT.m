@@ -36,7 +36,7 @@ BirdSeedN=5;              % Annual seed input by birds - based on average values
 LSO= 1000;                % Life span quercus robur % in forestar
 
 % GENERAL
-minG= [0 0 0.3];          % minimum germination first pine second seeder third oak
+minG= [0 0 0];          % minimum germination first pine second seeder third oak
 maxG= [0.9 0.9 0.9];      % maximum germination first pine second seeder third oak
 
 ProbPZeroL=0.7;           % Germination probability for pine when litter=0 cm
@@ -54,7 +54,7 @@ SBP1=0;                   % !SBP1 and SBP2 are only ways of initializing the see
 SBP2=0;
 SBPC=0;                   % Initialization seed bank pine canopy
 ProbS= [0 0 0];           % to calculate probability based on seed prod
-est= [7 400];             % max number of seedlings per cell CCD field from which we inferred a probability of establishment in one cell
+est= [7 400 400];             % max number of seedlings per cell CCD field from which we inferred a probability of establishment in one cell
 SeedLoss= [0 0.10 1];     % rate seed loss first pine second seeder third oak
 %nrsp=3                   % number of species used in the model - to put in the prob expression
 
@@ -175,7 +175,8 @@ while Time < EndTime
                 % QUERCUS HAS PROB 1 IF THERE IS A SEED IN THAT CELL
                 % VERSION 2
                
-                ProbS(3)=0; 
+                %ProbS(3)=0; 
+                ProbS(3)= 1-(1-1./est(3));
                 mm=find(sum(ismember(coordseed(:,1:2),[i,j]),2)>=2);
                 ProbS(3)=ProbS(3)+round(length(mm)/(length(mm)+eps));
                
