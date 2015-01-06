@@ -30,8 +30,8 @@ LSS=30;                   % Life span calluna % in woodland education centre [ye
 %%% OAK
 AgeMO=50;                 % Age of maturity seeder % Kew % [year]% !!! Pausas 1999 has maturity = 15!!!
 
-SeedFQ=12;                % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
-BirdSeedN=5;              % Annual seed input by birds - based on average values Q. suber Pons and Pausas 2007 - this value depends on surrounding populations
+SeedFQ=120;                % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
+BirdSeedN=50;              % Annual seed input by birds - based on average values Q. suber Pons and Pausas 2007 - this value depends on surrounding populations
 
 LSO= 1000;                % Life span quercus robur % in forestar
 
@@ -54,13 +54,13 @@ SBP1=0;                   % !SBP1 and SBP2 are only ways of initializing the see
 SBP2=0;
 SBPC=0;                   % Initialization seed bank pine canopy
 ProbS= [0 0 0];           % to calculate probability based on seed prod
-est= [7 400 400];             % max number of seedlings per cell CCD field from which we inferred a probability of establishment in one cell
+est= [7 400 7];             % max number of seedlings per cell CCD field from which we inferred a probability of establishment in one cell
 SeedLoss= [0 0.10 1];     % rate seed loss first pine second seeder third oak
 %nrsp=3                   % number of species used in the model - to put in the prob expression
 
 mort=1./[LSP,LSS,LSO];    % MORTALITY of pine, seeder, oak = 1/lifespan
 
-AR= [0,0,0,0];            % ability to resprout: first element is fake (bare soil); pine=0, seeder=0, oak=1;
+AR= [0,0,0,1];            % ability to resprout: first element is fake (bare soil); pine=0, seeder=0, oak=1;
 
 % Control constants
 StartTime= 0;             % [year]
@@ -175,8 +175,8 @@ while Time < EndTime
                 % QUERCUS HAS PROB 1 IF THERE IS A SEED IN THAT CELL
                 % VERSION 2
                
-                %ProbS(3)=0; 
-                ProbS(3)= 1-(1-1./est(3));
+                ProbS(3)=0; 
+                % ProbS(3)= 1-(1-1./est(3));
                 mm=find(sum(ismember(coordseed(:,1:2),[i,j]),2)>=2);
                 ProbS(3)=ProbS(3)+round(length(mm)/(length(mm)+eps));
                
@@ -190,7 +190,6 @@ while Time < EndTime
                 
                 % combining probabilities of establishment due to litter and seed numbers
                 
-              
               
                 
                ProbG=ProbG.*ProbS;  %
