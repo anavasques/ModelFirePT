@@ -15,7 +15,7 @@ clear all
 %%% PINE
 AgeMP=10;                 % Age of maturity pine %start at 6 and regularly 10-15 % in Cronk and Fuller, 1995 [year]
 SeedFP=945;               % Seed production per pine mature tree number of seeds per
-                          % cone (63)* cone per tree (15) Vega et al 2008
+% cone (63)* cone per tree (15) Vega et al 2008
 LSP= 100;                 % Life span of pine % in "practices centro pinus" [year]
 canopyBank=0.5;           % Percent of the seeds that are stored in the canopy maybe reduce it too many pines
 ReleaseSeeds=0;           % Pine seeds in the canopy that are released after the fire
@@ -67,7 +67,7 @@ StartTime= 0;             % [year]
 EndTime= 500;             % [year]
 StoreStep = 1;            % [year]
 
-dt=1;                    % [year] 
+dt=1;                    % [year]
 m= 100;                   % for size of lattice [meter]
 
 % Control Variables
@@ -120,16 +120,16 @@ colorbar; set(gco,'Clim',[1 4]);
 
 while Time < EndTime
     
-%     Creates LITTER in the neighborhod of pine (8 neighbors)+ the pine
-%     site itself
+    %     Creates LITTER in the neighborhod of pine (8 neighbors)+ the pine
+    %     site itself
     if TC(Age>AgeMP)==1 %because in the first years pine do not create litter
-    [x,y]=find(TC(2:end-1,2:end-1)==1); %consider including here litter deposition only after a certain age
-    x=x+1;y=y+1;
-    for i=1:length(x)
-        Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;
-%         !!! maybe consider adding litter in the neighbourhood of oak when it is dominant
-%         and adult
-    end
+        [x,y]=find(TC(2:end-1,2:end-1)==1); %consider including here litter deposition only after a certain age
+        x=x+1;y=y+1;
+        for i=1:length(x)
+            Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;
+            %         !!! maybe consider adding litter in the neighbourhood of oak when it is dominant
+            %         and adult
+        end
     end
     
     % SEED BANK CALCULATION ONLY ONCE A YEAR
@@ -141,26 +141,25 @@ while Time < EndTime
     if SB(3)>0
         coordseed=randi(m,SB(3),2); % puts the seeds that arrive in random coordinates of the lattice
     end
- 
+    
     SBPC=SBPC+SeedFP*canopyBank*sum(TC(Age>AgeMP)==1); %canopyBank=% of the seeds that stay in the
     % canopy and accumulate over time
     
     % COLONIZATION OF AN EMPTY CELL AND MORTALITY FOR VEGETATED CELLS
     %------------------------------------------------------------------
-    % At each time step tests who is going to colonize an empty cell in the lattice based on the
-    % availiable seeds (seed production and seed bank)
-   
-%     % %!!!!!!!!!!!THIS TERM IS for test without litter
-%     ProbG=[1 1 1]; 
-%     
-    for i = 1 : m
+    % At each time step tests who is going to colonize an empty cell in the
+    % lattice based on probability (available seeds and intrinsic
+    % establishment * establishment based on litter)
+    
+    %     % %!!!!!!!!!!!THIS TERM IS for test without litter
+    %     ProbG=[1 1 1];
+    %
+    for i = 1:m
         for j=1:m
             test=rand*length(ProbG); %RANDOM NUMBER BETWEEN 0 AND THE NUMBER OF SPECIES (LENGTH(PROBg=3))
             if TC(i,j)==0 % colonization/germination
                 
-%                 COLONIZATION vs LITTER
-%                 
-
+                %                 COLONIZATION vs LITTER
                 
                 ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ...
                     -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
@@ -174,25 +173,25 @@ while Time < EndTime
                 %ProbS(1:3)=1-(1-1./est(1:3)).^(SB(1:3)/m/m);
                 % QUERCUS HAS PROB 1 IF THERE IS A SEED IN THAT CELL
                 % VERSION 2
-               
-                ProbS(3)=0; 
+                
+                ProbS(3)=0;
                 % ProbS(3)= 1-(1-1./est(3));
                 mm=find(sum(ismember(coordseed(:,1:2),[i,j]),2)>=2);
                 ProbS(3)=ProbS(3)+round(length(mm)/(length(mm)+eps));
-               
-% %                 % VERSION 1
-%                 for ii=1:size(coordseed,1)
-%                     ProbS(3)=ProbS(3)+(coordseed(ii,1)==i&coordseed(ii,2)==j);
-%                 end
-%                 ProbS(3)=ProbS(3)>=1; % if there is one seed or more -> prob=1
                 
-               
+                % %                 % VERSION 1
+                %                 for ii=1:size(coordseed,1)
+                %                     ProbS(3)=ProbS(3)+(coordseed(ii,1)==i&coordseed(ii,2)==j);
+                %                 end
+                %                 ProbS(3)=ProbS(3)>=1; % if there is one seed or more -> prob=1
+                
+                
                 
                 % combining probabilities of establishment due to litter and seed numbers
                 
-              
                 
-               ProbG=ProbG.*ProbS;  %
+                
+                ProbG=ProbG.*ProbS;  %
                 
                 % this step has the improved version (Mara's) of Alains' MSc thesis trick
                 
@@ -210,7 +209,7 @@ while Time < EndTime
                 end
             else
                 Age(i,j)=Age(i,j)+dt;
-              Lit(i,j)=eflit.*Lit(i,j); %10% of the accumulated litter is degraded each year and 90% remains
+                Lit(i,j)=eflit.*Lit(i,j); %10% of the accumulated litter is degraded each year and 90% remains
                 
                 if test< mort(TC(i,j))*dt
                     TC(i,j)=0;
@@ -226,9 +225,8 @@ while Time < EndTime
     %%% DISTURBANCE
     
     %if Time>=12   % initial time for plant development before disturbance - we let pine establish %%% Now we let pine reproduce once without disturbance
-        D=randi(10,1)*(Time>=12);
-   % end
-    % if Time/10 is an integer there is a probability of 1/10 of fire every year and this does not depend from previous events
+    D=randi(10,1)*(Time>=12);
+    % end
     if D == 1
         'fire';
         Lit(:,:)=0;
@@ -251,8 +249,8 @@ while Time < EndTime
     set(h,'Clim',[-0.5 3.5]);
     colormap(VegetationColormap);
     colorbar
-%     
-%     drawnow;pause
+    %
+    %     drawnow;pause
     
     %%% update abundance of different species in the lattice
     
@@ -262,19 +260,19 @@ while Time < EndTime
     
     
     %%%%%%%%%%%%%%%% STORING AND VISUALIZATION %%%%%%%%%%%%%%%%%
-%     StoreTime = StoreTime - Time; % I COMMENTED THIS BECAUSE YOU WANT TO
-%     STORE EVERY TIME STEP SO IT' NOT USEFUL TO HAVE THIS EXTRA IF. TO BE
-%     RESTORED (AND CHANGED DIMENSIONS OF THE VECTORS BELOW) IF DT<1 YEAR
-%     OR YOU WANT TO SAVE EVERY E.G. 10 YEARS 
-%     if StoreTime <= 0
-        StorePine(NrStore) = Pine; % NOTICE THESE VECTORS ARE AS LONG AS ENDTIMES, and as wide as 1 (vector not matrices) NOT M BY M AS YOU DEFINED THEM.. -> REDIFINING ABOVE SHOULD TAKE LESS TIME -> LET ME KNOW!
-        StoreSeeder(NrStore) = Seeder;
-        StoreOak(NrStore) = Oak;
-        VectorTime(NrStore)= Time;
-        NrStore = NrStore+1;
-%         StoreTime = StoreStep;
-%     end %if StoreTime <= 0
-
+    %     StoreTime = StoreTime - Time; % I COMMENTED THIS BECAUSE YOU WANT TO
+    %     STORE EVERY TIME STEP SO IT' NOT USEFUL TO HAVE THIS EXTRA IF. TO BE
+    %     RESTORED (AND CHANGED DIMENSIONS OF THE VECTORS BELOW) IF DT<1 YEAR
+    %     OR YOU WANT TO SAVE EVERY E.G. 10 YEARS
+    %     if StoreTime <= 0
+    StorePine(NrStore) = Pine; % NOTICE THESE VECTORS ARE AS LONG AS ENDTIMES, and as wide as 1 (vector not matrices) NOT M BY M AS YOU DEFINED THEM.. -> REDIFINING ABOVE SHOULD TAKE LESS TIME -> LET ME KNOW!
+    StoreSeeder(NrStore) = Seeder;
+    StoreOak(NrStore) = Oak;
+    VectorTime(NrStore)= Time;
+    NrStore = NrStore+1;
+    %         StoreTime = StoreStep;
+    %     end %if StoreTime <= 0
+    
 end
 
 StoreSpecies=[StorePine StoreSeeder StoreOak];

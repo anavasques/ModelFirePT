@@ -126,9 +126,7 @@ TC(4:4:m-4,4:4:m-4)= 1; % plants 1 pine every 4 meters - dense prodution stand e
 
 % colorbar; set(gco,'Clim',[1 4]);
 
-%%%%% CODE FOR MULTIRUNS %%%%%%%
-
-maxseedSeed=100:100:1000; % makes runs changing the parameter of SB (2) between the three values determined and keeping all other values fixed
+maxseedSeed=100:100:1000; % makes runs changing the parameter of SB (2) between the three values dete
 save('par.mat') % SAVE ALL THE PARS THAT ARE COMMON TO ALL THE RUNS
 
 for k=1:length(maxseedSeed)
