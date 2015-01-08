@@ -30,13 +30,10 @@ LSS=30;                   % Life span calluna % in woodland education centre [ye
 %%% OAK
 AgeMO=50;                 % Age of maturity seeder % Kew % [year]% !!! Pausas 1999 has maturity = 15!!!
 
-SeedFQ=12;                % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
-BirdSeedN=5;              % Annual seed input by birds - based on average values Q. suber Pons and Pausas 2007 - this value depends on surrounding populations
+SeedFQ=120;                % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
+BirdSeedN=50;              % Annual seed input by birds - based on average values Q. suber Pons and Pausas 2007 - this value depends on surrounding populations
 
 LSO= 1000;                % Life span quercus robur % in forestar
-
-% FIRE
-fireret=5;                  %year
 
 % GENERAL
 minG= [0 0 0.3];          % minimum germination first pine second seeder third oak
@@ -57,7 +54,7 @@ SBP1=0;                   % !SBP1 and SBP2 are only ways of initializing the see
 SBP2=0;
 SBPC=0;                   % Initialization seed bank pine canopy
 ProbS= [0 0 0];           % to calculate probability based on seed prod
-est= [7 400];             % max number of seedlings per cell CCD field from which we inferred a probability of establishment in one cell
+est= [7 400 7];             % max number of seedlings per cell CCD field from which we inferred a probability of establishment in one cell
 SeedLoss= [0 0.10 1];     % rate seed loss first pine second seeder third oak
 %nrsp=3                   % number of species used in the model - to put in the prob expression
 
@@ -67,15 +64,15 @@ AR= [0,0,0,1];            % ability to resprout: first element is fake (bare soi
 
 % Control constants
 StartTime= 0;             % [year]
-EndTime= 2000;             % [year]
-StoreTime = 1;            % [year]
+EndTime= 500;             % [year]
+StoreStep = 1;            % [year]
 
 dt=1;                    % [year]
 m= 100;                   % for size of lattice [meter]
 
 % Control Variables
 NrStore = 1;
-StoreStep = StoreTime;
+StoreTime = StoreStep;
 Time = StartTime;
 
 D=0;                      % initialization only
@@ -103,15 +100,7 @@ TC(4:4:m-4,4:4:m-4)= 1; % plants 1 pine every 4 meters - dense prodution stand e
 
 % Puts seeds in the matrix
 %--------------------------------------------------------------------------
-SB=[0 1000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
-
-% VECTOR OF FIRE OCCURRENCE
-D=0*[StartTime:dt:EndTime]; %#ok<NBRAK>
-tf=12;
-while tf<EndTime
-    tf=tf-fireret*log(rand(1,1));
-    D(round(tf))=1;
-end
+SB=[0 1000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oak, pine is planted
 
 %Creates colormap
 figure
@@ -130,7 +119,7 @@ colorbar; set(gco,'Clim',[1 4]);
 %--------------------------------------------------------------------------
 
 while Time < EndTime
-    Time= Time+dt
+    
     %     Creates LITTER in the neighborhod of pine (8 neighbors)+ the pine
     %     site itself
     if TC(Age>AgeMP)==1 %because in the first years pine do not create litter
@@ -152,40 +141,43 @@ while Time < EndTime
     if SB(3)>0
         coordseed=randi(m,SB(3),2); % puts the seeds that arrive in random coordinates of the lattice
     end
-    % accumulation of seeds in the canopy
+    
     SBPC=SBPC+SeedFP*canopyBank*sum(TC(Age>AgeMP)==1); %canopyBank=% of the seeds that stay in the
     % canopy and accumulate over time
     
     % COLONIZATION OF AN EMPTY CELL AND MORTALITY FOR VEGETATED CELLS
     %------------------------------------------------------------------
-    % At each time step tests who is going to colonize an empty cell in the lattice based on the
-    % availiable seeds (seed production and seed bank)
+    % At each time step tests who is going to colonize an empty cell in the
+    % lattice based on probability (available seeds and intrinsic
+    % establishment * establishment based on litter)
     
     %     % %!!!!!!!!!!!THIS TERM IS for test without litter
     %     ProbG=[1 1 1];
     %
-    for i = 1 : m
+    for i = 1:m
         for j=1:m
             test=rand*length(ProbG); %RANDOM NUMBER BETWEEN 0 AND THE NUMBER OF SPECIES (LENGTH(PROBg=3))
             if TC(i,j)==0 % colonization/germination
                 
                 %                 COLONIZATION vs LITTER
                 
-%                 ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ...
-%                     -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
-%                 ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
-%                 ProbG(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
+                ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ...
+                    -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
+                ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
+                ProbG(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
                 
                 
                 %%% TERM FOR PROBABILITY OF COLONIZATION vs. NUMBER OF SEEDS AND ESTABLISHMENT
                 
                 ProbS(1:2)=1-(1-1./est(1:2)).^(SB(1:2)/m/m); % FOR PINE AND SEEDERS, SEEDS ARE EQUALLY SPREAD THROUGHOUT THE CELLS; this was taken in the paper: Cannas et al. 2003
+                %ProbS(1:3)=1-(1-1./est(1:3)).^(SB(1:3)/m/m);
                 % QUERCUS HAS PROB 1 IF THERE IS A SEED IN THAT CELL
                 % VERSION 2
                 
                 ProbS(3)=0;
+                % ProbS(3)= 1-(1-1./est(3));
                 mm=find(sum(ismember(coordseed(:,1:2),[i,j]),2)>=2);
-                ProbS(3)=ProbS(3)+round(length(mm)/(length(mm)+eps))*.8;
+                ProbS(3)=ProbS(3)+round(length(mm)/(length(mm)+eps));
                 
                 % %                 % VERSION 1
                 %                 for ii=1:size(coordseed,1)
@@ -196,7 +188,6 @@ while Time < EndTime
                 
                 
                 % combining probabilities of establishment due to litter and seed numbers
-                
                 
                 
                 
@@ -229,15 +220,14 @@ while Time < EndTime
         SBP2=SBP1; % PINE SEED BANK OF TWO YEARS BEFORE
         SBP1=SB(1);% PINE SEED BANK OF 1 YEAR BEFORE
     end
+    Time= Time+dt
     
+    %%% DISTURBANCE
     
-    
-   %%%% DISTURBANCE
-    
+    %if Time>=12   % initial time for plant development before disturbance - we let pine establish %%% Now we let pine reproduce once without disturbance
     D=randi(10,1)*(Time>=12);
-   
-    D1=D(Time);
-    if D1== 1
+    % end
+    if D == 1
         'fire';
         Lit(:,:)=0;
         for i=1:m
@@ -247,19 +237,19 @@ while Time < EndTime
                 ReleaseSeeds= sum(SBPC); %the production of seeds when there is a fire is the total of the canopy seeds produced until that moment
                 SBP1=0;SBP2=0;
                 
-%                 !! check!! the canopy seed bank should be released when there is
-%                 disturbance - fire or tree harvesting
+                % !! check!! the canopy seed bank should be released when there is
+                % disturbance - fire or tree harvesting
             end
         end
         
         
     end
     
-        imagesc(TC)
-        set(h,'Clim',[-0.5 3.5]);
-        colormap(VegetationColormap);
-        colorbar
-    
+    imagesc(TC)
+    set(h,'Clim',[-0.5 3.5]);
+    colormap(VegetationColormap);
+    colorbar
+    %
     %     drawnow;pause
     
     %%% update abundance of different species in the lattice
@@ -286,23 +276,19 @@ while Time < EndTime
 end
 
 StoreSpecies=[StorePine StoreSeeder StoreOak];
-% xlswrite('Sp abundance pine,seeder,oak',StoreSpecies)
+xlswrite('Sp abundance pine,seeder,oak',StoreSpecies)
 
-imagesc(TC)
-set(h,'Clim',[-0.5 3.5]);
+% imagesc(TC)
+% set(h,'Clim',[-0.5 3.5]);
 
-colormap(VegetationColormap);
-colorbar
-
+% colormap(VegetationColormap);
+% colorbar
 %%%Plotting over time
 figure
 plot(VectorTime,StorePine/m/m*100,VectorTime,StoreSeeder/m/m*100,VectorTime,StoreOak/m/m*100)
 legend('Pine','Seeder','Resprouter')
 set(gca,'fontsize',14);
-set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
-xlabel ('Time (year)')
-ylabel ('Cover (%)')
-
+set(gcf,'Position',[560         582        800         366],'PaperPositionMode','auto');
 % saveas(gcf,'figureTime.png','png')
 
 % Creates movie - not working yet
