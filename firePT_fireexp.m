@@ -236,10 +236,8 @@ while Time < EndTime
     
     %%% DISTURBANCE
     
-    %if Time>=12   % initial time for plant development before disturbance - we let pine establish %%% Now we let pine reproduce once without disturbance
-     %   D=randi(10,1)*(Time>=12);
-   % end
-    % if Time/10 is an integer there is a probability of 1/10 of fire every year and this does not depend from previous events
+   D=randi(10,1)*(Time>=12);%allows pine to reproduce before the first disturbance
+ 
     D1=D(Time);
     if D1== 1
         'fire';
@@ -290,19 +288,21 @@ while Time < EndTime
 end
 
 StoreSpecies=[StorePine StoreSeeder StoreOak];
-xlswrite('Sp abundance pine,seeder,oak',StoreSpecies)
+% xlswrite('Sp abundance pine,seeder,oak',StoreSpecies)
 
-% imagesc(TC)
-% set(h,'Clim',[-0.5 3.5]);
-
-% colormap(VegetationColormap);
-% colorbar
+imagesc(TC)
+set(h,'Clim',[-0.5 3.5]);
+colormap(VegetationColormap);
+colorbar
 %%%Plotting over time
 figure
 plot(VectorTime,StorePine/m/m*100,VectorTime,StoreSeeder/m/m*100,VectorTime,StoreOak/m/m*100)
 legend('Pine','Seeder','Resprouter')
 set(gca,'fontsize',14);
 set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
+xlabel('Time (year)');
+ylabel('Cover (%)');
+
 % saveas(gcf,'figureTime.png','png')
 
 % Creates movie - not working yet

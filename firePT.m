@@ -113,19 +113,19 @@ while tf<EndTime
     D(round(tf))=1;
 end
 
-%Creates colormap
-figure
-white=[1 1 1];
-green=[0 1 0];
-red=[1 0 0];
-blue=[0 0 1];
-VegetationColormap=[white; green; red; blue];
-% Plot image
-h=subplot(1,1,1);
-imagesc(TC)
-set(h,'Clim',[-0.5 3.5]);
-colormap(VegetationColormap);
-colorbar; set(gco,'Clim',[1 4]);
+% %Creates colormap
+% figure
+% white=[1 1 1];
+% green=[0 1 0];
+% red=[1 0 0];
+% blue=[0 0 1];
+% VegetationColormap=[white; green; red; blue];
+% % Plot image
+% h=subplot(1,1,1);
+% imagesc(TC)
+% set(h,'Clim',[-0.5 3.5]);
+% colormap(VegetationColormap);
+% colorbar; set(gco,'Clim',[1 4]);
 %%%%%%%%%%%%%%%%%%%%%DYNAMIC%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--------------------------------------------------------------------------
 
@@ -170,11 +170,11 @@ while Time < EndTime
             if TC(i,j)==0 % colonization/germination
                 
                 %                 COLONIZATION vs LITTER
-                
-%                 ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ...
-%                     -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
-%                 ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
-%                 ProbG(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
+               
+                ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ...
+                    -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
+                ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
+                ProbG(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
                 
                 
                 %%% TERM FOR PROBABILITY OF COLONIZATION vs. NUMBER OF SEEDS AND ESTABLISHMENT
@@ -195,10 +195,7 @@ while Time < EndTime
                 
                 
                 
-                % combining probabilities of establishment due to litter and seed numbers
-                
-                
-                
+                % COMBINING PROBABILITIES of establishment due to litter and seed numbers
                 
                 ProbG=ProbG.*ProbS;  %
                 
@@ -232,10 +229,12 @@ while Time < EndTime
     
     
     
-   %%%% DISTURBANCE
+    %%% DISTURBANCE
     
-    D=randi(10,1)*(Time>=12);
-   
+    if Time>=12   % initial time for plant development before disturbance - we let pine establish %%% Now we let pine reproduce once without disturbance
+        D=randi(10,1)*(Time>=12);
+    end
+    %%%% if Time/10 is an integer there is a probability of 1/10 of fire every year and this does not depend from previous events
     D1=D(Time);
     if D1== 1
         'fire';
@@ -247,8 +246,8 @@ while Time < EndTime
                 ReleaseSeeds= sum(SBPC); %the production of seeds when there is a fire is the total of the canopy seeds produced until that moment
                 SBP1=0;SBP2=0;
                 
-%                 !! check!! the canopy seed bank should be released when there is
-%                 disturbance - fire or tree harvesting
+                %                 !! check!! the canopy seed bank should be released when there is
+                %                 disturbance - fire or tree harvesting
             end
         end
         
@@ -259,8 +258,7 @@ while Time < EndTime
         set(h,'Clim',[-0.5 3.5]);
         colormap(VegetationColormap);
         colorbar
-    
-    %     drawnow;pause
+        drawnow;pause
     
     %%% update abundance of different species in the lattice
     
@@ -286,7 +284,7 @@ while Time < EndTime
 end
 
 StoreSpecies=[StorePine StoreSeeder StoreOak];
-% xlswrite('Sp abundance pine,seeder,oak',StoreSpecies)
+xlswrite('Sp abundance pine,seeder,oak',StoreSpecies)
 
 imagesc(TC)
 set(h,'Clim',[-0.5 3.5]);
@@ -300,9 +298,6 @@ plot(VectorTime,StorePine/m/m*100,VectorTime,StoreSeeder/m/m*100,VectorTime,Stor
 legend('Pine','Seeder','Resprouter')
 set(gca,'fontsize',14);
 set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
-xlabel ('Time (year)')
-ylabel ('Cover (%)')
-
 % saveas(gcf,'figureTime.png','png')
 
 % Creates movie - not working yet
