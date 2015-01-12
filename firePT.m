@@ -98,12 +98,12 @@ z= 8;                     % Number of neighbours
 % Fills the matrix TC with planted pines
 %--------------------------------------------------------------------------
 TC(4:4:m-4,4:4:m-4)= 1; % plants 1 pine every 4 meters - dense prodution stand excluding the borders
-
+% TC(20:20:m-20,20:20:m-20)= 1; % plants 1 pine every 20 meters - dense prodution stand excluding the borders
 % Puts seeds in the matrix
 %--------------------------------------------------------------------------
 SB=[0 1000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 
-% VECTOR OF FIRE OCCURRENCE
+%VECTOR OF FIRE OCCURRENCE
 D=0*[StartTime:dt:EndTime]; %#ok<NBRAK>
 tf=12;
 while tf<EndTime
@@ -153,8 +153,7 @@ while Time < EndTime
     % At each time step tests who is going to colonize an empty cell in the lattice based on the
     % availiable seeds (seed production and seed bank)
     
-    %     % %!!!THIS TERM IS for test without litter
-    %     ProbG=[1 1 1];
+    
     %
     for i = 1 : m
         for j=1:m
@@ -176,7 +175,8 @@ while Time < EndTime
                 % VERSION 2
                 
                 ProbS(3)=0;
-                % ProbS(3)= 1-(1-1./est(3));
+                % ProbS(3)= 1-(1-1./est(3)); % term for adding an est term
+                % to oak
                 mm=find(sum(ismember(coordseed(:,1:2),[i,j]),2)>=2);
                 ProbS(3)=ProbS(3)+round(length(mm)/(length(mm)+eps))*.8;
                 
@@ -189,8 +189,10 @@ while Time < EndTime
                 
                 
                 % COMBINING PROBABILITIES of establishment due to litter and seed numbers
-                
-                ProbG=ProbG.*ProbS;  %
+                %     % %!!!THIS TERM IS for test without litter
+                %ProbG=[1 1 1];
+                ProbG=ProbG.*ProbS;
+%                 ProbG=ProbS; % term for test in absence of litter ???
                 
                 % this step has the improved version (Mara's) of Alains' MSc thesis trick
                 
@@ -220,7 +222,7 @@ while Time < EndTime
         SBP1=SB(1);% PINE SEED BANK OF 1 YEAR BEFORE
     end
     
-    %%% DISTURBANCE
+    %%%% DISTURBANCE
     
     %D=randi(10,1)*(Time>=12);
     D1=D(Time);
@@ -236,10 +238,33 @@ while Time < EndTime
                 
             end
         end
-        
-        
     end
-    %Creates colormap
+    
+    %%% updates abundance of different species in the lattice
+    
+    Pine=sum(sum(TC==1));
+    Seeder=sum(sum(TC==2));
+    Oak=sum(sum(TC==3));
+    
+
+    %%%%%%%%%%%%%%%% STORING AND VISUALIZATION %%%%%%%%%%%%%%%%%
+    %     StoreTime = StoreTime - Time; % (Mara) I COMMENTED THIS BECAUSE YOU WANT TO
+    %     STORE EVERY TIME STEP SO IT' NOT USEFUL TO HAVE THIS EXTRA IF. TO BE
+    %     RESTORED (AND CHANGED DIMENSIONS OF THE VECTORS BELOW) IF DT<1 YEAR
+    %     OR YOU WANT TO SAVE EVERY E.G. 10 YEARS
+    %     if StoreTime <= 0
+        StorePine(NrStore) = Pine; % NOTICE THESE VECTORS ARE AS LONG AS ENDTIMES, and as wide as 1 (vector not matrices) NOT M BY M AS YOU DEFINED THEM.. -> REDIFINING ABOVE SHOULD TAKE LESS TIME -> LET ME KNOW!
+        StoreSeeder(NrStore) = Seeder;
+        StoreOak(NrStore) = Oak;
+        VectorTime(NrStore)= Time;
+        NrStore = NrStore+1;
+        StoreTime = StoreStep;
+        % end %if StoreTime <= 0
+    
+StoreSpecies=[StorePine StoreSeeder StoreOak];
+% xlswrite('Sp abundance pine,seeder,oak',StoreSpecies)
+end
+%%% Plots final figure
     figure
     white=[1 1 1];
     green=[0 1 0];
@@ -253,32 +278,6 @@ while Time < EndTime
     colorbar
     drawnow;%pause;
     
-    %%% updates abundance of different species in the lattice
-    
-    Pine=sum(sum(TC==1));
-    Seeder=sum(sum(TC==2));
-    Oak=sum(sum(TC==3));
-    
-    
-    %%%%%%%%%%%%%%%% STORING AND VISUALIZATION %%%%%%%%%%%%%%%%%
-    %     StoreTime = StoreTime - Time; % (Mara) I COMMENTED THIS BECAUSE YOU WANT TO
-    %     STORE EVERY TIME STEP SO IT' NOT USEFUL TO HAVE THIS EXTRA IF. TO BE
-    %     RESTORED (AND CHANGED DIMENSIONS OF THE VECTORS BELOW) IF DT<1 YEAR
-    %     OR YOU WANT TO SAVE EVERY E.G. 10 YEARS
-    %     if StoreTime <= 0
-        StorePine(NrStore) = Pine; % NOTICE THESE VECTORS ARE AS LONG AS ENDTIMES, and as wide as 1 (vector not matrices) NOT M BY M AS YOU DEFINED THEM.. -> REDIFINING ABOVE SHOULD TAKE LESS TIME -> LET ME KNOW!
-        StoreSeeder(NrStore) = Seeder;
-        StoreOak(NrStore) = Oak;
-    %     VectorTime(NrStore)= Time;
-    %     NrStore = NrStore+1;
-    %         StoreTime = StoreStep;
-    %     end %if StoreTime <= 0
-    
-end
-
-StoreSpecies=[StorePine StoreSeeder StoreOak];
-% xlswrite('Sp abundance pine,seeder,oak',StoreSpecies)
-
 %%%Plotting over time
 figure
 plot(VectorTime,StorePine/m/m*100,VectorTime,StoreSeeder/m/m*100,VectorTime,StoreOak/m/m*100)
