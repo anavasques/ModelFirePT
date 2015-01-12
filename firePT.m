@@ -251,7 +251,7 @@ while Time < EndTime
     set(h,'Clim',[-0.5 3.5]);
     colormap(VegetationColormap);
     colorbar
-    %drawnow;pause;
+    drawnow;%pause;
     
     %%% updates abundance of different species in the lattice
     
