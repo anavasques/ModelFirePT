@@ -143,7 +143,7 @@ while Time < EndTime
     % SEED BANK CALCULATION ONLY ONCE A YEAR
     SB(1)=SBP1+SBP2+SeedFP*(1-canopyBank)*sum(sum(TC(Age>AgeMP)==1))+ReleaseSeeds;% TWO YEARS OF SEED LIFE; 1-canopybank is doing the same as canopy bank, i.e. *0.5
     %SB(1)=SB(1)-SeedLoss(1)*SB(1);      %not needed as pine seeds only
-    %last 2 years and then die
+    %lasts 2 years and then die
     SB(2)=SB(2)+SeedFS*(sum(sum(TC==2)))-SeedLoss(2)*SB(2);           % LONG SEED LIFE
     SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1);     % NO MEMORY - !!!Before seed loss was 1 now there is no seed loss
     if SB(3)>0
@@ -166,7 +166,6 @@ while Time < EndTime
             if TC(i,j)==0 % colonization/germination
                 
                 %                 COLONIZATION vs LITTER
-                %
                 ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ...
                                     -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
                 ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
