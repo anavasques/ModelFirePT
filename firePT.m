@@ -132,12 +132,12 @@ while Time < EndTime
     if TC(Age>AgeMP)==1 %because in the first years pine do not create litter
         [x,y]=find(TC(2:end-1,2:end-1)==1); %consider including here litter deposition only after a certain age
         x=x+1;y=y+1;
-        for i=1:length(x)
-            Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;
-            %         !!! maybe consider adding litter in the neighbourhood of oak when it is dominant
+%         for i=1:length(x)
+%             Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;
+%             %         !!! maybe consider adding litter in the neighbourhood of oak when it is dominant
             %         and adult
         end
-    end
+   
     
     % SEED BANK CALCULATION ONLY ONCE A YEAR
     SB(1)=SBP1+SBP2+SeedFP*(1-canopyBank)*sum(sum(TC(Age>AgeMP)==1))+ReleaseSeeds;% TWO YEARS OF SEED LIFE; 1-canopybank is doing the same as canopy bank, i.e. *0.5
@@ -165,13 +165,13 @@ while Time < EndTime
             if TC(i,j)==0 % colonization/germination
                 
                 %                 COLONIZATION vs LITTER
-                
-                ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ...
-                    -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
-                ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
-                ProbG(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
-                
-                
+%                 
+%                 ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ...
+%                     -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
+%                 ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
+%                 ProbG(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
+%                 
+%                 
                 %%% TERM FOR PROBABILITY OF COLONIZATION vs. NUMBER OF SEEDS AND ESTABLISHMENT
                 
                 ProbS(1:2)=1-(1-1./est(1:2)).^(SB(1:2)/m/m); % FOR PINE AND SEEDERS, SEEDS ARE EQUALLY SPREAD THROUGHOUT THE CELLS; this was taken in the paper: Cannas et al. 2003
@@ -194,9 +194,9 @@ while Time < EndTime
                 
                 % COMBINING PROBABILITIES of establishment due to litter and seed numbers
                 %     % %!!!THIS TERM IS for test without litter
-                %ProbG=[1 1 1];
-                ProbG=ProbG.*ProbS;
-%                 ProbG=ProbS; % term for test in absence of litter ???
+                ProbG=[1 1 1];
+%                 ProbG=ProbG.*ProbS;
+                ProbG=ProbS; % term for test in absence of litter ???
                 
                 % this step has the improved version (Mara's) of Alains' MSc thesis trick
                 
@@ -214,7 +214,7 @@ while Time < EndTime
                 end
             else
                 Age(i,j)=Age(i,j)+dt;
-                Lit(i,j)=eflit.*Lit(i,j); %10% of the accumulated litter is degraded each year and 90% remains
+%                 Lit(i,j)=eflit.*Lit(i,j); %10% of the accumulated litter is degraded each year and 90% remains
                 
                 if test< mort(TC(i,j))*dt
                     TC(i,j)=0;
@@ -281,7 +281,7 @@ end
     colormap(VegetationColormap);
     colorbar
     drawnow;%pause;
-    
+
 %%%Plotting over time
 figure
 plot(VectorTime,StorePine/m/m*100,VectorTime,StoreSeeder/m/m*100,VectorTime,StoreOak/m/m*100)
