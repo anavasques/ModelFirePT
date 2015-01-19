@@ -34,9 +34,6 @@ BirdSeedN=5;              % Annual seed input by birds - based on average values
 
 LSO= 1000;                % Life span quercus robur % in forestar
 
-% FIRE
-fireret=5;                  %year
-
 % GENERAL
 minG= [0 0 0.3];          % minimum germination first pine second seeder third oak
 maxG= [0.9 0.9 0.9];      % maximum germination first pine second seeder third oak
@@ -111,6 +108,7 @@ SB=[0 10000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and o
 % %VECTOR OF FIRE OCCURRENCE
 D=0*[StartTime:dt:EndTime]; %#ok<NBRAK>
 tf=12;
+fireret=5;                  %year
 while tf<EndTime
     tf=tf-fireret*log(rand(1,1));
     D(round(tf))=1;
