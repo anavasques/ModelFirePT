@@ -22,7 +22,8 @@ ReleaseSeeds=0;           % Pine seeds in the canopy that are released after the
 %%% SEEDER
 AgeMS=2;                  % Age of maturity seeder % field obs Calluna 1 [year]
 % Cistus 3 years ref
-SeedFS=400;               % Seed production per plant/occupied cell approx value ADJUST
+%SeedFS=400;
+SeedFS=1000;               % Seed production per plant/occupied cell approx value ADJUST
 % check in lit
 LSS=30;                   % Life span calluna % in woodland education centre [year]
 
@@ -32,7 +33,8 @@ AgeMO=50;                 % Age of maturity seeder % Kew % [year]% !!! Pausas 19
 SeedFQ=12;                % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
 BirdSeedN=5;              % Annual seed input by birds - based on average values Q. suber Pons and Pausas 2007 - this value depends on surrounding populations
 
-LSO= 1000;                % Life span quercus robur % in forestar
+%LSO= 1000;               % Life span quercus robur % in forestar; 
+LSO=500;                  % this was reduced by half to be more realistic (also in the calculations of mortality)
 
 % GENERAL
 minG= [0 0 0.3];          % minimum germination first pine second seeder third oak
@@ -46,7 +48,7 @@ LitThreshS=2;             % Litter threshold for seeders above which ~no germina
 
 lrate=0.42;               % rate of litter deposition [cm/year] Fernandes et al 2004
 eflit=0.90;               % effective litter: if 0.90 then 0.10 of the total litter is decomposed - estimated value not from literature
-ProbG=[0 0 0];            % probability of germination first pine second seeder third oak
+ProbL=[0 0 0];            % probability of germination first pine second seeder third oak
 amp=[0.3 0.3 0];          % amplitude of curve interaction with litter
 
 SBP1=0;                   % !SBP1 and SBP2 are only ways of initializing the seed bank every year
@@ -66,7 +68,7 @@ AR=[0,0,0,0];             % Inicialization of ability to resprout: cummulative f
 
 % Control constants
 StartTime= 0;             % [year]
-EndTime= 100;           % [year]
+EndTime= 2000;           % [year]
 StoreTime = 1;            % [year]
 
 dt=1;                     % [year]
@@ -102,13 +104,13 @@ TC(4:4:m-4,4:4:m-4)= 1; % plants 1 pine every 4 meters - dense prodution stand e
 % Puts seeds in the matrix
 %--------------------------------------------------------------------------
 %%% !!!!!!!!!!!!!!!!!!!!!!!!HUGE number of seeders
-SB=[0 10000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
+SB=[0 1000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 %SB=[0 1000 0+randi(BirdSeedN,1)]; %previous number of seeds changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 
 % %VECTOR OF FIRE OCCURRENCE
 D=0*[StartTime:dt:EndTime]; %#ok<NBRAK>
-tf=12;
-fireret=1000;                  %year
+tf=10001;
+fireret=100;                  %year
 while tf<EndTime
     tf=tf-fireret*log(rand(1,1));
     D(round(tf))=1;
@@ -157,14 +159,14 @@ while Time < EndTime
     % availiable seeds (seed production and seed bank)
     for i = 1 : m
         for j=1:m
-            test=rand*length(ProbG); %RANDOM NUMBER BETWEEN 0 AND THE NUMBER OF SPECIES (LENGTH(PROBg=3))
+            test=rand*length(ProbL); %RANDOM NUMBER BETWEEN 0 AND THE NUMBER OF SPECIES (LENGTH(PROBg=3))
             if TC(i,j)==0 % colonization/germination
                 
                 %                 %                 COLONIZATION vs LITTER
-                ProbG(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ...
+                ProbL(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ...
                     -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
-                ProbG(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
-                ProbG(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
+                ProbL(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
+                ProbL(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
                 
                 %%% TERM FOR PROBABILITY OF COLONIZATION vs. NUMBER OF SEEDS AND ESTABLISHMENT
                 
@@ -191,8 +193,8 @@ while Time < EndTime
                 % COMBINING PROBABILITIES OF ESTABLISHMENT DUE TO LITTER AND SEED NUMBERS
                 
                 %%%%%%%%%%%%%%%%%%%%%%%%check this with Mara%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                % ProbG=[1 1 1];% term for test IN ABSENCE of litter
-                ProbG=ProbG.*ProbS; %term for test with litter
+                % ProbL=[1 1 1];% term for test IN ABSENCE of litter
+                ProbG=ProbL.*ProbS; %term for test with litter
                 
                 % this step has the improved version (Mara's) of Alains'
                 % MSc thesis trick (prob only need to be <than 3 and we don't multiply by dt anymore)
