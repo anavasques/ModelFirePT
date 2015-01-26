@@ -225,7 +225,7 @@ while Time < EndTime
                 end
             else
                 Age(i,j)=Age(i,j)+dt;
-                Lit(i,j)=eflit.*Lit(i,j); %10% of the accumulated litter is degraded each year and 90% remains
+                Lit(i,j)=eflit*Lit(i,j); %10% of the accumulated litter is degraded each year and 90% remains
                 
                 if test< mort(TC(i,j))*dt
                     TC(i,j)=0;
