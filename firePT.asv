@@ -68,7 +68,7 @@ AR=[0,0,0,0];             % Inicialization of ability to resprout: cummulative f
 
 % Control constants
 StartTime= 0;             % [year]
-EndTime= 3000;            % [year]
+EndTime= 2000;            % [year]
 StoreTime = 1;            % [year]
 
 dt=1;                     % [year]
@@ -100,17 +100,17 @@ z= 8;                     % Number of neighbours
 % Fills the matrix TC with planted pines
 %--------------------------------------------------------------------------
 TC(4:4:m-4,4:4:m-4)= 1; % plants 1 pine every 4 meters - dense prodution stand excluding the borders
-%TC(40:40:m-40,40:40:m-40)= 1; % plants 1 pine every 40 meters - dense prodution stand excluding the borders
+% TC(20:20:m-20,20:20:m-20)= 1; % plants 1 pine every 20 meters - dense prodution stand excluding the borders
 % Puts seeds in the matrix
 %--------------------------------------------------------------------------
 %%% !!!!!!!!!!!!!!!!!!!!!!!!HUGE number of seeders
-SB=[0 100 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
+SB=[0 1000 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 %SB=[0 1000 0+randi(BirdSeedN,1)]; %previous number of seeds changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 
 % %VECTOR OF FIRE OCCURRENCE
 D=0*[StartTime:dt:EndTime]; %#ok<NBRAK>
-tf=500;
-fireret=5;                  %year
+tf=10001;
+fireret=100;                  %year
 while tf<EndTime
     tf=tf-fireret*log(rand(1,1));
     D(round(tf))=1;
@@ -128,17 +128,17 @@ end
 
 while Time < EndTime
     Time= Time+dt
-    %         %%%Creates LITTER in the neighborhod of pine (8 neighbors)+ the pine
-    %         %%%site itself
-    if TC(Age>AgeMP)==1 %because in the first years pine do not create litter
-        [x,y]=find(TC(2:end-1,2:end-1)==1); %consider including here litter deposition only after a certain age
-        x=x+1;y=y+1;
-        for i=1:length(x)
-            Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;
-            %%%%%    !!! maybe consider adding litter in the neighbourhood of oak when it is dominant
-            %%%%%        and adult
-        end
-    end
+%     %         %%%Creates LITTER in the neighborhod of pine (8 neighbors)+ the pine
+%     %         %%%site itself
+%     if TC(Age>AgeMP)==1 %because in the first years pine do not create litter
+%         [x,y]=find(TC(2:end-1,2:end-1)==1); %consider including here litter deposition only after a certain age
+%         x=x+1;y=y+1;
+%         for i=1:length(x)
+%             Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;
+%             %%%%%    !!! maybe consider adding litter in the neighbourhood of oak when it is dominant
+%             %%%%%        and adult
+%         end
+%     end
     
     % SEED BANK CALCULATION ONLY ONCE A YEAR
     SB(1)=SBP1+SBP2+SeedFP*(1-canopyBank)*sum(sum(TC(Age>AgeMP)==1))+ReleaseSeeds;% TWO YEARS OF SEED LIFE; 1-canopybank is doing the same as canopy bank, i.e. *0.5
@@ -189,10 +189,11 @@ while Time < EndTime
                 %ProbS(3)=ProbS(3)>=1; % if there is one seed or more -> prob=1
                 
                 
+                
                 % COMBINING PROBABILITIES OF ESTABLISHMENT DUE TO LITTER AND SEED NUMBERS
                 
                 %%%%%%%%%%%%%%%%%%%%%%%%check this with Mara%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                ProbL=[1 1 1];% term for test IN ABSENCE of litter
+                % ProbL=[1 1 1];% term for test IN ABSENCE of litter
                 ProbG=ProbL.*ProbS; %term for test with litter
                 
                 % this step has the improved version (Mara's) of Alains'
@@ -213,9 +214,9 @@ while Time < EndTime
             else
                 Age(i,j)=Age(i,j)+dt;
                 Lit(i,j)=eflit.*Lit(i,j); %10% of the accumulated litter is degraded each year and 90% remains
-                %%%%%%%%%%%%%%%%%%%%%%%check this with Mara%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                %%%%%THIS TERM IS TO INCREASE RESPROUTING ABILITY WITH TIME
-                %%%%%WITHOUT DISTURBANCE % Schaffhauser et al. 2012
+                %%%%%%%%%%%%%%%%%%%%%%%%check this with Mara%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                %%%%%%THIS TERM IS TO INCREASE RESPROUTING ABILITY WITH TIME
+                %%%%%%WITHOUT DISTURBANCE % Schaffhauser et al. 2012
                 AR(4)= AR(4)+dt;
                 if test< mort(TC(i,j))*dt
                     TC(i,j)=0;
