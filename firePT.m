@@ -65,11 +65,11 @@ SeedLoss= [0 0.10 1];     % rate seed loss first pine second seeder third oak
 mort=1./[LSP,LSS,LSO];    % MORTALITY of pine, seeder, oak = 1/lifespan
 
 AR= [0,0,0,1];           % Ability to resprout: first element is fake (bare soil); pine=0, seeder=0, oak=1;
-RespAge=10;               % ONLY OAKS OLDER THAN THIS AGE CAN RESPROUT
+RespAge=1;               % ONLY OAKS OLDER THAN THIS AGE CAN RESPROUT
 
 % Control constants
 StartTime= 0;             % [year]
-EndTime= 50;            % [year]
+EndTime= 500;            % [year]
 StoreTime = 1;            % [year]
 
 dt=1;                     % [year]
@@ -97,6 +97,7 @@ TC= zeros(m,m);           % Creates a matrix of size m*m filled with zeros
 Age= zeros(m,m);          % Creates a matrix of size m*m filled with zeros
 Lit= zeros(m,m);          % Creates a matrix of size m*m filled with zeros
 z= 8;                     % Number of neighbours
+PosQSeed=zeros(m,m);      % NUMBER OF QUERCUS SEEDS PER CELL
 
 % Fills the matrix TC with planted pines
 %--------------------------------------------------------------------------
@@ -105,12 +106,12 @@ TC(4:4:m-4,4:4:m-4)= 1; % plants 1 pine every 4 meters - dense prodution stand e
 % Puts seeds in the matrix
 %--------------------------------------------------------------------------
 %%% !!!!!!!!!!!!!!!!!!!!!!!!HUGE number of seeders
-SB=[0 100 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
+SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 %SB=[0 1000 0+randi(BirdSeedN,1)]; %previous number of seeds changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 
 % %VECTOR OF FIRE OCCURRENCE
 D=0*[StartTime:dt:EndTime]; %#ok<NBRAK>
-tf=0;
+tf=12;
 fireret=5;                  %year
 rand('state',120)
 while tf<EndTime
@@ -148,9 +149,14 @@ while Time < EndTime
     %lasts 2 years and then die
     SB(2)=SB(2)+SeedFS*(sum(sum(TC==2)))-SeedLoss(2)*SB(2);           % LONG SEED LIFE
     SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1);     % NO MEMORY - !!!Before seed loss was 1 now there is no seed loss
-    if SB(3)>0
-        coordseed=randi(m,SB(3),2); % puts the seeds that arrive in random coordinates of the lattice
+%     if SB(3)>0
+%         coordseed=randi(m,SB(3),2); % puts the seeds that arrive in random coordinates of the lattice
+%     end
+    for kk=1:SB(3)
+        c1=randi(m,1,1);c2=randi(m,1,1);
+        PosQSeed(c1,c2)=PosQSeed(c1,c2)+1;
     end
+    
     % accumulation of seeds in the canopy
     SBPC=SBPC+SeedFP*canopyBank*sum(TC(Age>AgeMP)==1); %canopyBank=% of the seeds that stay in the
     % canopy and accumulate over time
@@ -172,17 +178,23 @@ while Time < EndTime
                 
                 %%% TERM FOR PROBABILITY OF COLONIZATION vs. NUMBER OF SEEDS AND ESTABLISHMENT
                 
-                ProbS(1:2)=1-(1-1./est(1:2)).^(SB(1:2)/m/m); % FOR PINE AND SEEDERS, SEEDS ARE EQUALLY SPREAD THROUGHOUT THE CELLS; this was taken in the paper: Cannas et al. 2003
+                ProbS(1)=1-(1-1/est(1))^(SB(1)/m/m); 
+                ProbS(2)=1-(1-1/est(2))^(SB(2)/m/m); % FOR PINE AND SEEDERS, SEEDS ARE EQUALLY SPREAD THROUGHOUT THE CELLS; this was taken in the paper: Cannas et al. 2003
                 % to oak
-                mm=find(sum(ismember(coordseed(:,1:2),[i,j]),2)>=2);
-                lengthmm=length(mm);
+% %                 mm=find(sum(ismember(coordseed(:,1:2),[i,j]),2)>=2);
+% %               SAME AS LINE ABOVE BUT WITH A FASTER ALGOORITHM (FOUND ON THE
+% %               INTERNET):
+%                 mm=find(sum(builtin('_ismemberoneoutput',coordseed(:,1:2),[i,j]),2)>=2);
+%                 lengthmm=length(mm);
                 % EXPRESSION FOR PROB QUERCUS WITH A THRESHOLD FROM ONE SEED
                 % UP, PROBS=0.8:
-                ProbS(3)=0;
-                ProbS(3)=ProbS(3)+round(lengthmm/(lengthmm+eps))*.8; %
+                %ProbS(3)=0;
+                %ProbS(3)=ProbS(3)+round(lengthmm/(lengthmm+eps))*.8; %
                 % EXPRESSION SIMILAR TO SEEDERS AND PINES: 
-                %ProbS(3)=1-(1-1./est(3)).^lengthmm;
+%                 ProbS(3)=1-(1-1./est(3)).^lengthmm;
+                ProbS(3)=1-(1-1/est(3))^PosQSeed(i,j);
                 
+
                 %%%% VERSION 1 (discarded)
                 %for ii=1:size(coordseed,1)
                 %ProbS(3)=ProbS(3)+(coordseed(ii,1)==i&coordseed(ii,2)==j);
@@ -235,7 +247,7 @@ while Time < EndTime
             for j=1:m
                 % PINES AND SEEDERS DIE; QUERCUS RESPROUTS IF OLDER OR
                 % EQUAL THEN RESPAGE.
-                % KIND IS A TRICK TO AVOID IF STRUCTURE (IF AGE>10 THEN RESPROUT)
+                % KIND IS A TRICK TO AVOID IF STRUCTURE (IF AGE>RespAge THEN RESPROUT)
                 kind=floor(AR(TC(i,j)+1)*Age(i,j)/RespAge);
                 kind=round(kind/(kind+eps));
                 TC(i,j)= TC(i,j)*kind;
@@ -254,6 +266,8 @@ while Time < EndTime
     Seeder=sum(sum(TC==2));
     Oak=sum(sum(TC==3));
     
+    % RESET NUMBER OF QUERCUS SEEDS TO ZERO FOR NEXT YEAR
+    PosQSeed=zeros(m,m);      % NUMBER OF QUERCUS SEEDS PER CELL
     
     %%%%%%%%%%%%%%%% STORING AND VISUALIZATION %%%%%%%%%%%%%%%%%
     %     StoreTime = StoreTime - Time; % (Mara) I COMMENTED THIS BECAUSE YOU WANT TO
@@ -295,7 +309,7 @@ set(gca,'fontsize',14);
 set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
 xlabel('Time (year)');
 ylabel ('Cover (%)');
-saveas(gcf,'figureTime.png','png')
+% saveas(gcf,'figureTime.png','png')
 
 % Creates movie - not working yet
 %     imagesc(TC);
