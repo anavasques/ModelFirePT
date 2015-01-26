@@ -48,14 +48,15 @@ LitThreshS=2;             % Litter threshold for seeders above which ~no germina
 
 lrate=0.42;               % rate of litter deposition [cm/year] Fernandes et al 2004
 eflit=0.90;               % effective litter: if 0.90 then 0.10 of the total litter is decomposed - estimated value not from literature
-ProbL=[0 0 0];            % probability of germination first pine second seeder third oak
+ProbL=[0 0 0];            % probability of germination due to litter (first pine second seeder third oak)
+ProbG=[0 0 0];            % probability of germination first pine second seeder third oak
 amp=[0.3 0.3 0];          % amplitude of curve interaction with litter
 
 SBP1=0;                   % !SBP1 and SBP2 are only ways of initializing the seed bank every year
 SBP2=0;
 SBPC=0;                   % Initialization seed bank pine canopy
 ProbS= [0 0 0];           % to calculate probability based on seed prod
-est= [7 100 7];             % max number of seedlings per cell CCD field from which we inferred a probability of establishment in one cell
+est= [7 100 1.5];             % max number of seedlings per cell CCD field from which we inferred a probability of establishment in one cell
 %est= [7 400 7];          % "original" max number of seedlings per cell CCD field from
 %which we inferred a probability of establishment in one cell
 SeedLoss= [0 0.10 1];     % rate seed loss first pine second seeder third oak
@@ -63,12 +64,12 @@ SeedLoss= [0 0.10 1];     % rate seed loss first pine second seeder third oak
 
 mort=1./[LSP,LSS,LSO];    % MORTALITY of pine, seeder, oak = 1/lifespan
 
-AR=[0,0,0,0];             % Inicialization of ability to resprout: cummulative for A(4)=oak
-%AR= [0,0,0,1];           % Ability to resprout: first element is fake (bare soil); pine=0, seeder=0, oak=1;
+AR= [0,0,0,1];           % Ability to resprout: first element is fake (bare soil); pine=0, seeder=0, oak=1;
+RespAge=10;               % ONLY OAKS OLDER THAN THIS AGE CAN RESPROUT
 
 % Control constants
 StartTime= 0;             % [year]
-EndTime= 3000;            % [year]
+EndTime= 50;            % [year]
 StoreTime = 1;            % [year]
 
 dt=1;                     % [year]
@@ -109,8 +110,9 @@ SB=[0 100 0+randi(BirdSeedN,1)]; %changing initial conditions for seeder and oak
 
 % %VECTOR OF FIRE OCCURRENCE
 D=0*[StartTime:dt:EndTime]; %#ok<NBRAK>
-tf=500;
+tf=0;
 fireret=5;                  %year
+rand('state',120)
 while tf<EndTime
     tf=tf-fireret*log(rand(1,1));
     D(round(tf))=1;
@@ -141,7 +143,7 @@ while Time < EndTime
     end
     
     % SEED BANK CALCULATION ONLY ONCE A YEAR
-    SB(1)=SBP1+SBP2+SeedFP*(1-canopyBank)*sum(sum(TC(Age>AgeMP)==1))+ReleaseSeeds;% TWO YEARS OF SEED LIFE; 1-canopybank is doing the same as canopy bank, i.e. *0.5
+    SB(1)=SBP1+SBP2+SeedFP*(1-canopyBank)*sum(sum(TC(Age>AgeMP)==1));% TWO YEARS OF SEED LIFE; 1-canopybank is doing the same as canopy bank, i.e. *0.5
     %SB(1)=SB(1)-SeedLoss(1)*SB(1);      %not needed as pine seeds only
     %lasts 2 years and then die
     SB(2)=SB(2)+SeedFS*(sum(sum(TC==2)))-SeedLoss(2)*SB(2);           % LONG SEED LIFE
@@ -171,16 +173,15 @@ while Time < EndTime
                 %%% TERM FOR PROBABILITY OF COLONIZATION vs. NUMBER OF SEEDS AND ESTABLISHMENT
                 
                 ProbS(1:2)=1-(1-1./est(1:2)).^(SB(1:2)/m/m); % FOR PINE AND SEEDERS, SEEDS ARE EQUALLY SPREAD THROUGHOUT THE CELLS; this was taken in the paper: Cannas et al. 2003
-                % QUERCUS HAS PROB 1 IF THERE IS A SEED IN THAT CELL
-                % VERSION 2
-                %%%%%%%%%%%%%%%%%%%%%%%%check this with Mara%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                %%%%%%%% CHANGE IT SO THAT OAK HAS
-                %%%%%%%% NOW THE SAME PROB OF ESTABLISHMENT (est term in Prob S) THAN PINE %%%%
-                %ProbS(3)=0;
-                ProbS(3)= 1-(1-1./est(3)); % term for adding an est term
                 % to oak
                 mm=find(sum(ismember(coordseed(:,1:2),[i,j]),2)>=2);
-                ProbS(3)=ProbS(3)+round(length(mm)/(length(mm)+eps))*.8;
+                lengthmm=length(mm);
+                % EXPRESSION FOR PROB QUERCUS WITH A THRESHOLD FROM ONE SEED
+                % UP, PROBS=0.8:
+                ProbS(3)=0;
+                ProbS(3)=ProbS(3)+round(lengthmm/(lengthmm+eps))*.8; %
+                % EXPRESSION SIMILAR TO SEEDERS AND PINES: 
+                %ProbS(3)=1-(1-1./est(3)).^lengthmm;
                 
                 %%%% VERSION 1 (discarded)
                 %for ii=1:size(coordseed,1)
@@ -192,7 +193,7 @@ while Time < EndTime
                 % COMBINING PROBABILITIES OF ESTABLISHMENT DUE TO LITTER AND SEED NUMBERS
                 
                 %%%%%%%%%%%%%%%%%%%%%%%%check this with Mara%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                ProbL=[1 1 1];% term for test IN ABSENCE of litter
+%                 ProbL=[1 1 1];% term for test IN ABSENCE of litter
                 ProbG=ProbL.*ProbS; %term for test with litter
                 
                 % this step has the improved version (Mara's) of Alains'
@@ -213,10 +214,7 @@ while Time < EndTime
             else
                 Age(i,j)=Age(i,j)+dt;
                 Lit(i,j)=eflit.*Lit(i,j); %10% of the accumulated litter is degraded each year and 90% remains
-                %%%%%%%%%%%%%%%%%%%%%%%check this with Mara%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                %%%%%THIS TERM IS TO INCREASE RESPROUTING ABILITY WITH TIME
-                %%%%%WITHOUT DISTURBANCE % Schaffhauser et al. 2012
-                AR(4)= AR(4)+dt;
+                
                 if test< mort(TC(i,j))*dt
                     TC(i,j)=0;
                     Age(i,j)=0;
@@ -235,16 +233,17 @@ while Time < EndTime
         Lit(:,:)=0;
         for i=1:m
             for j=1:m
-                %%%%%%%%%%%%%%%%%%%%%%%check this with Mara%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                %%%!!! THIS TERM IS TO INCLUDE A THRESHOLD FOR RESPROUTING ABILITY
-                if AR(4)> 10; AR(4)=1;
-                else AR(4)=0;
-                end
-                TC(i,j)= TC(i,j)*AR(TC(i,j)+1);
-                Age(i,j)= Age(i,j)*AR(TC(i,j)+1);
-                ReleaseSeeds= sum(SBPC); %the production of seeds when there is a fire is the total of the canopy seeds produced until that moment
-                SBP1=0;SBP2=0;
-                AR(4)=0;
+                % PINES AND SEEDERS DIE; QUERCUS RESPROUTS IF OLDER OR
+                % EQUAL THEN RESPAGE.
+                % KIND IS A TRICK TO AVOID IF STRUCTURE (IF AGE>10 THEN RESPROUT)
+                kind=floor(AR(TC(i,j)+1)*Age(i,j)/RespAge);
+                kind=round(kind/(kind+eps));
+                TC(i,j)= TC(i,j)*kind;
+                Age(i,j)= Age(i,j)*kind;
+                
+                % PINE CANOPY SEEDS FALL INTO SEEDBANK 
+                SB(1)= SB(1)+sum(SBPC); %the production of seeds when there is a fire is the total of the canopy seeds produced until that moment
+                SBP1=0;SBP2=0;SBPC=0;
             end
         end
     end
