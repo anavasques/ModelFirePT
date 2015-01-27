@@ -34,7 +34,7 @@ Seeder=0;                 % will count the number of cells with seeder
 AgeMO=50;                 % Age of maturity % Kew % [year]% !Pausas 1999 has maturity = 15!
 SeedFQ=12;                % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
 BirdSeedN=5;              % Annual seed input by birds - based on average values Q. suber Pons and Pausas 2007 - this value depends on surrounding populations
-RespAge=1;                % ONLY OAKS OLDER THAN THIS AGE CAN RESPROUT
+RespAge=10;                % ONLY OAKS OLDER THAN THIS AGE CAN RESPROUT
 
 %LSO= 1000;               % Life span quercus robur % in forestar;
 LSO=500;                  % this was reduced by half to be more realistic (also in the calculations of mortality)
@@ -50,7 +50,7 @@ lrate=0.42;               % rate of litter deposition [cm/year] Fernandes et al 
 eflit=0.90;               % effective litter: if 0.90 then 0.10 of the total litter is decomposed - estimated value not from literature
 ProbL=[0 0 0];            % probability of germination due to litter (first pine second seeder third oak)
 amp=[0.3 0.3 0];          % amplitude of curve interaction with litter
-Litter=0;                  % to sum the sumber of cells with litter
+Litter=0;                 % to sum the sumber of cells with litter
 
 % GENERAL
 ProbG=[0 0 0];            % probability of germination first pine second seeder third oak
@@ -97,14 +97,14 @@ z= 8;                     % Number of neighbours
 TC(4:4:m-4,4:4:m-4)= 1;   % plants 1 pine every 4 meters - dense prodution stand excluding the borders
 %TC(40:40:m-40,40:40:m-40)= 1; % plants 1 pine every 40 meters - dense prodution stand excluding the borders
 
+PosQSeed=zeros(m,m);      % NUMBER OF QUERCUS SEEDS PER CELL
+
 SB=[0 1*m*m 0+randi(BirdSeedN,1)]; %initial seed bank
 %SB=[0 1000 0+randi(BirdSeedN,1)]; %previous number of seeds changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 
-PosQSeed=zeros(m,m);      % NUMBER OF QUERCUS SEEDS PER CELL
-
 %%%VECTOR OF FIRE OCCURRENCE
-D=0*[StartTime:dt:EndTime]; %#ok<NBRAK>
-tf=100;                      %time without fires
+D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
+tf=10;                     %time without fires
 fireret=5;                 %intervale between fires - fire return
 rand('state',120)
 while tf<EndTime
@@ -117,9 +117,10 @@ end
 %--------------------------------------------------------------------------
 
 while Time < EndTime
-    Time= Time+dt;
+    Time= Time+dt
 
     %%%Creates LITTER in the neighb of pine (8 neighbors)+ pine site
+    
     %if TC(Age>AgeMP)==10 % pine does not create litter in the
     %first years
         [x,y]=find(TC(2:end-1,2:end-1)==1); %consider including here litter deposition only after a certain age
@@ -129,8 +130,9 @@ while Time < EndTime
         end
  
     % SEED BANK CALCULATION (ONCE A YEAR)
-    
-    SB(1)=SBP1+SBP2+SeedFP*(1-canopyBank)*sum(sum(TC(Age>AgeMP)==1));% TWO YEARS OF SEED LIFE; 1-canopybank is doing the same as canopy bank, i.e. *0.5
+    %%%%%%%%%%%%%%Check this with Mara%%%%%%%%%
+    %%%%%%%%%%%%%%this was why the seeds of pine did not come back%
+    SB(1)=SB(1)+ SBP1+SBP2+SeedFP*(1-canopyBank)*sum(sum(TC(Age>AgeMP)==1));% TWO YEARS OF SEED LIFE; 1-canopybank is doing the same as canopy bank, i.e. *0.5
     %SB(1)=SB(1)-SeedLoss(1)*SB(1); % this ter is not needed as pine seeds only last 2 years and then die
     SB(2)=SB(2)+SeedFS*(sum(sum(TC==2)))-SeedLoss(2)*SB(2);           % LONG SEED LIFE
     SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1);     % NO MEMORY
@@ -292,18 +294,13 @@ drawnow;pause
 
 %%%Plotting over time
 figure
-plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--o', VectorTime,StoreOak/m/m*100, 'g*')
-legend('Pine','Seeder','Oak')
+plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*', VectorTime,StoreLitter/m/m*100, 'kx')
+legend('Pine','Seeder','Oak', 'Litter')
 set(gca,'fontsize',14);
 set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
 xlabel('Time (year)');
 ylabel ('Cover (%)');
 drawnow;pause
-
-figure
-plot (VectorTime,StoreLitter/m/m*100, 'kx')
-legend('Litter')
-
 % saveas(gcf,'figureTime.png','png')
 
 % Creates movie - not working yet
