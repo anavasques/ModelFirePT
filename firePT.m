@@ -14,7 +14,7 @@ clear all
 
 %%% PINE
 AgeMP=10;                 % Age of maturity pine %start at 6 and regularly 10-15 % in Cronk and Fuller, 1995 [year]
-SeedFP=945;               % Seed production per pine mature tree number of seeds per cone (63)* cone per tree (15) Vega et al 2008
+SeedFP=1000;              % Seed production per pine mature tree number of seeds per cone (63)* cone per tree (15) Vega et al 2008
 LSP= 100;                 % Life span of pine % in "practices centro pinus" [year]
 canopyBank=0.5;           % Percent of the seeds that are stored in the canopy maybe reduce it too many pines
 ReleaseSeeds=0;           % Pine seeds in the canopy that are released after the fire% not used in the current version
@@ -58,7 +58,7 @@ Litter=0;                 % to sum the sumber of cells with litter
 % GENERAL
 ProbG=[0 0 0];            % probability of germination first pine second seeder third oak
 ProbS= [0 0 0];           % to calculate probability based on seed prod
-est= [7 100 1.8];         % max number of seedlings per cell CCD field from which we inferred a probability of establishment in one cell
+est= [10 100 2];         % max number of seedlings per cell CCD field from which we inferred a probability of establishment in one cell
 %est= [7 400 7];          % infered probability of establishment for ProbS
 
 SeedLoss= [0 0.10 1];     % rate seed loss soil seed bank 1 pine 2 seeder 3 oak
