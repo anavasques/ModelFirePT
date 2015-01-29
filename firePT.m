@@ -58,7 +58,7 @@ Litter=0;                 % to sum the sumber of cells with litter
 % GENERAL
 ProbG=[0 0 0];            % probability of germination first pine second seeder third oak
 ProbS= [0 0 0];           % to calculate probability based on seed prod
-est= [7 100 1.5];         % max number of seedlings per cell CCD field from which we inferred a probability of establishment in one cell
+est= [7 100 1.8];         % max number of seedlings per cell CCD field from which we inferred a probability of establishment in one cell
 %est= [7 400 7];          % infered probability of establishment for ProbS
 
 SeedLoss= [0 0.10 1];     % rate seed loss soil seed bank 1 pine 2 seeder 3 oak
@@ -70,7 +70,7 @@ D=0;                      % initialization of disturbance
 
 % CONTROL CONSTANTS AND VARIABLES
 StartTime= 0;             % [year]
-EndTime= 200;            % [year]
+EndTime= 400;            % [year]
 StoreTime = 1;            % [year]
 
 dt=1;                     % [year]
@@ -108,8 +108,8 @@ SB=[0 500*m*m 0+randi(BirdSeedN,1)]; %initial seed bank
 %%%VECTOR OF FIRE OCCURRENCE
 D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
 tf=12;                     %time without fires
-fireret=5;                 %intervale between fires - fire return
-rand('state',120)
+fireret=20;                 %intervale between fires - fire return
+rand('state',121)
 while tf<EndTime
     tf=tf-fireret*log(rand(1,1)); %stochastic fire recurrence Baudena et al 2010
     D(round(tf))=1;
@@ -123,7 +123,6 @@ while Time < EndTime
     Time= Time+dt
     
     %%%Creates LITTER in the neighb of pine (8 neighbors)+ pine site
-    
     %if TC(Age>AgeMP)==10 % pine does not create litter in the
     %first years
     [x,y]=find(TC(2:end-1,2:end-1)==1); %consider including here litter deposition only after a certain age
@@ -133,7 +132,7 @@ while Time < EndTime
     end
     
     % SEED BANK CALCULATION (ONCE A YEAR)
-    SB(1)=SB(1)+ SBP1+SBP2+SeedFP*(1-canopyBank)*sum(sum(TC(Age>AgeMP)==1));% TWO YEARS OF SEED LIFE; 1-canopybank is doing the same as canopy bank, i.e. *0.5
+    SB(1)=SBP1+SBP2+SeedFP*(1-canopyBank)*sum(sum(TC(Age>AgeMP)==1));% TWO YEARS OF SEED LIFE; 1-canopybank is doing the same as canopy bank, i.e. *0.5
     %SB(1)=SB(1)-SeedLoss(1)*SB(1); % this ter is not needed as pine seeds only last 2 years and then die
     SB(2)=SB(2)+SeedFS*(sum(sum(TC==2)))-SeedLoss(2)*SB(2);           % LONG SEED LIFE
     SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1);     % NO MEMORY
@@ -208,6 +207,7 @@ while Time < EndTime
                 elseif test>ProbG(1)
                     TC(i,j)=2;
                     Age(i,j)=dt;
+                    SB(2)=SB(2)-100; % FOR EVERY ADULT SHRUB SEEDER OCCUPYING A CELL 100 (?) SEEDS ARE LOST
                 else
                     TC(i,j)=1;
                     Age(i,j)=dt;
@@ -222,9 +222,8 @@ while Time < EndTime
                 end
             end
         end
-        SBP2=SBP1; % PINE SEED BANK OF TWO YEARS BEFORE
-        SBP1=SB(1);% PINE SEED BANK OF 1 YEAR BEFORE
     end
+    
     
     %%%% DISTURBANCE
     %%%D=randi(10,1)*(Time>=12); %this term is no longer needed
@@ -241,13 +240,16 @@ while Time < EndTime
                 kind=round(kind/(kind+eps));
                 TC(i,j)= TC(i,j)*kind;
                 Age(i,j)= Age(i,j)*kind;
-                
-                % PINE CANOPY SEEDS FALL INTO SEEDBANK
-                SB(1)= SB(1)+sum(SBPC); %the production of seeds when there is a fire is the total of the canopy seeds produced until that moment
-                SBP1=0;SBP2=0;SBPC=0;
             end
         end
+        % PINE CANOPY SEEDS FALL INTO SEEDBANK
+        SB(1)= SBPC; %the production of seeds when there is a fire is the total of the canopy seeds produced until that moment
+        SBP1=0;SBPC=0; %SBP2=0; Not needed to put sbp2 to zero
     end
+    
+    % UPDATE OF THE PINE SEEDBANK
+    SBP2=0.5*SBP1; % PINE SEED BANK OF TWO YEARS BEFORE
+    SBP1=SB(1);% PINE SEED BANK OF 1 YEAR BEFORE
     
     %%% updates abundance of different species in the lattice
     
@@ -258,6 +260,8 @@ while Time < EndTime
     
     % RESET NUMBER OF QUERCUS SEEDS TO ZERO FOR NEXT YEAR
     PosQSeed=0*PosQSeed;      % NUMBER OF QUERCUS SEEDS PER CELL
+    
+    
     
     %%%%%%%%%%%%%%%% STORING AND VISUALIZATION %%%%%%%%%%%%%%%%%
     %     StoreTime = StoreTime - Time; % (Mara) I COMMENTED THIS BECAUSE YOU WANT TO
@@ -301,7 +305,6 @@ set(gca,'fontsize',14);
 set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
 xlabel('Time (year)');
 ylabel ('Cover (%)');
-drawnow;pause
 % saveas(gcf,'figureTime.png','png')
 
 % Creates movie - not working yet
