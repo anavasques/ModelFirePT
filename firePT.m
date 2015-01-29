@@ -62,7 +62,7 @@ est= [7 100 1.5];         % max number of seedlings per cell CCD field from whic
 %est= [7 400 7];          % infered probability of establishment for ProbS
 
 SeedLoss= [0 0.10 1];     % rate seed loss soil seed bank 1 pine 2 seeder 3 oak
-%nrsp=3                   % number of species used in the model - to put in the prob expression
+nrsp=length(ProbG);                   % number of species used in the model - to put in the prob expression
 mort=1./[LSP,LSS,LSO];    % MORTALITY of pine, seeder, oak = 1/lifespan
 AR= [0,0,0,1];            % Ability to resprout: first element is fake (bare soil); pine=0, seeder=0, oak=1;
 
@@ -121,20 +121,18 @@ end
 
 while Time < EndTime
     Time= Time+dt
-
+    
     %%%Creates LITTER in the neighb of pine (8 neighbors)+ pine site
     
     %if TC(Age>AgeMP)==10 % pine does not create litter in the
     %first years
-        [x,y]=find(TC(2:end-1,2:end-1)==1); %consider including here litter deposition only after a certain age
-        x=x+1;y=y+1;
-        for i=1:length(x)
+    [x,y]=find(TC(2:end-1,2:end-1)==1); %consider including here litter deposition only after a certain age
+    x=x+1;y=y+1;
+    for i=1:length(x)
         Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;
-        end
- 
+    end
+    
     % SEED BANK CALCULATION (ONCE A YEAR)
-    %%%%%%%%%%%%%%Check this with Mara%%%%%%%%%
-    %%%%%%%%%%%%%%this was why the seeds of pine did not come back%
     SB(1)=SB(1)+ SBP1+SBP2+SeedFP*(1-canopyBank)*sum(sum(TC(Age>AgeMP)==1));% TWO YEARS OF SEED LIFE; 1-canopybank is doing the same as canopy bank, i.e. *0.5
     %SB(1)=SB(1)-SeedLoss(1)*SB(1); % this ter is not needed as pine seeds only last 2 years and then die
     SB(2)=SB(2)+SeedFS*(sum(sum(TC==2)))-SeedLoss(2)*SB(2);           % LONG SEED LIFE
@@ -146,8 +144,8 @@ while Time < EndTime
     %     end
     % NEW WAY
     for kk=1:SB(3)
-        c1=randi(m,1,1);c2=randi(m,1,1);
-        PosQSeed(c1,c2)=PosQSeed(c1,c2)+1;
+        cc=randi(m,1,2);%c2=randi(m,1,1);
+        PosQSeed(cc(1),cc(2))=PosQSeed(cc(1),cc(2))+1;
     end
     
     % accumulation of pine seeds in the canopy
@@ -160,26 +158,26 @@ while Time < EndTime
     % availiable seeds (seed production and seed bank)
     for i = 1 : m
         for j=1:m
-            test=rand*length(ProbL); %RANDOM NUMBER BETWEEN 0 AND THE NUMBER OF SPECIES (LENGTH(PROBg=3))
+            test=rand*nrsp; %RANDOM NUMBER BETWEEN 0 AND THE NUMBER OF SPECIES (LENGTH(PROBg=3))
             if TC(i,j)==0 % colonization/germination
                 
                 
-   %%% TERM FOR PROBABILITY OF COLONIZATION vs. NUMBER OF SEEDS AND ESTABLISHMENT
+                %%% TERM FOR PROBABILITY OF COLONIZATION vs. NUMBER OF SEEDS AND ESTABLISHMENT
                 
-                ProbS(1)=1-(1-1/est(1))^(SB(1)/m/m); 
+                ProbS(1)=1-(1-1/est(1))^(SB(1)/m/m);
                 ProbS(2)=1-(1-1/est(2))^(SB(2)/m/m); % FOR PINE AND SEEDERS, SEEDS ARE EQUALLY SPREAD THROUGHOUT THE CELLS; this was taken in the paper: Cannas et al. 2003
                 % to oak
-% %             mm=find(sum(ismember(coordseed(:,1:2),[i,j]),2)>=2);
-% %             SAME AS LINE ABOVE BUT WITH A FASTER ALGOORITHM (FOUND ON THE
-% %             INTERNET):
-%               mm=find(sum(builtin('_ismemberoneoutput',coordseed(:,1:2),[i,j]),2)>=2);
-%               lengthmm=length(mm);
+                % %             mm=find(sum(ismember(coordseed(:,1:2),[i,j]),2)>=2);
+                % %             SAME AS LINE ABOVE BUT WITH A FASTER ALGOORITHM (FOUND ON THE
+                % %             INTERNET):
+                %               mm=find(sum(builtin('_ismemberoneoutput',coordseed(:,1:2),[i,j]),2)>=2);
+                %               lengthmm=length(mm);
                 % EXPRESSION FOR PROB QUERCUS WITH A THRESHOLD FROM ONE SEED
                 % UP, PROBS=0.8:
                 %ProbS(3)=0;
                 %ProbS(3)=ProbS(3)+round(lengthmm/(lengthmm+eps))*.8; %
-                % EXPRESSION SIMILAR TO SEEDERS AND PINES: 
-%                 ProbS(3)=1-(1-1./est(3)).^lengthmm;
+                % EXPRESSION SIMILAR TO SEEDERS AND PINES:
+                %                 ProbS(3)=1-(1-1./est(3)).^lengthmm;
                 ProbS(3)=1-(1-1/est(3))^PosQSeed(i,j);
                 
                 %%%% VERSION 1 (discarded)
@@ -188,14 +186,14 @@ while Time < EndTime
                 %end
                 %ProbS(3)=ProbS(3)>=1; % if there is one seed or more -> prob=1
                 
-% COLONIZATION vs LITTER
-%               ProbL=[1 1 1];% term for test IN ABSENCE of litter
+                % COLONIZATION vs LITTER
+                %               ProbL=[1 1 1];% term for test IN ABSENCE of litter
                 ProbL(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ...
                     -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
                 ProbL(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
                 ProbL(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
                 
-% COMBINING PROBABILITIES OF ESTABLISHMENT DUE TO SEED NUMBERS AND LITTER
+                % COMBINING PROBABILITIES OF ESTABLISHMENT DUE TO SEED NUMBERS AND LITTER
                 
                 ProbG=ProbL.*ProbS; %term for test with litter
                 
@@ -244,7 +242,7 @@ while Time < EndTime
                 TC(i,j)= TC(i,j)*kind;
                 Age(i,j)= Age(i,j)*kind;
                 
-                % PINE CANOPY SEEDS FALL INTO SEEDBANK 
+                % PINE CANOPY SEEDS FALL INTO SEEDBANK
                 SB(1)= SB(1)+sum(SBPC); %the production of seeds when there is a fire is the total of the canopy seeds produced until that moment
                 SBP1=0;SBP2=0;SBPC=0;
             end
@@ -259,7 +257,7 @@ while Time < EndTime
     Litter=sum(sum(Lit>2));
     
     % RESET NUMBER OF QUERCUS SEEDS TO ZERO FOR NEXT YEAR
-    PosQSeed=zeros(m,m);      % NUMBER OF QUERCUS SEEDS PER CELL
+    PosQSeed=0*PosQSeed;      % NUMBER OF QUERCUS SEEDS PER CELL
     
     %%%%%%%%%%%%%%%% STORING AND VISUALIZATION %%%%%%%%%%%%%%%%%
     %     StoreTime = StoreTime - Time; % (Mara) I COMMENTED THIS BECAUSE YOU WANT TO
@@ -278,9 +276,9 @@ while Time < EndTime
     
     %StoreSpecies=[StorePine StoreSeeder StoreOak];
     % xlswrite('Sp abundance pine,seeder,oak',StoreSpecies)
-    end
-    
- %%% Plots final figure
+end
+
+%%% Plots final figure
 
 figure
 white=[1 1 1];
