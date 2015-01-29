@@ -108,7 +108,7 @@ SB=[0 500*m*m 0+randi(BirdSeedN,1)]; %initial seed bank
 %%%VECTOR OF FIRE OCCURRENCE
 D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
 tf=12;                     %time without fires
-fireret=5;                 %intervale between fires - fire return
+fireret=2;                 %intervale between fires - fire return
 rand('state',120)
 while tf<EndTime
     tf=tf-fireret*log(rand(1,1)); %stochastic fire recurrence Baudena et al 2010
