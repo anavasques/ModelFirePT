@@ -32,12 +32,10 @@ Seeder=0;                 % will count the number of cells with seeder
 
 %%% OAK
 AgeMO=50;                 % Age of maturity % Kew % [year]% !Pausas 1999 has maturity = 15!
-SeedFQ=12;               % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
-%SeedFQ=0;                % for experiments
-BirdSeedN=5;             % Annual seed input by birds - average values Q. suber Pons and Pausas 2007 50seeds per hectar - this value depends on surrounding populations
-%BirdSeedN=10;             % to experiment
+%SeedFQ=12;               % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
+SeedFQ=0;                % for experiments
+%BirdSeedN=5;              % Annual seed input by birds - based on average values Q. suber Pons and Pausas 2007 - this value depends on surrounding populations
 RespAge=1;                % ONLY OAKS OLDER THAN THIS AGE CAN RESPROUT
-%RespAge=2;                % RESPROUT ABILITY at X years - for experiments
 
 %LSO= 1000;               % Life span quercus robur % in forestar;
 LSO=500;                  % this was reduced by half to be more realistic (also in the calculations of mortality)
@@ -70,7 +68,7 @@ D=0;                      % initialization of disturbance
 
 % CONTROL CONSTANTS AND VARIABLES
 StartTime= 0;             % [year]
-EndTime= 200;            % [year]
+EndTime= 2000;            % [year]
 StoreTime = 1;            % [year]
 
 dt=1;                     % [year]
@@ -256,7 +254,7 @@ while Time < EndTime
     Pine=sum(sum(TC==1));
     Seeder=sum(sum(TC==2));
     Oak=sum(sum(TC==3));
-    Litter=sum(sum(Lit>2));
+    Litter=sum(sum(Lit>0.1));
     
     % RESET NUMBER OF QUERCUS SEEDS TO ZERO FOR NEXT YEAR
     PosQSeed=zeros(m,m);      % NUMBER OF QUERCUS SEEDS PER CELL
@@ -297,7 +295,7 @@ drawnow;pause
 
 %%%Plotting over time
 figure
-plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*', VectorTime,StoreLitter/m/m*100, 'k.')
+plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*', VectorTime,StoreLitter/m/m*100, 'k--x')
 legend('Pine','Seeder','Oak', 'Litter')
 set(gca,'fontsize',14);
 set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
