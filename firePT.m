@@ -296,7 +296,7 @@ imagesc(TC)
 set(h,'Clim',[-0.5 3.5]);
 colormap(VegetationColormap);
 colorbar
-drawnow;pause
+drawnow; pause
 
 %%%Plotting over time
 figure
@@ -306,6 +306,7 @@ set(gca,'fontsize',14);
 set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
 xlabel('Time (year)');
 ylabel ('Cover (%)');
+
 % saveas(gcf,'figureTime.png','png')
 
 % Creates movie - not working yet
