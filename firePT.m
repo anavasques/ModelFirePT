@@ -14,7 +14,8 @@ clear all
 
 %%% PINE
 AgeMP=10;                 % Age of maturity pine %start at 6 and regularly 10-15 % in Cronk and Fuller, 1995 [year]
-SeedFP=1000;              % Seed production per pine mature tree number of seeds per cone (63)* cone per tree (15) Vega et al 2008
+%SeedFP=1000;             % Seed production per pine mature tree number of seeds per cone (63)* cone per tree (15) Vega et al 2008
+SeedFP=100;               % Reduced in 10 times as in Quercus
 LSP= 100;                 % Life span of pine % in "practices centro pinus" [year]
 canopyBank=0.5;           % Percent of the seeds that are stored in the canopy maybe reduce it too many pines
 ReleaseSeeds=0;           % Pine seeds in the canopy that are released after the fire% not used in the current version
@@ -36,8 +37,8 @@ SeedFQ=12;               % Seed production oak per occupied cell - 120 acorns pe
 %SeedFQ=0;                % for experiments
 BirdSeedN=5;             % Annual seed input by birds - average values Q. suber Pons and Pausas 2007 50seeds per hectar - this value depends on surrounding populations
 %BirdSeedN=10;             % to experiment
-RespAge=1;                % ONLY OAKS OLDER THAN THIS AGE CAN RESPROUT
-%RespAge=2;                % RESPROUT ABILITY at X years - for experiments
+%RespAge=1;                % ONLY OAKS OLDER THAN THIS AGE CAN RESPROUT
+RespAge=10;                % RESPROUT ABILITY at X years - for experiments
 
 %LSO= 1000;               % Life span quercus robur % in forestar;
 LSO=500;                  % this was reduced by half to be more realistic (also in the calculations of mortality)
@@ -70,7 +71,7 @@ D=0;                      % initialization of disturbance
 
 % CONTROL CONSTANTS AND VARIABLES
 StartTime= 0;             % [year]
-EndTime= 400;            % [year]
+EndTime= 1000;            % [year]
 StoreTime = 1;            % [year]
 
 dt=1;                     % [year]
@@ -102,13 +103,13 @@ TC(4:4:m-4,4:4:m-4)= 1;   % plants 1 pine every 4 meters - dense prodution stand
 
 PosQSeed=zeros(m,m);      % NUMBER OF QUERCUS SEEDS PER CELL
 
-SB=[0 500*m*m 0+randi(BirdSeedN,1)]; %initial seed bank
+SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %initial seed bank
 %SB=[0 1000 0+randi(BirdSeedN,1)]; %previous number of seeds changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 
 %%%VECTOR OF FIRE OCCURRENCE
 D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
-tf=12;                     %time without fires
-fireret=20;                 %interval between fires - fire return
+tf=40;                     %time without fires
+fireret=7;                 %interval between fires - fire return
 rand('state',121)
 
 while tf<EndTime
@@ -258,6 +259,7 @@ while Time < EndTime
     Seeder=sum(sum(TC==2));
     Oak=sum(sum(TC==3));
     Litter=sum(sum(Lit>2));
+    AgeMTX=mean(mean(Age));
     
     % RESET NUMBER OF QUERCUS SEEDS TO ZERO FOR NEXT YEAR
     PosQSeed=0*PosQSeed;      % NUMBER OF QUERCUS SEEDS PER CELL
@@ -274,6 +276,7 @@ while Time < EndTime
     StoreSeeder(NrStore) = Seeder;
     StoreOak(NrStore) = Oak;
     StoreLitter(NrStore)= Litter;
+    StoreAge(NrStore)=AgeMTX;
     VectorTime(NrStore)= Time;
     NrStore = NrStore+1;
     StoreTime = StoreStep;
@@ -294,15 +297,16 @@ VegetationColormap=[white; blue;red;green];
 h=subplot(1,1,1);
 imagesc(TC)
 set(h,'Clim',[-0.5 3.5]);
+set(gca,'FontSize',20,'fontWeight','bold')
 colormap(VegetationColormap);
 colorbar
 drawnow; pause
 
 %%%Plotting over time
 figure
-plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*', VectorTime,StoreLitter/m/m*100, 'k.')
-legend('Pine','Seeder','Oak', 'Litter')
-set(gca,'fontsize',14);
+plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*', VectorTime,StoreLitter/m/m*100, 'k.', VectorTime,StoreAge,'gr')
+legend('Pine','Seeder','Oak', 'Litter with more than 2 cm', 'Average age')
+set(gca,'fontsize',20, 'fontWeight','bold');
 set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
 xlabel('Time (year)');
 ylabel ('Cover (%)');
