@@ -108,12 +108,10 @@ SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %initial seed bank %comment this on the mul
 
 %%%%% CODE FOR MULTIRUNS %%%%%%%
 
-% maxseedSeed=10:100:1000; % makes runs changing the parameter of SB (2) between the three values determined and keeping all other values fixed
-%BirdSeedN=1:5:50;
+% maxseedSeed=100:100:1000; % makes runs changing the parameter of SB (2) between the three values determined and keeping all other values fixed
 % save('par.mat') % SAVE ALL THE PARS THAT ARE COMMON TO ALL THE RUNS
 % 
 % for k=1:length(maxseedSeed)
-% for x=1:length(BirdSeedN)
 %     
 %     SB=[0 maxseedSeed(k) 0+randi(BirdSeedN,1)];
 %     %     filename=strcat(['par',num2str(k),'.mat']);
@@ -305,7 +303,6 @@ end
 %     save(filename,'StorePine','StoreSeeder','StoreOak','VectorTime','SB')
 %     %matr=[StorePine,StoreSeeder,StoreOak,VectorTime];
 %     %  save(filename,'matr','-ascii')
-% end
 % end
 %%% Plots final figure
 

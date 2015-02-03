@@ -4,7 +4,7 @@ SB=0:1:50;
 est=7;
 ProbS= 1-(1-1./est).^(SB);
 figure
-plot(SB,ProbS, 'b')
+plot(SB,ProbS, 'b', 'LineWidth',5)
 title('pine', 'fontsize',20, 'fontWeight','bold')
 set(gca,'fontsize',20, 'fontWeight','bold');
 xlabel('Number of seeds in the seed bank per cell'), ylabel('Probability of establishment')
@@ -17,7 +17,7 @@ SB=0:1:500;
 est=100;
 ProbS= 1-(1-1./est).^(SB);
 figure
-plot(SB,ProbS,'r--.')
+plot(SB,ProbS,'r--.', 'LineWidth',5)
 title('seeder', 'fontsize',20, 'fontWeight','bold')
 set(gca,'fontsize',20, 'fontWeight','bold');
 xlabel('Number of seeds in the seed bank per cell'), ylabel('Probability of establishment')
@@ -30,7 +30,7 @@ SB=0:1:10;
 est=2;
 ProbS= 1-(1-1./est).^(SB);
 figure
-plot(SB,ProbS, 'g--*')
+plot(SB,ProbS, 'g--*', 'LineWidth',5)
 title('oak', 'fontsize',20, 'fontWeight','bold')
 set(gca,'fontsize',20, 'fontWeight','bold');
 xlabel('Number of seeds in the seed bank per cell'), ylabel('Probability of establishment')

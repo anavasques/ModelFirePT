@@ -34,7 +34,7 @@
 % OAK                  
                   Lit=0:0.1:6;
                   maxGQ=0.9;
-                  minGQ=0.3
+                  minGQ=0.3;
                   ProbGQ=maxGQ-(maxGQ-minGQ)*exp(-Lit);
                   plot(Lit,ProbGQ, 'g*', 'LineWidth',5)
                   set(gca,'fontsize',20, 'fontWeight','bold');
