@@ -36,7 +36,7 @@ AgeMO=50;                 % Age of maturity % Kew % [year]% !Pausas 1999 has mat
 SeedFQ=12;               % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
 %SeedFQ=0;                % for experiments
 BirdSeedN=5;             % Annual seed input by birds - average values Q. suber Pons and Pausas 2007 50seeds per hectar - this value depends on surrounding populations
-%BirdSeedN=10;             % to experiment
+%BirdSeedN=1;             % to experiment
 RespAge=1;                % ONLY OAKS OLDER THAN THIS AGE CAN RESPROUT
 %RespAge=10;                % RESPROUT ABILITY at X years - for experiments
 
@@ -86,9 +86,7 @@ StoreOak=zeros(EndTime,1);
 StoreLitter=zeros(EndTime,1);
 VectorTime=zeros(EndTime,1);
 
-% FOR MULTIRUNS
-nruns=10;
-
+%%%------------------------------------------------------------------------
 %%%INICIALIZATION OF THE MATRICES
 
 %TC - Type of Cover: 1- pine; 2- seeder; 3- oak; Age- plant age; SB- Seed Bank); Lit- Litter
@@ -97,17 +95,19 @@ TC= zeros(m,m);           % Creates a matrix of size m*m filled with zeros
 Age= zeros(m,m);          % Creates a matrix of size m*m filled with zeros
 Lit= zeros(m,m);          % Creates a matrix of size m*m filled with zeros
 z= 8;                     % Number of neighbours
-
-TC(4:4:m-4,4:4:m-4)= 1;   % plants 1 pine every 4 meters - dense prodution stand excluding the borders
-%TC(40:40:m-40,40:40:m-40)= 1; % plants 1 pine every 40 meters - dense prodution stand excluding the borders
-
 PosQSeed=zeros(m,m);      % NUMBER OF QUERCUS SEEDS PER CELL
 
-SB=[0*m*m 100*m*m 0+randi(BirdSeedN,1)]; %initial seed bank %comment this on the multiruns
+TC(4:4:m-4,4:4:m-4)= 1;   % plants 1 pine every 4 meters - dense prodution stand excluding the borders
+%TC(40:40:m-40,40:40:m-40)= 1; % plants 1 pine every X meters - for experiments
+
+%coord=randi(m,10,1)
+%TC(coord(1),coord(2))=2;
+SB=[0 0*m*m 0+randi(BirdSeedN,1)]; %initial seed bank %comment this on the multiruns
+%SBP1=30*m*m %to start the seeds of pine
 %SB=[0 1000 0+randi(BirdSeedN,1)]; %previous number of seeds changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 
 %%%%% CODE FOR MULTIRUNS %%%%%%%
-
+%nruns=10;
 % maxseedSeed=10:100:1000; % makes runs changing the parameter of SB (2) between the three values determined and keeping all other values fixed
 %BirdSeedN=1:5:50;
 % save('par.mat') % SAVE ALL THE PARS THAT ARE COMMON TO ALL THE RUNS
@@ -121,7 +121,7 @@ SB=[0*m*m 100*m*m 0+randi(BirdSeedN,1)]; %initial seed bank %comment this on the
 
 %%%VECTOR OF FIRE OCCURRENCE
 D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
-tf=40000;                     %time without fires
+tf=40;                     %time without fires
 fireret=7;                 %interval between fires - fire return
 rand('state',121)
 
@@ -136,40 +136,37 @@ end
 
 while Time < EndTime
     Time= Time+dt
-        %%%% Creates LITTER in the neighborhod of pine (8 neighbors)+ the pine
-        %%%%site itself
+        %%%% Creates LITTER in the neighborhod of pine (8 neighbors)+ pine
     %%%if TC(Age>AgeMP)==1 %if in the first years pine do not create litter
-        [x,y]=find(TC(2:end-1,2:end-1)==1); %finds cells =1 in the whole matrix
+        [x,y]=find(TC(2:end-1,2:end-1)==1); %finds cells =1 in the whole matrix - already has if
         x=x+1;y=y+1;
         for i=1:length(x)
             Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;
-            %%%% !!! maybe consider adding litter in the neighbourhood of oak when it is dominant
-            %%%% and adult
+            %%%% consider adding litter in the neighbourhood of oak (?) not
+            %%%% needed in this time frame?
         end
     
     % SEED BANK CALCULATION (ONCE A YEAR)
-    SB(1)=SBP1+SBP2+SeedFP*(1-canopyBank)*sum(sum(TC(Age>AgeMP)==1));% TWO YEARS OF SEED LIFE; 1-canopybank is doing the same as canopy bank, i.e. *0.5
+    
+    %PINE soil seeds (SB1) and canopy seeds (SBPC)
+    SB(1)=SBP1+SBP2+SeedFP*(1-canopyBank)*sum(sum(TC(Age>AgeMP)==1));% Pine TWO YEARS OF SEED LIFE; 1-canopybank is doing the same as canopy bank, i.e. *0.5
+    SBPC=SBPC+SeedFP*canopyBank*sum(TC(Age>AgeMP)==1); 
+    %SEEDER
     SB(2)=SB(2)+SeedFS*(sum(sum(TC==2)))-SeedLoss(2)*SB(2);           % LONG SEED LIFE
+    %OAK
     SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1);     % NO MEMORY
-    % puts the seeds that arrive in random coordinates of the lattice
-    % OLD WAY
-    %     if SB(3)>0
-    %     coordseed=randi(m,SB(3),2);
-    %     end
+    % puts the seeds of oak that arrive in random coordinates of the lattice
     % NEW WAY
-    for kk=1:SB(3)
+    for kk=1:SB(3) %only happens if SB3 is bigger than 1
         cc=randi(m,1,2);%c2=randi(m,1,1);
         PosQSeed(cc(1),cc(2))=PosQSeed(cc(1),cc(2))+1;
     end
-    
-    % accumulation of pine seeds in the canopy
-    SBPC=SBPC+SeedFP*canopyBank*sum(TC(Age>AgeMP)==1); %canopyBank=% of the seeds that stay in the canopy and accumulate over time
     
     %------------------------------------------------------------------
     % COLONIZATION OF AN EMPTY CELL AND MORTALITY FOR VEGETATED CELLS
     %------------------------------------------------------------------
     % At each time step tests who is going to colonize an empty cell in the lattice based on the
-    % availiable seeds (seed production and seed bank)
+    % availiable seeds (seed bank) and on litter
     for i = 1 : m
         for j=1:m
             test=rand*nrsp; %RANDOM NUMBER BETWEEN 0 AND THE NUMBER OF SPECIES (LENGTH(PROBg=3))
@@ -179,41 +176,26 @@ while Time < EndTime
                 
                 ProbS(1)=1-(1-1/est(1))^(SB(1)/m/m);
                 ProbS(2)=1-(1-1/est(2))^(SB(2)/m/m); % FOR PINE AND SEEDERS, SEEDS ARE EQUALLY SPREAD THROUGHOUT THE CELLS; this was taken in the paper: Cannas et al. 2003
-                % to oak
-                % %             mm=find(sum(ismember(coordseed(:,1:2),[i,j]),2)>=2);
-                % %             SAME AS LINE ABOVE BUT WITH A FASTER ALGOORITHM (FOUND ON THE
-                % %             INTERNET):
-                %               mm=find(sum(builtin('_ismemberoneoutput',coordseed(:,1:2),[i,j]),2)>=2);
-                %               lengthmm=length(mm);
-                % EXPRESSION FOR PROB QUERCUS WITH A THRESHOLD FROM ONE SEED
-                % UP, PROBS=0.8:
-                %ProbS(3)=0;
-                %ProbS(3)=ProbS(3)+round(lengthmm/(lengthmm+eps))*.8; %
-                % EXPRESSION SIMILAR TO SEEDERS AND PINES:
-                %                 ProbS(3)=1-(1-1./est(3)).^lengthmm;
-                ProbS(3)=1-(1-1/est(3))^PosQSeed(i,j);
-                
-                %%%% VERSION 1 (discarded)
-                %for ii=1:size(coordseed,1)
-                %ProbS(3)=ProbS(3)+(coordseed(ii,1)==i&coordseed(ii,2)==j);
-                %end
-                %ProbS(3)=ProbS(3)>=1; % if there is one seed or more -> prob=1
+                % for oak the seeds are not divided by the laticce (too
+                % little) but are spread over the lattice instead
+                ProbS(3)=1-(1-1/est(3))^PosQSeed(i,j); %if ProsQSeed=0 the whole term goes to zero
                 
                 %COLONIZATION vs LITTER
-                %ProbL=[1 1 1];% term for test IN ABSENCE of litter
+                
                 ProbL(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ...
                     -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
                 ProbL(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
                 ProbL(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
+                %ProbL=[1 1 1];% term for test IN ABSENCE of litter
                 
-                % COMBINING PROBABILITIES OF ESTABLISHMENT DUE TO SEED NUMBERS AND LITTER
+                % COMBINING PROBABILITIES OF ESTABLISHMENT DUE TO SEED
+                % NUMBERS AND LITTER % version Mara i.e. prob only needs to
+                % be <than 3 and we don't multiply by dt anymore)
                 
                 ProbG=ProbL.*ProbS; %term for test with litter
-
-                % version Mara i.e. prob only needs to be <than 3 and we don't multiply by dt anymore)
                 
                 if test>ProbG(1)+ProbG(2)+ProbG(3)
-                    TC(i,j)=0;
+                    TC(i,j)=0; %this was modified to make the code faster so if the cell is not colonized it stops running here
                 elseif test>ProbG(1)+ProbG(2)
                     TC(i,j)=3;
                     Age(i,j)=dt;
@@ -229,7 +211,7 @@ while Time < EndTime
                 Age(i,j)=Age(i,j)+dt;
                 Lit(i,j)=eflit*Lit(i,j); % effective litter, i.e. litter that is not degraded and remain for the years after
                 
-                if test< mort(TC(i,j))*dt
+                if test< mort(TC(i,j))*dt %determines if a cell dies, mort is defined according to life span
                     TC(i,j)=0;
                     Age(i,j)=0;
                 end
@@ -239,7 +221,7 @@ while Time < EndTime
     
     
     %%%% DISTURBANCE
-    %%%D=randi(10,1)*(Time>=12); %this term is no longer needed
+    % the rest of the disturbance term is at the beggining of the code
     D1=D(Time);
     if D1== 1
         'fire';
@@ -264,17 +246,17 @@ while Time < EndTime
     SBP2=0.5*SBP1; % PINE SEED BANK OF TWO YEARS BEFORE IS 50%
     SBP1=SB(1);% PINE SEED BANK OF 1 YEAR BEFORE
     
-    %%% updates abundance of different species in the lattice
+   
     
+    % RESETS NUMBER OF QUERCUS SEEDS TO ZERO FOR NEXT YEAR
+    PosQSeed=0*PosQSeed;      % NUMBER OF QUERCUS SEEDS PER CELL
+    
+    % Store variables for plotting
     Pine=sum(sum(TC==1));
     Seeder=sum(sum(TC==2));
     Oak=sum(sum(TC==3));
     Litter=sum(sum(Lit>2));
     %AgeMTX=mean(mean(Age));
-    
-    % RESET NUMBER OF QUERCUS SEEDS TO ZERO FOR NEXT YEAR
-    PosQSeed=0*PosQSeed;      % NUMBER OF QUERCUS SEEDS PER CELL
-    
     
     StorePine(NrStore) = Pine; % NOTICE THESE VECTORS ARE AS LONG AS ENDTIMES, and as wide as 1 (vector not matrices) NOT M BY M AS YOU DEFINED THEM.. -> REDIFINING ABOVE SHOULD TAKE LESS TIME -> LET ME KNOW!
     StoreSeeder(NrStore) = Seeder;
@@ -284,22 +266,7 @@ while Time < EndTime
     VectorTime(NrStore)= Time;
     NrStore = NrStore+1;
     StoreTime = StoreStep;
-    % end %if StoreTime <= 0
-    
-    %StoreSpecies=[StorePine StoreSeeder StoreOak];
-    % xlswrite('Sp abundance pine,seeder,oak',StoreSpecies)
-end
- 
-%     %     filename=strcat(['fire',num2str(k),'.mat' ]);
-%     %     save(filename,'StorePine','StoreSeeder','StoreOak','VectorTime','')
-%     filename=strcat(['seedstart',num2str(maxseedSeed(k)),'.mat' ]);
-%     save(filename,'StorePine','StoreSeeder','StoreOak','VectorTime','SB')
-%     %matr=[StorePine,StoreSeeder,StoreOak,VectorTime];
-%     %  save(filename,'matr','-ascii')
-% end
-% end
-%%% Plots final figure
-
+    %%% Plots final figure
 figure
 white=[1 1 1];
 blue=[0 0 1];
@@ -314,7 +281,18 @@ colormap(VegetationColormap);
 colorbar
 drawnow; pause
 
->>>>>>> origin/master
+end
+%%%%% MULTIRUNS CODE
+ 
+%     %     filename=strcat(['fire',num2str(k),'.mat' ]);
+%     %     save(filename,'StorePine','StoreSeeder','StoreOak','VectorTime','')
+%     filename=strcat(['seedstart',num2str(maxseedSeed(k)),'.mat' ]);
+%     save(filename,'StorePine','StoreSeeder','StoreOak','VectorTime','SB')
+%     %matr=[StorePine,StoreSeeder,StoreOak,VectorTime];
+%     %  save(filename,'matr','-ascii')
+% end
+% end
+
 %%%Plotting over time
 figure
 plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*', VectorTime,StoreLitter/m/m*100, 'k.')%, VectorTime,StoreAge,'gr')
@@ -326,9 +304,3 @@ xlabel('Time (year)');
 ylabel ('Cover (%)');
 
 % saveas(gcf,'figureTime.png','png')
-
-% Creates movie - not working yet
-%     imagesc(TC);
-%     movie(Frame)=getframe;
-%     Frame=Frame+1;
-%     writerObj = VideoWriter(imageTC) %constructs a VideoWriter object to write video data to an AVI file with Motion JPEG compression.
