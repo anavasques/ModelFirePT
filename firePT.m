@@ -102,7 +102,7 @@ TC(4:4:m-4,4:4:m-4)= 1;   % plants 1 pine every 4 meters - dense prodution stand
 %experiments
 %coord=randi(m,10,1)
 %TC(coord(1),coord(2))=2;
-SB=[0 0*m*m 0+randi(BirdSeedN,1)]; %initial seed bank %comment this on the multiruns
+SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %initial seed bank %comment this on the multiruns
 %SBP1=30*m*m %to start the seeds of pine
 %SB=[0 1000 0+randi(BirdSeedN,1)]; %previous number of seeds changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 
@@ -121,7 +121,7 @@ SB=[0 0*m*m 0+randi(BirdSeedN,1)]; %initial seed bank %comment this on the multi
 
 %%%VECTOR OF FIRE OCCURRENCE
 D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
-tf=40;                     %time without fires
+tf=200;                     %time without fires
 fireret=7;                 %interval between fires - fire return
 rand('state',121)
 
@@ -136,15 +136,15 @@ end
 
 while Time < EndTime
     Time= Time+dt
-        %%%% Creates LITTER in the neighborhod of pine (8 neighbors)+ pine
-    %%%if TC(Age>AgeMP)==1 %if in the first years pine do not create litter
-        [x,y]=find(TC(2:end-1,2:end-1)==1); %finds cells =1 in the whole matrix - already has if
-        x=x+1;y=y+1;
-        for i=1:length(x)
-            Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;
-            %%%% consider adding litter in the neighbourhood of oak (?) not
-            %%%% needed in this time frame?
-        end
+%         %%%% Creates LITTER in the neighborhod of pine (8 neighbors)+ pine
+%     %%%if TC(Age>AgeMP)==1 %if in the first years pine do not create litter
+%         [x,y]=find(TC(2:end-1,2:end-1)==1); %finds cells =1 in the whole matrix - already has if
+%         x=x+1;y=y+1;
+%         for i=1:length(x)
+%             Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;
+%             %%%% consider adding litter in the neighbourhood of oak (?) not
+%             %%%% needed in this time frame?
+%         end
     
     % SEED BANK CALCULATION (ONCE A YEAR)
     
@@ -182,11 +182,11 @@ while Time < EndTime
                 
                 %COLONIZATION vs LITTER
                 
-                ProbL(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ...
-                    -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
-                ProbL(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
-                ProbL(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
-                %ProbL=[1 1 1];% term for test IN ABSENCE of litter
+%                 ProbL(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ...
+%                     -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
+%                 ProbL(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
+%                 ProbL(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
+                ProbL=[1 1 1];% term for test IN ABSENCE of litter
                 
                 % COMBINING PROBABILITIES OF ESTABLISHMENT DUE TO SEED
                 % NUMBERS AND LITTER % version Mara i.e. prob only needs to
@@ -209,7 +209,7 @@ while Time < EndTime
                 end
             else
                 Age(i,j)=Age(i,j)+dt;
-                Lit(i,j)=eflit*Lit(i,j); % effective litter, i.e. litter that is not degraded and remain for the years after
+%                 Lit(i,j)=eflit*Lit(i,j); % effective litter, i.e. litter that is not degraded and remain for the years after
                 
                 if test< mort(TC(i,j))*dt %determines if a cell dies, mort is defined according to life span
                     TC(i,j)=0;
@@ -225,7 +225,7 @@ while Time < EndTime
     D1=D(Time);
     if D1== 1
         'fire';
-        Lit(:,:)=0;
+%         Lit(:,:)=0;
         for i=1:m
             for j=1:m
                 % PINES AND SEEDERS DIE; QUERCUS RESPROUTS IF OLDER OR
@@ -266,6 +266,18 @@ while Time < EndTime
     VectorTime(NrStore)= Time;
     NrStore = NrStore+1;
     StoreTime = StoreStep;
+
+end
+%%%%% MULTIRUNS CODE
+ 
+%     %     filename=strcat(['fire',num2str(k),'.mat' ]);
+%     %     save(filename,'StorePine','StoreSeeder','StoreOak','VectorTime','')
+%     filename=strcat(['seedstart',num2str(maxseedSeed(k)),'.mat' ]);
+%     save(filename,'StorePine','StoreSeeder','StoreOak','VectorTime','SB')
+%     %matr=[StorePine,StoreSeeder,StoreOak,VectorTime];
+%     %  save(filename,'matr','-ascii')
+% end
+% end
     %%% Plots final figure
 figure
 white=[1 1 1];
@@ -281,22 +293,10 @@ colormap(VegetationColormap);
 colorbar
 drawnow; pause
 
-end
-%%%%% MULTIRUNS CODE
- 
-%     %     filename=strcat(['fire',num2str(k),'.mat' ]);
-%     %     save(filename,'StorePine','StoreSeeder','StoreOak','VectorTime','')
-%     filename=strcat(['seedstart',num2str(maxseedSeed(k)),'.mat' ]);
-%     save(filename,'StorePine','StoreSeeder','StoreOak','VectorTime','SB')
-%     %matr=[StorePine,StoreSeeder,StoreOak,VectorTime];
-%     %  save(filename,'matr','-ascii')
-% end
-% end
-
 %%%Plotting over time
 figure
-plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*', VectorTime,StoreLitter/m/m*100, 'k.')%, VectorTime,StoreAge,'gr')
-legend('Pine','Seeder','Oak', 'Litter with more than 2 cm')%, 'Average age')
+plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*') %VectorTime,StoreLitter/m/m*100, 'k.')%, VectorTime,StoreAge,'gr')
+legend('Pine','Seeder','Oak')% 'Litter with more than 2 cm')%, 'Average age')
 set(gca,'fontsize',14, 'fontWeight','bold');
 set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
 set(gca,'fontsize',16, 'fontWeight','bold');
