@@ -33,12 +33,12 @@ Seeder=0;                 % will count the number of cells with seeder
 
 %%% OAK
 AgeMO=50;                 % Age of maturity % Kew % [year]% !Pausas 1999 has maturity = 15!
-SeedFQ=12;               % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
+SeedFQ=12;                % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
 %SeedFQ=0;                % for experiments
-BirdSeedN=5;             % Annual seed input by birds - average values Q. suber Pons and Pausas 2007 50seeds per hectar - this value depends on surrounding populations
+BirdSeedN=5;              % Annual seed input by birds - average values Q. suber Pons and Pausas 2007 50seeds per hectar - this value depends on surrounding populations
 %BirdSeedN=1;             % to experiment
 RespAge=1;                % ONLY OAKS OLDER THAN THIS AGE CAN RESPROUT
-%RespAge=10;                % RESPROUT ABILITY at X years - for experiments
+%RespAge=10;              % RESPROUT ABILITY at X years - for experiments
 
 %LSO= 1000;               % Life span quercus robur % in forestar;
 LSO=500;                  % this was reduced by half to be more realistic (also in the calculations of mortality)
@@ -119,6 +119,11 @@ SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %initial seed bank %comment this on the mul
 %     %     filename=strcat(['par',num2str(k),'.mat']);
 %     %     save(filename)
 
+
+%%%%% WITH MARA - CHANGE THIS TO HAVE ONLY 2-3 REPEATED FIRES AND THEN NO
+%%%%% FIRES AGAIN - WHAT HAPPENS AFTER THAT PERIOD - EXPERIMENTS WITH
+%%%%% STARTING CONDITIONS AND TYPE OF DISTURBANCE BUT THE INTERVAL IS
+%%%%% CONSTANT (OR ELSE DEFINE 2-3 POSSIBLE INTERVALS)
 %%%VECTOR OF FIRE OCCURRENCE
 D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
 tf=200;                     %time without fires
@@ -141,6 +146,8 @@ while Time < EndTime
 %         [x,y]=find(TC(2:end-1,2:end-1)==1); %finds cells =1 in the whole matrix - already has if
 %         x=x+1;y=y+1;
 %         for i=1:length(x)
+%%%%%%% WITH MARA - CHANGE THE LITTER ACCUMULATION AND TRANSFORM IT IN A
+%%%%%%% SIGMOID CURVE where the equilibrium - between accumulation and decomposition is attained after 30-40 years - GET THESE VALUES Pausas or other literature%%%%
 %             Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;
 %             %%%% consider adding litter in the neighbourhood of oak (?) not
 %             %%%% needed in this time frame?
