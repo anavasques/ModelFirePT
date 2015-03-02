@@ -32,11 +32,12 @@ LSS=30;                   % Life span calluna % in woodland education centre [ye
 Seeder=0;                 % will count the number of cells with seeder
 
 %%% OAK
-AgeMO=50;                 % Age of maturity % Kew % [year]% !Pausas 1999 has maturity = 15!
-SeedFQ=12;                % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
-%SeedFQ=0;                % for experiments
-BirdSeedN=5;              % Annual seed input by birds - average values Q. suber Pons and Pausas 2007 50seeds per hectar - this value depends on surrounding populations
-%BirdSeedN=1;             % to experiment
+%AgeMO=50;                % Age of maturity % Kew % [year]% !Pausas 1999 has maturity = 15!
+AgeMO=20;                 % According to Ramon an oak can produce acorns after 15-20 years
+%SeedFQ=12;                % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
+SeedFQ=0;                % Oak does not produce seeds, it creates a reserve of saplings in the understory
+BirdSeedN=5;             % Annual seed input by birds - average values Q. suber Pons and Pausas 2007 50seeds per hectar - this value depends on surrounding populations
+%BirdSeedN=1000;              % to experiment
 RespAge=1;                % ONLY OAKS OLDER THAN THIS AGE CAN RESPROUT
 %RespAge=10;              % RESPROUT ABILITY at X years - for experiments
 
@@ -71,7 +72,7 @@ D=0;                      % initialization of disturbance
 
 % CONTROL CONSTANTS AND VARIABLES
 StartTime= 0;             % [year]
-EndTime= 1000;            % [year]
+EndTime= 500;            % [year]
 StoreTime = 1;            % [year]
 
 dt=1;                     % [year]
@@ -97,11 +98,17 @@ Lit= zeros(m,m);          % Creates a matrix of size m*m filled with zeros
 z= 8;                     % Number of neighbours
 PosQSeed=zeros(m,m);      % NUMBER OF QUERCUS SEEDS PER CELL
 
+%PLANT PINES
 TC(4:4:m-4,4:4:m-4)= 1;   % plants 1 pine every 4 meters - dense prodution stand excluding the borders
 %TC(40:40:m-40,40:40:m-40)= 1; % plants 1 pine every X meters - for
 %experiments
-%coord=randi(m,10,1)
-%TC(coord(1),coord(2))=2;
+
+% %%%%Puts cover of seeder or oak randomly in the lattice
+% rp=0 %initializes rand perm
+% rp=randperm(m*m);
+% s=400%puts a number of seeder or oak(in this case seeders in a random manner) 
+% TC(rp(1:s))=3;
+
 SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %initial seed bank %comment this on the multiruns
 %SBP1=30*m*m %to start the seeds of pine
 %SB=[0 1000 0+randi(BirdSeedN,1)]; %previous number of seeds changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
@@ -122,15 +129,14 @@ SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %initial seed bank %comment this on the mul
 
 %%%%% WITH MARA - CHANGE THIS TO HAVE ONLY 2-3 REPEATED FIRES AND THEN NO
 %%%%% FIRES AGAIN - WHAT HAPPENS AFTER THAT PERIOD - EXPERIMENTS WITH
-%%%%% STARTING CONDITIONS AND TYPE OF DISTURBANCE BUT THE INTERVAL IS
-%%%%% CONSTANT (OR ELSE DEFINE 2-3 POSSIBLE INTERVALS)
+
 %%%VECTOR OF FIRE OCCURRENCE
 D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
-tf=200;                     %time without fires
-fireret=7;                 %interval between fires - fire return
+tf=40000;                     %time without fires
+fireret=20;                 %interval between fires - fire return
 rand('state',121)
 
-while tf<EndTime
+while tf<80 %EndTime % here I've substituted EndTime for the time when I want disturbance to stop
     tf=tf-fireret*log(rand(1,1)); %stochastic fire recurrence Baudena et al 2010
     D(round(tf))=1;
 end
@@ -141,17 +147,17 @@ end
 
 while Time < EndTime
     Time= Time+dt
-%         %%%% Creates LITTER in the neighborhod of pine (8 neighbors)+ pine
-%     %%%if TC(Age>AgeMP)==1 %if in the first years pine do not create litter
-%         [x,y]=find(TC(2:end-1,2:end-1)==1); %finds cells =1 in the whole matrix - already has if
-%         x=x+1;y=y+1;
-%         for i=1:length(x)
-%%%%%%% WITH MARA - CHANGE THE LITTER ACCUMULATION AND TRANSFORM IT IN A
-%%%%%%% SIGMOID CURVE where the equilibrium - between accumulation and decomposition is attained after 30-40 years - GET THESE VALUES Pausas or other literature%%%%
-%             Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;
-%             %%%% consider adding litter in the neighbourhood of oak (?) not
-%             %%%% needed in this time frame?
-%         end
+        %%%% Creates LITTER in the neighborhod of pine (8 neighbors)+ pine
+    %%%if TC(Age>AgeMP)==1 %if in the first years pine do not create litter
+        [x,y]=find(TC(2:end-1,2:end-1)==1); %finds cells =1 in the whole matrix - already has if
+        x=x+1;y=y+1;
+        for i=1:length(x)
+%%%%%% WITH MARA - CHANGE THE LITTER ACCUMULATION AND TRANSFORM IT IN A
+%%%%%% SIGMOID CURVE where the equilibrium - between accumulation and decomposition is attained after 30-40 years - GET THESE VALUES Pausas or other literature%%%%
+            Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;
+            %%%% consider adding litter in the neighbourhood of oak (?) not
+            %%%% needed in this time frame?
+        end
     
     % SEED BANK CALCULATION (ONCE A YEAR)
     
@@ -187,12 +193,12 @@ while Time < EndTime
                 % little) but are spread over the lattice instead
                 ProbS(3)=1-(1-1/est(3))^PosQSeed(i,j); %if ProsQSeed=0 the whole term goes to zero
                 
-                %COLONIZATION vs LITTER
+                %%%COLONIZATION vs LITTER
                 
-%                 ProbL(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ...
-%                     -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
-%                 ProbL(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
-%                 ProbL(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
+                ProbL(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ...
+                    -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
+                ProbL(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
+                ProbL(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
                 ProbL=[1 1 1];% term for test IN ABSENCE of litter
                 
                 % COMBINING PROBABILITIES OF ESTABLISHMENT DUE TO SEED
@@ -216,7 +222,7 @@ while Time < EndTime
                 end
             else
                 Age(i,j)=Age(i,j)+dt;
-%                 Lit(i,j)=eflit*Lit(i,j); % effective litter, i.e. litter that is not degraded and remain for the years after
+                Lit(i,j)=eflit*Lit(i,j); % effective litter, i.e. litter that is not degraded and remain for the years after
                 
                 if test< mort(TC(i,j))*dt %determines if a cell dies, mort is defined according to life span
                     TC(i,j)=0;
@@ -232,7 +238,7 @@ while Time < EndTime
     D1=D(Time);
     if D1== 1
         'fire';
-%         Lit(:,:)=0;
+        Lit(:,:)=0;
         for i=1:m
             for j=1:m
                 % PINES AND SEEDERS DIE; QUERCUS RESPROUTS IF OLDER OR
@@ -285,7 +291,8 @@ end
 %     %  save(filename,'matr','-ascii')
 % end
 % end
-    %%% Plots final figure
+
+        %%% Plots final figure
 figure
 white=[1 1 1];
 blue=[0 0 1];
@@ -302,8 +309,8 @@ drawnow; pause
 
 %%%Plotting over time
 figure
-plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*') %VectorTime,StoreLitter/m/m*100, 'k.')%, VectorTime,StoreAge,'gr')
-legend('Pine','Seeder','Oak')% 'Litter with more than 2 cm')%, 'Average age')
+plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*', VectorTime,StoreLitter/m/m*100, 'k.')%, VectorTime,StoreAge,'gr')
+legend('Pine','Seeder','Oak', 'Litter with more than 2 cm')%, 'Average age')
 set(gca,'fontsize',14, 'fontWeight','bold');
 set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
 set(gca,'fontsize',16, 'fontWeight','bold');
