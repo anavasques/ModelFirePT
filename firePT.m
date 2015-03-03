@@ -100,17 +100,17 @@ PosQSeed=zeros(m,m);      % NUMBER OF QUERCUS SEEDS PER CELL
 
 %PLANT PINES
 TC(4:4:m-4,4:4:m-4)= 1;   % plants 1 pine every 4 meters - dense prodution stand excluding the borders
-%TC(40:40:m-40,40:40:m-40)= 1; % plants 1 pine every X meters - for
+%TC(2:2:m-2,2:2:m-2)= 1; % plants 1 pine every X meters - for
 %experiments
 
 % %%%%Puts cover of seeder or oak randomly in the lattice
-% rp=0 %initializes rand perm
-% rp=randperm(m*m);
-% s=400%puts a number of seeder or oak(in this case seeders in a random manner) 
-% TC(rp(1:s))=3;
+rp=0 %initializes rand perm
+rp=randperm(m*m);
+s=5000%puts a number of seeder or oak(in this case seeders in a random manner) 
+TC(rp(1:s))=2;
 
-SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %initial seed bank %comment this on the multiruns
-%SBP1=30*m*m %to start the seeds of pine
+SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment this on the multiruns
+%SBP1=100*m*m %to start the seeds of pine
 %SB=[0 1000 0+randi(BirdSeedN,1)]; %previous number of seeds changing initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 
 %%%%% CODE FOR MULTIRUNS %%%%%%%
