@@ -280,9 +280,8 @@ while Time < EndTime
     NrStore = NrStore+1;
     StoreTime = StoreStep;
 
-
-
 end
+
 
 %%%%% MULTIRUNS CODE
  
@@ -295,7 +294,10 @@ end
 % end
 % end
 
-        %%% Plots final figure
+
+%%% Plots final figure
+
+%%% Plots final figure
 figure
 white=[1 1 1];
 blue=[0 0 1];
@@ -309,16 +311,6 @@ set(gca,'FontSize',20,'fontWeight','bold')
 colormap(VegetationColormap);
 colorbar
 drawnow; pause
-%%%%% MULTIRUNS CODE
- 
-%     %     filename=strcat(['fire',num2str(k),'.mat' ]);
-%     %     save(filename,'StorePine','StoreSeeder','StoreOak','VectorTime','')
-%     filename=strcat(['seedstart',num2str(maxseedSeed(k)),'.mat' ]);
-%     save(filename,'StorePine','StoreSeeder','StoreOak','VectorTime','SB')
-%     %matr=[StorePine,StoreSeeder,StoreOak,VectorTime];
-%     %  save(filename,'matr','-ascii')
-% end
-% end
 
 %%%Plotting over time
 figure
