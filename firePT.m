@@ -104,6 +104,8 @@ TC(4:4:m-4,4:4:m-4)= 1;   % plants 1 pine every 4 meters - dense prodution stand
 %TC(40:40:m-40,40:40:m-40)= 1; % plants 1 pine every X meters - for
 %experiments
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%CHECK WITH MARA%%%%%%%%%%%%%%%%
+
 %%%Puts cover of seeder or oak randomly in the lattice
 % rp=0 %initializes rand perm
 % rp=randperm(m*m);
@@ -128,8 +130,9 @@ SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment 
 %     %     save(filename)
 
 
-%%%%% WITH MARA - CHANGE THIS TO HAVE ONLY 2-3 REPEATED FIRES AND THEN NO
-%%%%% FIRES AGAIN - WHAT HAPPENS AFTER THAT PERIOD - EXPERIMENTS WITH
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% check WITH MARA 
+
+%%%%HAVE ONLY 2-3 REPEATED FIRES AND THEN NO FIRES AGAIN
 
 %%%VECTOR OF FIRE OCCURRENCE
 D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
@@ -153,7 +156,7 @@ while Time < EndTime
         [x,y]=find(TC(2:end-1,2:end-1)==1); %finds cells =1 in the whole matrix - already has if
         x=x+1;y=y+1;
         for i=1:length(x)
-%%%%%% WITH MARA - CHANGE THE LITTER ACCUMULATION AND TRANSFORM IT IN A
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% WITH MARA - CHANGE THE LITTER ACCUMULATION AND TRANSFORM IT IN A
 %%%%%% SIGMOID CURVE where the equilibrium - between accumulation and decomposition is attained after 30-40 years - GET THESE VALUES Pausas or other literature%%%%
             Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;
             %%%% consider adding litter in the neighbourhood of oak (?) not
@@ -242,7 +245,7 @@ while Time < EndTime
         %high severity
         Lit(:,:)=0;
         %low severity
-        %%%SEE WITH MARA
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%SEE WITH MARA
         % [x,y]=find(TC(2:end-1,2:end-1)==1); %finds cells =1 in the whole matrix - already has if
         % if Age>AgeMP
         %x=x+1;y=y+1;
