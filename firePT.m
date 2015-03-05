@@ -52,11 +52,13 @@ maxG= [0.9 0.9 0.9];      % maximum germination first pine second seeder third o
 ProbPZeroL=0.7;           % Germination probability for pine when litter=0 cm
 LitThreshP=3;             % Litter threshold for Pine above which ~no germination (cm)
 LitThreshS=2;             % Litter threshold for seeders above which ~no germination (cm)
-lrate=0.42;               % rate of litter deposition [cm/year] Fernandes et al 2004
-eflit=0.90;               % effective litter: if 0.90 then 0.10 of the total litter is decomposed - estimated value not from literature
+lrate=0.08;               % rate of litter deposition [cm/year] Fernandes et al 2004 have 0.42 
+eflit=1-0.08;             % effective litter: if 0.90 then 0.10 of the total litter is decomposed - estimated value not from literature
 ProbL=[0 0 0];            % probability of germination due to litter (first pine second seeder third oak)
 amp=[0.3 0.3 0];          % amplitude of curve interaction with litter
-Litter=0;                 % to sum the sumber of cells with litter
+Litter=0;                 % to sum the number of cells with litter
+LitOn=1;                  % switch for litter on/off
+lconv=0.5*ones(3,3);lconv(2,2)=1;
 
 % GENERAL
 ProbG=[0 0 0];            % probability of germination first pine second seeder third oak
@@ -95,7 +97,7 @@ VectorTime=zeros(EndTime,1);
 % -------------------------------------------------------------------------
 TC= zeros(m,m);           % Creates a matrix of size m*m filled with zeros
 Age= zeros(m,m);          % Creates a matrix of size m*m filled with zeros
-Lit= zeros(m,m);          % Creates a matrix of size m*m filled with zeros
+Lit= zeros(m+2,m+2);          % Creates a matrix of size m*m filled with zeros
 z= 8;                     % Number of neighbours
 PosQSeed=zeros(m,m);      % NUMBER OF QUERCUS SEEDS PER CELL
 
@@ -136,7 +138,7 @@ SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment 
 
 %%%VECTOR OF FIRE OCCURRENCE
 D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
-tf=40;                     %time without fires
+tf=400000;                     %time without fires
 fireret=7;                 %interval between fires - fire return
 rand('state',121)
 
@@ -151,17 +153,17 @@ end
 
 while Time < EndTime
     Time= Time+dt
-        %%%% Creates LITTER in the neighborhod of pine (8 neighbors)+ pine
+    %%%% Creates LITTER in the neighborhod of pine (8 neighbors)+ pine
     %%%if TC(Age>AgeMP)==1 %if in the first years pine do not create litter
-        [x,y]=find(TC(2:end-1,2:end-1)==1); %finds cells =1 in the whole matrix - already has if
-        x=x+1;y=y+1;
-        for i=1:length(x)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% WITH MARA - CHANGE THE LITTER ACCUMULATION AND TRANSFORM IT IN A
-%%%%%% SIGMOID CURVE where the equilibrium - between accumulation and decomposition is attained after 30-40 years - GET THESE VALUES Pausas or other literature%%%%
-            Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*dt;
-            %%%% consider adding litter in the neighbourhood of oak (?) not
-            %%%% needed in this time frame?
-        end
+    [x,y]=find(TC==1&Age>AgeMP); %finds cells =1 in the whole matrix - already has if
+    x=x+1;y=y+1;
+    for i=1:length(x)
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% WITH MARA - CHANGE THE LITTER ACCUMULATION AND TRANSFORM IT IN A
+        %%%%%% SIGMOID CURVE where the equilibrium - between accumulation and decomposition is attained after 30-40 years - GET THESE VALUES Pausas or other literature%%%%
+        Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*lconv*dt;
+        %%%% consider adding litter in the neighbourhood of oak (?) not
+        %%%% needed in this time frame?
+    end
     
     % SEED BANK CALCULATION (ONCE A YEAR)
     
@@ -199,11 +201,11 @@ while Time < EndTime
                 
                 %%%COLONIZATION vs LITTER
                 
-                ProbL(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i,j))/amp(1)) ...
-                    -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i,j)); % PINE
-                ProbL(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i,j))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
-                ProbL(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i,j)); % QUERCUS
-                ProbL=[1 1 1];% term for test IN ABSENCE of litter
+                ProbL(1)=(maxG(1)+minG(1))/2+(maxG(1)-minG(1))/2*tanh((LitThreshP-Lit(i+1,j+1))/amp(1)) ...
+                    -(maxG(1)-ProbPZeroL)*exp(-2/LitThreshP*exp(1)*Lit(i+1,j+1)); % PINE
+                ProbL(2)=(maxG(2)+minG(2))/2+(maxG(2)-minG(2))/2*tanh((LitThreshS-Lit(i+1,j+1))/amp(2)); % SEEDER ampS=0.3 max=.9 min=0.
+                ProbL(3)=maxG(3)-(maxG(3)-minG(3))*exp(-Lit(i+1,j+1)); % QUERCUS
+                ProbL=ProbL*LitOn+(1-LitOn)*[1 1 1];% term for test IN ABSENCE of litter
                 
                 % COMBINING PROBABILITIES OF ESTABLISHMENT DUE TO SEED
                 % NUMBERS AND LITTER % version Mara i.e. prob only needs to
@@ -226,7 +228,7 @@ while Time < EndTime
                 end
             else
                 Age(i,j)=Age(i,j)+dt;
-                Lit(i,j)=eflit*Lit(i,j); % effective litter, i.e. litter that is not degraded and remain for the years after
+                Lit(i+1,j+1)=eflit*Lit(i+1,j+1); % effective litter, i.e. litter that is not degraded and remain for the years after
                 
                 if test< mort(TC(i,j))*dt %determines if a cell dies, mort is defined according to life span
                     TC(i,j)=0;
@@ -250,7 +252,7 @@ while Time < EndTime
         % if Age>AgeMP
         %x=x+1;y=y+1;
         %for i=1:length(x)
-        %Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+2;
+        %Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=2;
         % this accumulates 2 cm of litter at low fire severity - at high
         % fire frequency the pines that burn are not mature and do not
         % close canopy to for a lot of litter - at even less fire frequency
@@ -286,7 +288,8 @@ while Time < EndTime
     Pine=sum(sum(TC==1));
     Seeder=sum(sum(TC==2));
     Oak=sum(sum(TC==3));
-    Litter=sum(sum(Lit>2));
+%     Litter=sum(sum(Lit>4));
+    Litter=max(max(Lit));%sum(sum(Lit))/m/m;
     %AgeMTX=mean(mean(Age));
     
     StorePine(NrStore) = Pine; % NOTICE THESE VECTORS ARE AS LONG AS ENDTIMES, and as wide as 1 (vector not matrices) NOT M BY M AS YOU DEFINED THEM.. -> REDIFINING ABOVE SHOULD TAKE LESS TIME -> LET ME KNOW!
@@ -341,3 +344,8 @@ xlabel('Time (year)');
 ylabel ('Cover (%)');
 
 % saveas(gcf,'figureTime.png','png')
+
+% % figure for Litter height 
+% figure
+% set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
+% plot(VectorTime,StoreLitter)
