@@ -34,8 +34,9 @@ Seeder=0;                 % will count the number of cells with seeder
 %%% OAK
 %AgeMO=50;                % Age of maturity % Kew % [year]% !Pausas 1999 has maturity = 15!
 AgeMO=20;                 % According to Ramon an oak can produce acorns after 15-20 years
-%SeedFQ=12;                % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
-SeedFQ=0;                % Oak does not produce seeds, it creates a reserve of saplings in the understory
+%SeedFQ=12;               % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
+SeedFQ=50;
+%SeedFQ=0;                % Oak does not produce seeds, it creates a reserve of saplings in the understory
 BirdSeedN=5;             % Annual seed input by birds - average values Q. suber Pons and Pausas 2007 50seeds per hectar - this value depends on surrounding populations
 %BirdSeedN=5000;              % to experiment
 RespAge=1;                % ONLY OAKS OLDER THAN THIS AGE CAN RESPROUT
@@ -103,11 +104,11 @@ TC(4:4:m-4,4:4:m-4)= 1;   % plants 1 pine every 4 meters - dense prodution stand
 %TC(40:40:m-40,40:40:m-40)= 1; % plants 1 pine every X meters - for
 %experiments
 
-% %%%%Puts cover of seeder or oak randomly in the lattice
-rp=0 %initializes rand perm
-rp=randperm(m*m);
-s=5000%puts a number of cells occupied with seeder or oak(in this case seeders in a random manner) 
-TC(rp(1:s))=2;
+%%%Puts cover of seeder or oak randomly in the lattice
+% rp=0 %initializes rand perm
+% rp=randperm(m*m);
+% s=500%puts a number of cells occupied with seeder or oak(in this case seeders in a random manner) 
+% TC(rp(1:s))=3;
 
 SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment this on the multiruns
 %SBP1=100*m*m %to start the seeds of pine
@@ -133,7 +134,7 @@ SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment 
 %%%VECTOR OF FIRE OCCURRENCE
 D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
 tf=40;                     %time without fires
-fireret=7;                 %interval between fires - fire return
+fireret=15;                 %interval between fires - fire return
 rand('state',121)
 
 while tf<70 %EndTime % here I've substituted EndTime for the time when I want disturbance to stop
@@ -237,8 +238,22 @@ while Time < EndTime
     % the rest of the disturbance term is at the beggining of the code
     D1=D(Time);
     if D1== 1
-        'fire';
+        'fire'
+        %high severity
         Lit(:,:)=0;
+        %low severity
+        %%%SEE WITH MARA
+        % [x,y]=find(TC(2:end-1,2:end-1)==1); %finds cells =1 in the whole matrix - already has if
+        % if Age>AgeMP
+        %x=x+1;y=y+1;
+        %for i=1:length(x)
+        %Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+2;
+        % this accumulates 2 cm of litter at low fire severity - at high
+        % fire frequency the pines that burn are not mature and do not
+        % close canopy to for a lot of litter - at even less fire frequency
+        % (20 y or so the litter layer could be of 3 cm inhibiting pine
+        % itself)
+        %end
         for i=1:m
             for j=1:m
                 % PINES AND SEEDERS DIE; QUERCUS RESPROUTS IF OLDER OR
