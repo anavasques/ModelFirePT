@@ -27,7 +27,7 @@ Pine=0;                   % will count the number of cells with pine
 %%% SEEDER
 AgeMS=3;                  % Age of maturity seeder % field obs Calluna 1 [year]; Cistus 3 years ref
 %SeedFS=400;
-SeedFS=1000;              % Seed production per plant/occupied cell approx value ADJUST
+SeedFS=100;              % Seed production per plant/occupied cell approx value ADJUST
 LSS=30;                   % Life span calluna % in woodland education centre [year]
 Seeder=0;                 % will count the number of cells with seeder
 
@@ -35,8 +35,8 @@ Seeder=0;                 % will count the number of cells with seeder
 %AgeMO=50;                % Age of maturity % Kew % [year]% !Pausas 1999 has maturity = 15!
 AgeMO=20;                 % According to Ramon an oak can produce acorns after 15-20 years
 %SeedFQ=12;               % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
-%SeedFQ=10;
-SeedFQ=5;                % Oak does not produce seeds, it creates a reserve of saplings in the understory
+SeedFQ=10;
+%SeedFQ=5;                % Oak does not produce seeds, it creates a reserve of saplings in the understory
 BirdSeedN=5;             % Annual seed input by birds - average values Q. suber Pons and Pausas 2007 50seeds per hectar - this value depends on surrounding populations
 %BirdSeedN=5000;              % to experiment
 RespAge=1;                % ONLY OAKS OLDER THAN THIS AGE CAN RESPROUT
@@ -52,13 +52,14 @@ maxG= [0.9 0.9 0.9];      % maximum germination first pine second seeder third o
 ProbPZeroL=0.7;           % Germination probability for pine when litter=0 cm
 LitThreshP=3;             % Litter threshold for Pine above which ~no germination (cm)
 LitThreshS=2;             % Litter threshold for seeders above which ~no germination (cm)
-lrate=0.08;               % rate of litter deposition [cm/year] Fernandes et al 2004 have 0.42 
+lrate=0.08;               % Indication from literature: rate of litter deposition [cm/year] Fernandes et al 2004 have 0.42; Indication from Ramon: after 20-30 litter stabilizes 
 eflit=1-0.08;             % effective litter: if 0.90 then 0.10 of the total litter is decomposed - estimated value not from literature
+%lrate=0.05
 ProbL=[0 0 0];            % probability of germination due to litter (first pine second seeder third oak)
 amp=[0.3 0.3 0];          % amplitude of curve interaction with litter
 Litter=0;                 % to sum the number of cells with litter
 LitOn=1;                  % switch for litter on/off
-lconv=0.5*ones(3,3);lconv(2,2)=1;
+lconv=0.5*ones(3,3);lconv(2,2)=1; %convolution matrix for the litter around pine
 
 % GENERAL
 ProbG=[0 0 0];            % probability of germination first pine second seeder third oak
@@ -75,7 +76,7 @@ D=0;                      % initialization of disturbance
 
 % CONTROL CONSTANTS AND VARIABLES
 StartTime= 0;             % [year]
-EndTime= 500;            % [year]
+EndTime= 5;            % [year]
 StoreTime = 1;            % [year]
 
 dt=1;                     % [year]
@@ -97,7 +98,7 @@ VectorTime=zeros(EndTime,1);
 % -------------------------------------------------------------------------
 TC= zeros(m,m);           % Creates a matrix of size m*m filled with zeros
 Age= zeros(m,m);          % Creates a matrix of size m*m filled with zeros
-Lit= zeros(m+2,m+2);          % Creates a matrix of size m*m filled with zeros
+Lit= zeros(m+2,m+2);      % Creates a matrix of size (m+2)*(m+2) filled with zeros - the borders should be excluded in stats done with litter
 z= 8;                     % Number of neighbours
 PosQSeed=zeros(m,m);      % NUMBER OF QUERCUS SEEDS PER CELL
 
@@ -142,7 +143,7 @@ tf=400000;                     %time without fires
 fireret=7;                 %interval between fires - fire return
 rand('state',121)
 
-while tf<70 %EndTime % here I've substituted EndTime for the time when I want disturbance to stop
+while tf<tf+30 %EndTime % here I've substituted EndTime for the time when I want disturbance to stop
     tf=tf-fireret*log(rand(1,1)); %stochastic fire recurrence Baudena et al 2010
     D(round(tf))=1;
 end
@@ -160,7 +161,7 @@ while Time < EndTime
     for i=1:length(x)
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% WITH MARA - CHANGE THE LITTER ACCUMULATION AND TRANSFORM IT IN A
         %%%%%% SIGMOID CURVE where the equilibrium - between accumulation and decomposition is attained after 30-40 years - GET THESE VALUES Pausas or other literature%%%%
-        Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*lconv*dt;
+        Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*lconv*dt*LitOn;
         %%%% consider adding litter in the neighbourhood of oak (?) not
         %%%% needed in this time frame?
     end
@@ -228,7 +229,7 @@ while Time < EndTime
                 end
             else
                 Age(i,j)=Age(i,j)+dt;
-                Lit(i+1,j+1)=eflit*Lit(i+1,j+1); % effective litter, i.e. litter that is not degraded and remain for the years after
+                Lit(i+1,j+1)=eflit*Lit(i+1,j+1)*LitOn; % effective litter, i.e. litter that is not degraded and remain for the years after
                 
                 if test< mort(TC(i,j))*dt %determines if a cell dies, mort is defined according to life span
                     TC(i,j)=0;
@@ -243,22 +244,14 @@ while Time < EndTime
     % the rest of the disturbance term is at the beggining of the code
     D1=D(Time);
     if D1== 1
-        'fire'
-        %high severity
+        'fire';
+        %HIGH SEVERITY
         Lit(:,:)=0;
-        %low severity
+        %LOW SEVERITY NOT CHECKED YET
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%SEE WITH MARA
-        % [x,y]=find(TC(2:end-1,2:end-1)==1); %finds cells =1 in the whole matrix - already has if
-        % if Age>AgeMP
-        %x=x+1;y=y+1;
-        %for i=1:length(x)
-        %Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=2;
-        % this accumulates 2 cm of litter at low fire severity - at high
-        % fire frequency the pines that burn are not mature and do not
-        % close canopy to for a lot of litter - at even less fire frequency
-        % (20 y or so the litter layer could be of 3 cm inhibiting pine
-        % itself)
-        %end
+        %Lit(:,:)=LitOn.*Lit(:,:) %leaves from the canopy fall creating a litter
+        %layer - for simplification purposes the litter in the soil is
+        %maintained - it is porportional to the canopy cover anyway
         for i=1:m
             for j=1:m
                 % PINES AND SEEDERS DIE; QUERCUS RESPROUTS IF OLDER OR
@@ -288,11 +281,11 @@ while Time < EndTime
     Pine=sum(sum(TC==1));
     Seeder=sum(sum(TC==2));
     Oak=sum(sum(TC==3));
-%     Litter=sum(sum(Lit>4));
+%   Litter=sum(sum(Lit>4));
     Litter=max(max(Lit));%sum(sum(Lit))/m/m;
     %AgeMTX=mean(mean(Age));
     
-    StorePine(NrStore) = Pine; % NOTICE THESE VECTORS ARE AS LONG AS ENDTIMES, and as wide as 1 (vector not matrices) NOT M BY M AS YOU DEFINED THEM.. -> REDIFINING ABOVE SHOULD TAKE LESS TIME -> LET ME KNOW!
+    StorePine(NrStore) = Pine; % NOTICE THESE VECTORS ARE AS LONG AS ENDTIMES, and as wide as 1 (vector not matrices)
     StoreSeeder(NrStore) = Seeder;
     StoreOak(NrStore) = Oak;
     StoreLitter(NrStore)= Litter;
@@ -316,9 +309,8 @@ end
 % end
 
 
-%%% Plots final figure
 
-%%% Plots final figure
+%%% Plots final figure of vegetation
 figure
 white=[1 1 1];
 blue=[0 0 1];
@@ -333,19 +325,33 @@ colormap(VegetationColormap);
 colorbar
 drawnow; pause
 
-%%%Plotting over time
-figure
-plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*', VectorTime,StoreLitter/m/m*100, 'k.')%, VectorTime,StoreAge,'gr')
-legend('Pine','Seeder','Oak', 'Litter with more than 2 cm')%, 'Average age')
-set(gca,'fontsize',14, 'fontWeight','bold');
-set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
-set(gca,'fontsize',16, 'fontWeight','bold');
-xlabel('Time (year)');
-ylabel ('Cover (%)');
-
-% saveas(gcf,'figureTime.png','png')
-
-% % figure for Litter height 
+% if LitOn==1
+% %%%figure for Litter depth over time
 % figure
 % set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
 % plot(VectorTime,StoreLitter)
+
+%     %%%Plotting over time
+% figure
+% plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*', VectorTime,StoreLitter/m/m*100, 'k.')%, VectorTime,StoreAge,'gr')
+% legend('Pine','Seeder','Oak', 'Litter average')%, 'Average age')
+% set(gca,'fontsize',14, 'fontWeight','bold');
+% set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
+% set(gca,'fontsize',16, 'fontWeight','bold');
+% xlabel('Time (year)');
+% ylabel ('Cover (%)');
+% 
+% else
+%     
+% figure
+% plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*')%, VectorTime,StoreAge,'gr')
+% legend('Pine','Seeder','Oak') %, 'Average age')
+% set(gca,'fontsize',14, 'fontWeight','bold');
+% set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
+% set(gca,'fontsize',16, 'fontWeight','bold');
+% xlabel('Time (year)');
+% ylabel ('Cover (%)');
+% end
+% % saveas(gcf,'figureTime.png','png')
+
+
