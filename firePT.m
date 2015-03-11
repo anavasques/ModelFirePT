@@ -36,9 +36,9 @@ Seeder=0;                 % will count the number of cells with seeder
 AgeMO=20;                 % According to Ramon an oak can produce acorns after 15-20 years
 %SeedFQ=12;               % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
 SeedFQ=10;
-%SeedFQ=5;                % Oak does not produce seeds, it creates a reserve of saplings in the understory
-BirdSeedN=0;
-%BirdSeedN=5;             % Annual seed input by birds - average values Q. suber Pons and Pausas 2007 50seeds per hectar - this value depends on surrounding populations
+%SeedFQ=0;                % Oak does not produce seeds, it creates a reserve of saplings in the understory
+%BirdSeedN=0;
+BirdSeedN=5;             % Annual seed input by birds - average values Q. suber Pons and Pausas 2007 50seeds per hectar - this value depends on surrounding populations
 %BirdSeedN=5000;              % to experiment
 RespAge=1;                % ONLY OAKS OLDER THAN THIS AGE CAN RESPROUT
 %RespAge=10;              % RESPROUT ABILITY at X years - for experiments
@@ -59,6 +59,7 @@ eflit=1-0.06;             % effective litter: if 0.90 then 0.10 of the total lit
 ProbL=[0 0 0];            % probability of germination due to litter (first pine second seeder third oak)
 amp=[0.3 0.3 0];          % amplitude of curve interaction with litter
 Litter=0;                 % to sum the number of cells with litter
+
 LitOn=1;                  % switch for litter on/off
 lconv=0.5*ones(3,3);lconv(2,2)=1; %convolution matrix for the litter around pine
 
@@ -77,7 +78,7 @@ D=0;                      % initialization of disturbance
 
 % CONTROL CONSTANTS AND VARIABLES
 StartTime= 0;             % [year]
-EndTime= 60;            % [year]
+EndTime= 3000;              % [year]
 StoreTime = 1;            % [year]
 
 dt=1;                     % [year]
@@ -118,8 +119,9 @@ TC(3:3:m-3,3:3:m-3)=1;  % pine is planted every 3 meters, there is no gap
 % s=500%puts a number of cells occupied with seeder or oak(in this case seeders in a random manner) 
 % TC(rp(1:s))=3;
 
-%SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment this on the multiruns
-SB=[0 0 0]; %previous number of seeds changing
+SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment this on the multiruns
+%SB=[0 0 0]; %starting seeds of oak and seeder changing to analyse one
+%species at a time
 %initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 %SBP1=100*m*m %to start the seeds of pine
 
