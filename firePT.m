@@ -34,12 +34,12 @@ Seeder=0;                 % will count the number of cells with seeder
 %%% OAK
 %AgeMO=50;                % Age of maturity % Kew % [year]% !Pausas 1999 has maturity = 15!
 AgeMO=20;                 % According to Ramon an oak can produce acorns after 15-20 years
-%SeedFQ=12;               % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
-SeedFQ=10;
+SeedFQ=12;               % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
+%SeedFQ=10;
 %SeedFQ=0;                % Oak does not produce seeds, it creates a reserve of saplings in the understory
 %BirdSeedN=0;
 BirdSeedN=5;             % Annual seed input by birds - average values Q. suber Pons and Pausas 2007 50seeds per hectar - this value depends on surrounding populations
-%BirdSeedN=5000;              % to experiment
+%BirdSeedN=500;              % to experiment
 RespAge=1;                % ONLY OAKS OLDER THAN THIS AGE CAN RESPROUT
 %RespAge=10;              % RESPROUT ABILITY at X years - for experiments
 
@@ -53,8 +53,8 @@ maxG= [0.9 0.9 0.9];      % maximum germination first pine second seeder third o
 ProbPZeroL=0.7;           % Germination probability for pine when litter=0 cm
 LitThreshP=3;             % Litter threshold for Pine above which ~no germination (cm)
 LitThreshS=2;             % Litter threshold for seeders above which ~no germination (cm)
-lrate=0.08;               % Indication from literature: rate of litter deposition [cm/year] Fernandes et al 2004 have 0.42; Indication from Ramon: after 20-30 litter stabilizes 
-eflit=1-0.06;             % effective litter: if 0.90 then 0.10 of the total litter is decomposed - estimated value not from literature
+lrate=0.9;               % Indication from literature: rate of litter deposition [cm/year] Fernandes et al 2004 have 0.42; Indication from Ramon: after 20-30 litter stabilizes 
+eflit=1-0.5;             % effective litter: if 0.90 then 0.10 of the total litter is decomposed - estimated value not from literature
 %lrate=0.05
 ProbL=[0 0 0];            % probability of germination due to litter (first pine second seeder third oak)
 amp=[0.3 0.3 0];          % amplitude of curve interaction with litter
@@ -78,7 +78,7 @@ D=0;                      % initialization of disturbance
 
 % CONTROL CONSTANTS AND VARIABLES
 StartTime= 0;             % [year]
-EndTime= 3000;              % [year]
+EndTime= 500;              % [year]
 StoreTime = 1;            % [year]
 
 dt=1;                     % [year]
@@ -119,8 +119,8 @@ TC(3:3:m-3,3:3:m-3)=1;  % pine is planted every 3 meters, there is no gap
 % s=500%puts a number of cells occupied with seeder or oak(in this case seeders in a random manner) 
 % TC(rp(1:s))=3;
 
-SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment this on the multiruns
-%SB=[0 0 0]; %starting seeds of oak and seeder changing to analyse one
+%SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment this on the multiruns
+SB=[0 0 0]; %starting seeds of oak and seeder changing to analyse one
 %species at a time
 %initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 %SBP1=100*m*m %to start the seeds of pine
@@ -151,7 +151,7 @@ tf=40000    %no disturbance
 fireret=7;                 %interval between fires - fire return
 rand('state',121)
 
-while tf<70 %EndTime % here I've substituted EndTime for the time when I want disturbance to stop
+while tf<EndTime % here I've substituted EndTime for the time when I want disturbance to stop
     tf=tf-fireret*log(rand(1,1)); %stochastic fire recurrence Baudena et al 2010
     D(round(tf))=1;
 end
@@ -164,11 +164,10 @@ while Time < EndTime
     Time= Time+dt
     %%%% Creates LITTER in the neighborhod of pine (8 neighbors)+ pine
     %%%if TC(Age>AgeMP)==1 %if in the first years pine do not create litter
-    [x,y]=find(TC==1&Age>AgeMP); %finds cells =1 in the whole matrix - already has if
+    [x,y]=find(TC==1&Age>AgeMP); %finds cells =1 in the whole matrix - already has if the AgeMP is not needed anymore because the accumulation only starts after 10 y anyway
     x=x+1;y=y+1;
     for i=1:length(x)
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% WITH MARA - CHANGE THE LITTER ACCUMULATION AND TRANSFORM IT IN A
-        %%%%%% SIGMOID CURVE where the equilibrium - between accumulation and decomposition is attained after 30-40 years - GET THESE VALUES Pausas or other literature%%%%
+        %%%%%% Closer to a sigmoid curve, where the equilibrium - (GET THESE VALUES Pausas or other literature)%%%%
         Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*lconv*dt;
         %%%% consider adding litter in the neighbourhood of oak (?) not
         %%%% needed in this time frame?
@@ -182,8 +181,8 @@ while Time < EndTime
     %SEEDER
     SB(2)=SB(2)+SeedFS*(sum(sum(TC==2)))-SeedLoss(2)*SB(2);           % LONG SEED LIFE
     %OAK
-    SB(3)=0;
-    %SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1);     % NO MEMORY
+%     %SB(3)=0;
+%     %SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1);     % NO MEMORY
     % puts the seeds of oak that arrive in random coordinates of the lattice
     % NEW WAY
     for kk=1:SB(3) %only happens if SB3 is bigger than 1
@@ -238,7 +237,6 @@ while Time < EndTime
                 end
             else
                 Age(i,j)=Age(i,j)+dt;
-                Lit(i+1,j+1)=eflit*Lit(i+1,j+1); % effective litter, i.e. litter that is not degraded and remain for the years after
                 
                 if test< mort(TC(i,j))*dt %determines if a cell dies, mort is defined according to life span
                     TC(i,j)=0;
@@ -275,6 +273,8 @@ while Time < EndTime
         % PINE CANOPY SEEDS FALL INTO SEEDBANK
         SB(1)= SBPC; %the production of seeds when there is a fire is the total of the canopy seeds produced until that moment
         SBP1=0;SBPC=0; %SBP2=0; Not needed to put sbp2 to zero
+    else
+        Lit=eflit*Lit; % effective litter, i.e. litter that is not degraded and remain for the years after
     end
     
     % UPDATE OF THE PINE SEEDBANK
@@ -283,15 +283,18 @@ while Time < EndTime
     
    
     
-    % RESETS NUMBER OF QUERCUS SEEDS TO ZERO FOR NEXT YEAR
+    % RESETS NUMBER OF QUERCUS SEEDS TO ZERO FOR NEXT YEAR, REINITIALISE
+    % EVERY YEAR THE NUMBER OF SEEDS COMING IN
     PosQSeed=0*PosQSeed;      % NUMBER OF QUERCUS SEEDS PER CELL
+    SB(3)=randi(BirdSeedN,1);
     
     % Store variables for plotting
     Pine=sum(sum(TC==1));
     Seeder=sum(sum(TC==2));
     Oak=sum(sum(TC==3));
-%   Litter=sum(sum(Lit>4));
-    Litter=max(max(Lit(m,m)));%sum(sum(Lit))/m/m;
+    Litter=sum(sum(Lit(2:m+1,2:m+1)));
+%     Litter=max(max(Lit(2:m+1,2:m+1)));%
+    
     %AgeMTX=mean(mean(Age));
     
     StorePine(NrStore) = Pine; % NOTICE THESE VECTORS ARE AS LONG AS ENDTIMES, and as wide as 1 (vector not matrices)
@@ -302,7 +305,12 @@ while Time < EndTime
     VectorTime(NrStore)= Time;
     NrStore = NrStore+1;
     StoreTime = StoreStep;
-
+    
+% %%%%Plot litter every time step
+% figure
+% imagesc(Lit(m,m))
+% colorbar
+% pause
 end
 
 
