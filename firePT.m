@@ -38,7 +38,7 @@ AgeMO=20;                 % According to Ramon an oak can produce acorns after 1
 SeedFQ=100;
 %SeedFQ=0;                % If FQ=0 oak does not produce seeds, it creates a reserve of saplings in the understory
 %BirdSeedN=0;
-BirdSeedN=5;             % Annual seed input by birds - average values Q. suber Pons and Pausas 2007 50seeds per hectar - this value depends on surrounding populations
+BirdSeedN=5;              % Annual seed input by birds - average values Q. suber Pons and Pausas 2007 50seeds per hectar - this value depends on surrounding populations
 %BirdSeedN=500;              % to experiment
 RespAge=1;                % ONLY OAKS OLDER THAN THIS AGE CAN RESPROUT
 %RespAge=10;              % RESPROUT ABILITY at X years - for experiments
@@ -53,8 +53,8 @@ maxG= [0.9 0.9 0.9];      % maximum germination first pine second seeder third o
 ProbPZeroL=0.7;           % Germination probability for pine when litter=0 cm
 LitThreshP=3;             % Litter threshold for Pine above which ~no germination (cm)
 LitThreshS=2;             % Litter threshold for seeders above which ~no germination (cm)
-lrate=0.8;               % Indication from literature: rate of litter deposition [cm/year] Fernandes et al 2004 have 0.42; Indication from Ramon: after 20-30 litter stabilizes 
-eflit=1-0.4;             % effective litter: if 0.90 then 0.10 of the total litter is decomposed - estimated value not from literature
+lrate=1;                % Indication from literature: rate of litter deposition [cm/year] Fernandes et al 2004 have 0.42; Indication from Ramon: after 20-30 litter stabilizes 
+eflit=1-0.4;              % effective litter: if 0.90 then 0.10 of the total litter is decomposed - estimated value not from literature
 %lrate=0.05
 ProbL=[0 0 0];            % probability of germination due to litter (first pine second seeder third oak)
 amp=[0.3 0.3 0];          % amplitude of curve interaction with litter
@@ -66,7 +66,7 @@ lconv=0.5*ones(3,3);lconv(2,2)=1; %convolution matrix for the litter around pine
 % GENERAL
 ProbG=[0 0 0];            % probability of germination first pine second seeder third oak
 ProbS= [0 0 0];           % to calculate probability based on seed prod
-est= [10 100 2];         % max number of seedlings per cell CCD field from which we inferred a probability of establishment in one cell
+est= [10 100 2];          % max number of seedlings per cell CCD field from which we inferred a probability of establishment in one cell
 %est= [7 400 7];          % infered probability of establishment for ProbS
 
 SeedLoss= [0 0.10 1];     % rate seed loss soil seed bank 1 pine 2 seeder 3 oak
@@ -78,7 +78,7 @@ D=0;                      % initialization of disturbance
 
 % CONTROL CONSTANTS AND VARIABLES
 StartTime= 0;             % [year]
-EndTime= 500;              % [year]
+EndTime= 500;             % [year]
 StoreTime = 1;            % [year]
 
 dt=1;                     % [year]
@@ -106,7 +106,7 @@ PosQSeed=zeros(m,m);      % NUMBER OF QUERCUS SEEDS PER CELL
 
 %PLANT PINES
 %TC(4:4:m-4,4:4:m-4)= 1;   % plants 1 pine every 4 meters - dense prodution stand excluding the borders
-%TC(3:3:m-3,3:3:m-3)=1;  % pine is planted every 3 meters, there is no gap
+TC(3:3:m-3,3:3:m-3)=1;  % pine is planted every 3 meters, there is no gap
 %between pines - homogeneous when canopy closes
 %TC(40:40:m-40,40:40:m-40)= 1; % plants 1 pine every X meters - for
 %experiments
@@ -124,7 +124,6 @@ SB=[0 0 0]; %starting seeds of oak and seeder changing to analyse one
 %species at a time
 %initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 %SBP1=100*m*m %to start the seeds of pine
-
 
 %%%%% CODE FOR MULTIRUNS %%%%%%%
 %nruns=10;
@@ -180,6 +179,8 @@ while Time < EndTime
     %SEEDER
     SB(2)=SB(2)+SeedFS*(sum(sum(TC==2)))-SeedLoss(2)*SB(2);           % LONG SEED LIFE
     %OAK
+    %UNCOMENT TO HAVE OAKS
+    %SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1);
     % NEW WAY
     for kk=1:SB(3) %only happens if SB3 is bigger than 1
         cc=randi(m,1,2);%c2=randi(m,1,1);
@@ -282,7 +283,7 @@ while Time < EndTime
     PosQSeed=0*PosQSeed;      % NUMBER OF QUERCUS SEEDS PER CELL
     
     %%% UNCOMMENT TO HAVE OAKS
-    SB(3)=randi(BirdSeedN,1); %This is the term to get a new random number between 1-5 every year
+    %SB(3)=randi(BirdSeedN,1); %This is the term to get a new random number between 1-5 every year
     
     % Store variables for plotting
     Pine=sum(sum(TC==1));
@@ -339,9 +340,9 @@ if LitOn==1
 %%%figure for Litter depth over time
 figure
 set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
-plot(VectorTime,StoreLitter)
+plot(VectorTime,StoreLitter/m/m)
 xlabel('Time (year)');
-ylabel ('Maximum litter depth (cm)');
+ylabel ('Mean litter depth (cm)');
 
     %%%Plotting over time
 figure
