@@ -2,7 +2,6 @@
 %CASCADE project
 %Asynchronous CA
 %Vasques et al. 2014-2015 (model development)
-%PROBABILITY MARA'S - MODIFIED FROM ALAIN'S
 % ------------------------------------------------------------------------
 
 close all
@@ -38,8 +37,8 @@ AgeMO=20;                 % According to Ramon an oak can produce acorns after 1
 SeedFQ=100;
 %SeedFQ=0;                % If FQ=0 oak does not produce seeds, it creates a reserve of saplings in the understory
 %BirdSeedN=0;
-BirdSeedN=5;              % Annual seed input by birds - average values Q. suber Pons and Pausas 2007 50seeds per hectar - this value depends on surrounding populations
-%BirdSeedN=500;              % to experiment
+BirdSeedN=5;           % Annual seed input by birds - average values Q. suber Pons and Pausas 2007 50seeds per hectar - this value depends on surrounding populations
+%BirdSeedN=500;           % to experiment
 RespAge=1;                % ONLY OAKS OLDER THAN THIS AGE CAN RESPROUT
 %RespAge=10;              % RESPROUT ABILITY at X years - for experiments
 
@@ -53,7 +52,7 @@ maxG= [0.9 0.9 0.9];      % maximum germination first pine second seeder third o
 ProbPZeroL=0.7;           % Germination probability for pine when litter=0 cm
 LitThreshP=3;             % Litter threshold for Pine above which ~no germination (cm)
 LitThreshS=2;             % Litter threshold for seeders above which ~no germination (cm)
-lrate=1;                % Indication from literature: rate of litter deposition [cm/year] Fernandes et al 2004 have 0.42; Indication from Ramon: after 20-30 litter stabilizes 
+lrate=0.8;                % These values were approximated to have a curve close to the sigmoid- indication from literature: rate of litter deposition [cm/year] Fernandes et al 2004 have 0.42; Indication from Ramon: after 20-30 litter stabilizes
 eflit=1-0.4;              % effective litter: if 0.90 then 0.10 of the total litter is decomposed - estimated value not from literature
 %lrate=0.05
 ProbL=[0 0 0];            % probability of germination due to litter (first pine second seeder third oak)
@@ -78,7 +77,7 @@ D=0;                      % initialization of disturbance
 
 % CONTROL CONSTANTS AND VARIABLES
 StartTime= 0;             % [year]
-EndTime= 500;             % [year]
+EndTime= 400;             % [year]
 StoreTime = 1;            % [year]
 
 dt=1;                     % [year]
@@ -116,11 +115,11 @@ TC(3:3:m-3,3:3:m-3)=1;  % pine is planted every 3 meters, there is no gap
 %%%Puts cover of seeder or oak randomly in the lattice
 % rp=0 %initializes rand perm
 % rp=randperm(m*m);
-% s=500%puts a number of cells occupied with seeder or oak(in this case seeders in a random manner) 
+% s=500%puts a number of cells occupied with seeder or oak(in this case seeders in a random manner)
 % TC(rp(1:s))=3;
 
-%SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment this on the multiruns
-SB=[0 0 0]; %starting seeds of oak and seeder changing to analyse one
+SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment this on the multiruns
+%SB=[0 0 0]; %starting seeds of oak and seeder changing to analyse one
 %species at a time
 %initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 %SBP1=100*m*m %to start the seeds of pine
@@ -130,16 +129,16 @@ SB=[0 0 0]; %starting seeds of oak and seeder changing to analyse one
 % maxseedSeed=10:100:1000; % makes runs changing the parameter of SB (2) between the three values determined and keeping all other values fixed
 %BirdSeedN=1:5:50;
 % save('par.mat') % SAVE ALL THE PARS THAT ARE COMMON TO ALL THE RUNS
-% 
+%
 % for k=1:length(maxseedSeed)
 % for x=1:length(BirdSeedN)
-%     
+%
 %     SB=[0 maxseedSeed(k) 0+randi(BirdSeedN,1)];
 %     %     filename=strcat(['par',num2str(k),'.mat']);
 %     %     save(filename)
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% check WITH MARA 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% check WITH MARA
 
 %%%%HAVE ONLY 2-3 REPEATED FIRES AND THEN NO FIRES AGAIN
 
@@ -162,26 +161,25 @@ end
 while Time < EndTime
     Time= Time+dt
     %%%% Creates LITTER in the neighborhod of pine (8 neighbors)+ pine
-     [x,y]=find(TC==1); %finds cells =1 in the whole matrix - already has if the AgeMP is not needed anymore because the accumulation only starts after 10 y anyway
-     x=x+1;y=y+1;
+    [x,y]=find(TC==1); %finds cells =1 in the whole matrix - already has if the AgeMP is not needed anymore because the accumulation only starts after 10 y anyway
+    x=x+1;y=y+1;
     for i=1:length(x)
         %%%%%% Closer to a sigmoid curve
         indAge=Age(i)>AgeMP;
         Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*lconv*dt*(indAge+(1-indAge)*.2); % .2 IS THE 20% OF THE MAXIMUM VALUE OF LITTER DEPOSITION RATE FOR PINE<AGEMP
-        %%%% consider adding litter in the neighbourhood of oak (?) not
-        %%%% needed in this time frame?
     end
     % SEED BANK CALCULATION (ONCE A YEAR)
     
     %PINE soil seeds (SB1) and canopy seeds (SBPC)
     SB(1)=SBP1+SBP2+SeedFP*(1-canopyBank)*sum(sum(TC(Age>AgeMP)==1));% Pine TWO YEARS OF SEED LIFE; 1-canopybank is doing the same as canopy bank, i.e. *0.5
-    SBPC=SBPC+SeedFP*canopyBank*sum(TC(Age>AgeMP)==1); 
+    SBPC=SBPC+SeedFP*canopyBank*sum(TC(Age>AgeMP)==1);
     %SEEDER
     SB(2)=SB(2)+SeedFS*(sum(sum(TC==2)))-SeedLoss(2)*SB(2);           % LONG SEED LIFE
     %OAK
-    %UNCOMENT TO HAVE OAKS
-    %SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1);
-    % NEW WAY
+    SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1);
+    %%%%%UNCOMENT TO ELIMINATE OAKS
+    %%SB(3)=0; %no oaks in the lattice
+    %%%% NEW WAY
     for kk=1:SB(3) %only happens if SB3 is bigger than 1
         cc=randi(m,1,2);%c2=randi(m,1,1);
         PosQSeed(cc(1),cc(2))=PosQSeed(cc(1),cc(2))+1;
@@ -196,13 +194,12 @@ while Time < EndTime
         for j=1:m
             test=rand*nrsp; %RANDOM NUMBER BETWEEN 0 AND THE NUMBER OF SPECIES (LENGTH(PROBg=3))
             if TC(i,j)==0 % colonization/germination
-
+                
                 %%% TERM FOR PROBABILITY OF COLONIZATION vs. NUMBER OF SEEDS AND ESTABLISHMENT
                 
                 ProbS(1)=1-(1-1/est(1))^(SB(1)/m/m);
                 ProbS(2)=1-(1-1/est(2))^(SB(2)/m/m); % FOR PINE AND SEEDERS, SEEDS ARE EQUALLY SPREAD THROUGHOUT THE CELLS; this was taken in the paper: Cannas et al. 2003
-                % for oak the seeds are not divided by the laticce (too
-                % little) but are spread over the lattice instead
+                % only for oak the seeds are spread over the lattice
                 ProbS(3)=1-(1-1/est(3))^PosQSeed(i,j); %if ProsQSeed=0 the whole term goes to zero
                 
                 %%%COLONIZATION vs LITTER
@@ -214,7 +211,7 @@ while Time < EndTime
                 ProbL=ProbL*LitOn+(1-LitOn)*[1 1 1];% term for test IN ABSENCE of litter
                 
                 % COMBINING PROBABILITIES OF ESTABLISHMENT DUE TO SEED
-                % NUMBERS AND LITTER % version Mara i.e. prob only needs to
+                % NUMBERS AND LITTER % version Mara modified from Alain's i.e. prob only needs to
                 % be <than 3 and we don't multiply by dt anymore)
                 
                 ProbG=ProbL.*ProbS; %term for test with litter
@@ -283,14 +280,14 @@ while Time < EndTime
     PosQSeed=0*PosQSeed;      % NUMBER OF QUERCUS SEEDS PER CELL
     
     %%% UNCOMMENT TO HAVE OAKS
-    %SB(3)=randi(BirdSeedN,1); %This is the term to get a new random number between 1-5 every year
+    SB(3)=randi(BirdSeedN,1); %This is the term to get a new random number between 1-5 every year
     
     % Store variables for plotting
     Pine=sum(sum(TC==1));
     Seeder=sum(sum(TC==2));
     Oak=sum(sum(TC==3));
     Litter=sum(sum(Lit(2:m+1,2:m+1)));
-%   Litter=max(max(Lit(2:m+1,2:m+1)));%
+    %Litter=max(max(Lit(2:m+1,2:m+1)));%
     
     %AgeMTX=mean(mean(Age));
     
@@ -303,16 +300,16 @@ while Time < EndTime
     NrStore = NrStore+1;
     StoreTime = StoreStep;
     
-% %%%%Plot litter every time step
-% figure
-% imagesc(Lit(m,m))
-% colorbar
-% pause
+    % %%%%Plot litter every time step
+    % figure
+    % imagesc(Lit(m,m))
+    % colorbar
+    % pause
 end
 
 
 %%%%% MULTIRUNS CODE
- 
+
 %     %     filename=strcat(['fire',num2str(k),'.mat' ]);
 %     %     save(filename,'StorePine','StoreSeeder','StoreOak','VectorTime','')
 %     filename=strcat(['seedstart',num2str(maxseedSeed(k)),'.mat' ]);
@@ -337,33 +334,33 @@ colorbar
 drawnow; %pause
 
 if LitOn==1
-%%%figure for Litter depth over time
-figure
-set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
-plot(VectorTime,StoreLitter/m/m)
-xlabel('Time (year)');
-ylabel ('Mean litter depth (cm)');
-
+    %%%figure for Litter depth over time
+    figure
+    set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
+    plot(VectorTime,StoreLitter/m/m)
+    xlabel('Time (year)');
+    ylabel ('Mean litter depth (cm)');
+    
     %%%Plotting over time
-figure
-plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*', VectorTime,StoreLitter/m/m, 'k.')%, VectorTime,StoreAge,'gr')
-legend('Pine','Seeder','Oak', 'Litter maximum')%, 'Average age')
-set(gca,'fontsize',14, 'fontWeight','bold');
-set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
-set(gca,'fontsize',16, 'fontWeight','bold');
-xlabel('Time (year)');
-ylabel ('Cover (%)');
-
+    figure
+    plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*', VectorTime,StoreLitter/m/m, 'k.')%, VectorTime,StoreAge,'gr')
+    legend('Pine','Seeder','Oak', 'Litter maximum')%, 'Average age')
+    set(gca,'fontsize',14, 'fontWeight','bold');
+    set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
+    set(gca,'fontsize',16, 'fontWeight','bold');
+    xlabel('Time (year)');
+    ylabel ('Cover (%)');
+    
 else
     
-figure
-plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*')%, VectorTime,StoreAge,'gr')
-legend('Pine','Seeder','Oak') %, 'Average age')
-set(gca,'fontsize',14, 'fontWeight','bold');
-set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
-set(gca,'fontsize',16, 'fontWeight','bold');
-xlabel('Time (year)');
-ylabel ('Cover (%)');
+    figure
+    plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*')%, VectorTime,StoreAge,'gr')
+    legend('Pine','Seeder','Oak') %, 'Average age')
+    set(gca,'fontsize',14, 'fontWeight','bold');
+    set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
+    set(gca,'fontsize',16, 'fontWeight','bold');
+    xlabel('Time (year)');
+    ylabel ('Cover (%)');
 end
 % saveas(gcf,'figureTime.png','png')
 
