@@ -71,7 +71,7 @@ est= [10 100 2];          % max number of seedlings per cell CCD field from whic
 SeedLoss= [0 0.10 1];     % rate seed loss soil seed bank 1 pine 2 seeder 3 oak
 nrsp=length(ProbG);                   % number of species used in the model - to put in the prob expression
 mort=1./[LSP,LSS,LSO];    % MORTALITY of pine, seeder, oak = 1/lifespan
-AR= [0,0,0,1];            % Ability to resprout: first element is fake (bare soil); pine=0, seeder=0, oak=1;
+AR= [0,0,1,1];            % Ability to resprout: first element is fake (bare soil); pine=0, seeder=0, oak=1;
 
 D=0;                      % initialization of disturbance
 
