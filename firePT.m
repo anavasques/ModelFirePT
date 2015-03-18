@@ -26,7 +26,7 @@ Pine=0;                   % will count the number of cells with pine
 %%% SEEDER
 AgeMS=3;                  % Age of maturity seeder % field obs Calluna 1 [year]; Cistus 3 years ref
 SeedFS=100;
-%SeedFS=1000;             % Seed production per plant/occupied cell approx value ADJUST
+%SeedFS=2;             % Seed production per plant/occupied cell approx value ADJUST
 LSS=30;                   % Life span calluna % in woodland education centre [year]
 Seeder=0;                 % will count the number of cells with seeder
 
@@ -104,7 +104,7 @@ z= 8;                     % Number of neighbours
 PosQSeed=zeros(m,m);      % NUMBER OF QUERCUS SEEDS PER CELL
 
 %PLANT PINES
-%TC(4:4:m-4,4:4:m-4)= 1;   % plants 1 pine every 4 meters - dense prodution stand excluding the borders
+%TC(2:2:m-2,2:2:m-2)= 1;   % plants 1 pine every X meters - dense prodution stand excluding the borders
 TC(3:3:m-3,3:3:m-3)=1;  % pine is planted every 3 meters, there is no gap
 %between pines - homogeneous when canopy closes
 %TC(40:40:m-40,40:40:m-40)= 1; % plants 1 pine every X meters - for
@@ -112,11 +112,11 @@ TC(3:3:m-3,3:3:m-3)=1;  % pine is planted every 3 meters, there is no gap
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%CHECK WITH MARA%%%%%%%%%%%%%%%%
 
-%%%Puts cover of seeder or oak randomly in the lattice
+%%Puts cover of seeder or oak randomly in the lattice
 % rp=0 %initializes rand perm
 % rp=randperm(m*m);
-% s=500%puts a number of cells occupied with seeder or oak(in this case seeders in a random manner)
-% TC(rp(1:s))=3;
+% s=100%puts a number of cells occupied with seeder or oak(in this case seeders in a random manner)
+% TC(rp(1:s))=2;
 
 SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment this on the multiruns
 %SB=[0 0 0]; %starting seeds of oak and seeder changing to analyse one
@@ -144,8 +144,8 @@ SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment 
 
 %%%VECTOR OF FIRE OCCURRENCE
 D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
-tf=40000    %no disturbance
-%tf=40;                     %time without fires
+%tf=40000    %no disturbance
+tf=40;                     %time without fires
 fireret=7;                 %interval between fires - fire return
 rand('state',121)
 
