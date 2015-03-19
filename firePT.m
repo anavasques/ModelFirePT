@@ -71,7 +71,7 @@ est= [10 100 2];          % max number of seedlings per cell CCD field from whic
 SeedLoss= [0 0.10 1];     % rate seed loss soil seed bank 1 pine 2 seeder 3 oak
 nrsp=length(ProbG);                   % number of species used in the model - to put in the prob expression
 mort=1./[LSP,LSS,LSO];    % MORTALITY of pine, seeder, oak = 1/lifespan
-AR= [0,0,1,1];            % Ability to resprout: first element is fake (bare soil); pine=0, seeder=0, oak=1;
+AR= [0,0,0,1];            % Ability to resprout: first element is fake (bare soil); pine=0, seeder=0, oak=1;
 
 D=0;                      % initialization of disturbance
 
@@ -137,16 +137,13 @@ SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment 
 %     %     filename=strcat(['par',num2str(k),'.mat']);
 %     %     save(filename)
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% check WITH MARA
-
 %%%%HAVE ONLY 2-3 REPEATED FIRES AND THEN NO FIRES AGAIN
 
 %%%VECTOR OF FIRE OCCURRENCE
 D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
 %tf=40000    %no disturbance
 tf=40;                     %time without fires
-fireret=7;                 %interval between fires - fire return
+fireret=15;                 %interval between fires - fire return
 rand('state',121)
 
 while tf<EndTime % here I've substituted EndTime for the time when I want disturbance to stop
@@ -344,7 +341,7 @@ if LitOn==1
     %%%Plotting over time
     figure
     plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*', VectorTime,StoreLitter/m/m, 'k.')%, VectorTime,StoreAge,'gr')
-    legend('Pine','Seeder','Oak', 'Litter maximum')%, 'Average age')
+    legend('Pine','Seeder','Oak', 'Litter mean depth')%, 'Average age')
     set(gca,'fontsize',14, 'fontWeight','bold');
     set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
     set(gca,'fontsize',16, 'fontWeight','bold');
