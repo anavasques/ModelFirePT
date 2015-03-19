@@ -73,7 +73,7 @@ nrsp=length(ProbG);                   % number of species used in the model - to
 mort=1./[LSP,LSS,LSO];    % MORTALITY of pine, seeder, oak = 1/lifespan
 AR= [0,0,0,1];            % Ability to resprout: first element is fake (bare soil); pine=0, seeder=0, oak=1;
 
-D=0;                      % initialization of disturbance
+%D=0;                      % initialization of disturbance
 
 % CONTROL CONSTANTS AND VARIABLES
 StartTime= 0;             % [year]
@@ -112,11 +112,10 @@ TC(3:3:m-3,3:3:m-3)=1;  % pine is planted every 3 meters, there is no gap
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%CHECK WITH MARA%%%%%%%%%%%%%%%%
 
-%%Puts cover of seeder or oak randomly in the lattice
-% rp=0 %initializes rand perm
-% rp=randperm(m*m);
-% s=100%puts a number of cells occupied with seeder or oak(in this case seeders in a random manner)
-% TC(rp(1:s))=2;
+%Puts cover of seeder or oak randomly in the lattice
+s=100;%puts a number of cells occupied with seeder or oak(in this case seeders in a random manner)
+rp=randperm(m*m,s);
+TC(rp)=2;
 
 SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment this on the multiruns
 %SB=[0 0 0]; %starting seeds of oak and seeder changing to analyse one
@@ -137,19 +136,6 @@ SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment 
 %     %     filename=strcat(['par',num2str(k),'.mat']);
 %     %     save(filename)
 
-%%%%HAVE ONLY 2-3 REPEATED FIRES AND THEN NO FIRES AGAIN
-
-%%%VECTOR OF FIRE OCCURRENCE
-D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
-%tf=40000    %no disturbance
-tf=40;                     %time without fires
-fireret=15;                 %interval between fires - fire return
-rand('state',121)
-
-while tf<EndTime % here I've substituted EndTime for the time when I want disturbance to stop
-    tf=tf-fireret*log(rand(1,1)); %stochastic fire recurrence Baudena et al 2010
-    D(round(tf))=1;
-end
 
 %--------------------------------------------------------------------------
 %%%%%%%%%%%%%%%%%%%%%DYNAMIC LOOP%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -162,9 +148,10 @@ while Time < EndTime
     x=x+1;y=y+1;
     for i=1:length(x)
         %%%%%% Closer to a sigmoid curve
-        indAge=Age(i)>AgeMP;
+        indAge=Age(x(i)-1,y(i)-1)>AgeMP;
         Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*lconv*dt*(indAge+(1-indAge)*.2); % .2 IS THE 20% OF THE MAXIMUM VALUE OF LITTER DEPOSITION RATE FOR PINE<AGEMP
     end
+    
     % SEED BANK CALCULATION (ONCE A YEAR)
     
     %PINE soil seeds (SB1) and canopy seeds (SBPC)
@@ -238,35 +225,9 @@ while Time < EndTime
     end
     
     
-    %%%% DISTURBANCE
-    % the rest of the disturbance term is at the beggining of the code
-    D1=D(Time);
-    if D1== 1
-        'fire';
-%         %HIGH SEVERITY
-%         Lit(:,:)=0;
-        %LOW SEVERITY CHANGE PAR NAME PLEASE
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%SEE WITH MARA
-        Lit(:,:)=CMNUMBER*sum(sum(TC(Age>AgeMP)==1))/m/m*4; %leaves from the canopy fall creating a litter
-        %layer - for simplification purposes the litter in the soil is
-        %maintained - it is porportional to the canopy cover anyway
-        for i=1:m
-            for j=1:m
-                % PINES AND SEEDERS DIE; QUERCUS RESPROUTS IF OLDER OR
-                % EQUAL THEN Respage
-                % Kind IS A TRICK TO AVOID IF STRUCTURE (IF AGE>RespAge THEN RESPROUT)
-                kind=floor(AR(TC(i,j)+1)*Age(i,j)/RespAge);
-                kind=round(kind/(kind+eps));
-                TC(i,j)= TC(i,j)*kind;
-                Age(i,j)= Age(i,j)*kind;
-            end
-        end
-        % PINE CANOPY SEEDS FALL INTO SEEDBANK
-        SB(1)= SBPC; %the production of seeds when there is a fire is the total of the canopy seeds produced until that moment
-        SBP1=0;SBPC=0; %SBP2=0; Not needed to put sbp2 to zero
-    else
-        Lit=eflit*Lit; % effective litter, i.e. litter that is not degraded and remain for the years after - should be updated here to also occur in the empty cells
-    end
+    
+    Lit=eflit*Lit; % effective litter, i.e. litter that is not degraded and remain for the years after - should be updated here to also occur in the empty cells
+    
     
     % UPDATE OF THE PINE SEEDBANK
     SBP2=0.5*SBP1; % PINE SEED BANK OF TWO YEARS BEFORE IS 50%
