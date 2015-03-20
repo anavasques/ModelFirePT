@@ -292,7 +292,7 @@ if LitOn==1
     %%%figure for Litter depth over time
     figure
     set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
-    plot(VectorTime,StoreLitter/m/m)
+    plot(VectorTime,StoreLitter)
     xlabel('Time (year)');
     ylabel ('Mean litter depth (cm)');
     

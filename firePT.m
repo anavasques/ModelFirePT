@@ -58,6 +58,7 @@ eflit=1-0.4;              % effective litter: if 0.90 then 0.10 of the total lit
 ProbL=[0 0 0];            % probability of germination due to litter (first pine second seeder third oak)
 amp=[0.3 0.3 0];          % amplitude of curve interaction with litter
 Litter=0;                 % to sum the number of cells with litter
+litLS=2;                  % litter at low severity
 
 LitOn=1;                  % switch for litter on/off
 lconv=0.5*ones(3,3);lconv(2,2)=1; %convolution matrix for the litter around pine
@@ -112,11 +113,10 @@ TC(3:3:m-3,3:3:m-3)=1;  % pine is planted every 3 meters, there is no gap
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%CHECK WITH MARA%%%%%%%%%%%%%%%%
 
-%%Puts cover of seeder or oak randomly in the lattice
-% rp=0 %initializes rand perm
-% rp=randperm(m*m);
-% s=100%puts a number of cells occupied with seeder or oak(in this case seeders in a random manner)
-% TC(rp(1:s))=2;
+%Puts cover of seeder or oak randomly in the lattice
+% s=100;%puts a number of cells occupied with seeder or oak(in this case seeders in a random manner)
+% rp=randperm(m*m,s);
+% TC(rp)=2;
 
 SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment this on the multiruns
 %SB=[0 0 0]; %starting seeds of oak and seeder changing to analyse one
@@ -137,7 +137,6 @@ SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment 
 %     %     filename=strcat(['par',num2str(k),'.mat']);
 %     %     save(filename)
 
-%%%%HAVE ONLY 2-3 REPEATED FIRES AND THEN NO FIRES AGAIN
 
 %%%VECTOR OF FIRE OCCURRENCE
 D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
@@ -146,7 +145,7 @@ tf=40;                     %time without fires
 fireret=15;                 %interval between fires - fire return
 rand('state',121)
 
-while tf<EndTime % here I've substituted EndTime for the time when I want disturbance to stop
+while tf<EndTime % EndTime can be substituted for the time when disturbance should stop
     tf=tf-fireret*log(rand(1,1)); %stochastic fire recurrence Baudena et al 2010
     D(round(tf))=1;
 end
@@ -162,9 +161,10 @@ while Time < EndTime
     x=x+1;y=y+1;
     for i=1:length(x)
         %%%%%% Closer to a sigmoid curve
-        indAge=Age(i)>AgeMP;
+        indAge=Age(x(i)-1,y(i)-1)>AgeMP;
         Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*lconv*dt*(indAge+(1-indAge)*.2); % .2 IS THE 20% OF THE MAXIMUM VALUE OF LITTER DEPOSITION RATE FOR PINE<AGEMP
     end
+
     % SEED BANK CALCULATION (ONCE A YEAR)
     
     %PINE soil seeds (SB1) and canopy seeds (SBPC)
@@ -246,8 +246,7 @@ while Time < EndTime
 %         %HIGH SEVERITY
 %         Lit(:,:)=0;
         %LOW SEVERITY CHANGE PAR NAME PLEASE
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%SEE WITH MARA
-        Lit(:,:)=CMNUMBER*sum(sum(TC(Age>AgeMP)==1))/m/m*4; %leaves from the canopy fall creating a litter
+        Lit(:,:)=litLS*sum(sum(TC(Age>AgeMP)==1))/m/m*4; %leaves from the canopy fall creating a litter
         %layer - for simplification purposes the litter in the soil is
         %maintained - it is porportional to the canopy cover anyway
         for i=1:m

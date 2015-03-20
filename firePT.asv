@@ -52,12 +52,13 @@ maxG= [0.9 0.9 0.9];      % maximum germination first pine second seeder third o
 ProbPZeroL=0.7;           % Germination probability for pine when litter=0 cm
 LitThreshP=3;             % Litter threshold for Pine above which ~no germination (cm)
 LitThreshS=2;             % Litter threshold for seeders above which ~no germination (cm)
-lrate=0.7;                % These values were approximated to have a curve close to the sigmoid- indication from literature: rate of litter deposition [cm/year] Fernandes et al 2004 have 0.42; Indication from Ramon: after 20-30 litter stabilizes
-eflit=1-0.3;              % effective litter: if 0.90 then 0.10 of the total litter is decomposed - estimated value not from literature
+lrate=0.8;                % These values were approximated to have a curve close to the sigmoid- indication from literature: rate of litter deposition [cm/year] Fernandes et al 2004 have 0.42; Indication from Ramon: after 20-30 litter stabilizes
+eflit=1-0.4;              % effective litter: if 0.90 then 0.10 of the total litter is decomposed - estimated value not from literature
 %lrate=0.05
 ProbL=[0 0 0];            % probability of germination due to litter (first pine second seeder third oak)
 amp=[0.3 0.3 0];          % amplitude of curve interaction with litter
 Litter=0;                 % to sum the number of cells with litter
+litLS=2;                  % litter at low severity
 
 LitOn=1;                  % switch for litter on/off
 lconv=0.5*ones(3,3);lconv(2,2)=1; %convolution matrix for the litter around pine
@@ -73,11 +74,11 @@ nrsp=length(ProbG);                   % number of species used in the model - to
 mort=1./[LSP,LSS,LSO];    % MORTALITY of pine, seeder, oak = 1/lifespan
 AR= [0,0,0,1];            % Ability to resprout: first element is fake (bare soil); pine=0, seeder=0, oak=1;
 
-%D=0;                      % initialization of disturbance
+D=0;                      % initialization of disturbance
 
 % CONTROL CONSTANTS AND VARIABLES
 StartTime= 0;             % [year]
-EndTime= 2000;             % [year]
+EndTime= 400;             % [year]
 StoreTime = 1;            % [year]
 
 dt=1;                     % [year]
@@ -112,7 +113,7 @@ TC(3:3:m-3,3:3:m-3)=1;  % pine is planted every 3 meters, there is no gap
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%CHECK WITH MARA%%%%%%%%%%%%%%%%
 
-% %Puts cover of seeder or oak randomly in the lattice
+%Puts cover of seeder or oak randomly in the lattice
 % s=100;%puts a number of cells occupied with seeder or oak(in this case seeders in a random manner)
 % rp=randperm(m*m,s);
 % TC(rp)=2;
@@ -137,6 +138,18 @@ SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment 
 %     %     save(filename)
 
 
+%%%VECTOR OF FIRE OCCURRENCE
+D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
+%tf=40000    %no disturbance
+tf=40;                     %time without fires
+fireret=15;                 %interval between fires - fire return
+rand('state',121)
+
+while tf<EndTime % EndTime can be substituted for the time when disturbance should stop
+    tf=tf-fireret*log(rand(1,1)); %stochastic fire recurrence Baudena et al 2010 and original ref
+    D(round(tf))=1;
+end
+
 %--------------------------------------------------------------------------
 %%%%%%%%%%%%%%%%%%%%%DYNAMIC LOOP%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--------------------------------------------------------------------------
@@ -151,7 +164,7 @@ while Time < EndTime
         indAge=Age(x(i)-1,y(i)-1)>AgeMP;
         Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*lconv*dt*(indAge+(1-indAge)*.2); % .2 IS THE 20% OF THE MAXIMUM VALUE OF LITTER DEPOSITION RATE FOR PINE<AGEMP
     end
-    
+
     % SEED BANK CALCULATION (ONCE A YEAR)
     
     %PINE soil seeds (SB1) and canopy seeds (SBPC)
@@ -162,7 +175,7 @@ while Time < EndTime
     %OAK
     SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1);
     %%%%%UNCOMENT TO ELIMINATE OAKS
-    %SB(3)=0; %no oaks in the lattice
+    %%SB(3)=0; %no oaks in the lattice
     %%%% NEW WAY
     for kk=1:SB(3) %only happens if SB3 is bigger than 1
         cc=randi(m,1,2);%c2=randi(m,1,1);
@@ -223,8 +236,36 @@ while Time < EndTime
             end
         end
     end
-      
-    Lit=eflit*Lit; % effective litter, i.e. litter that is not degraded and remain for the years after - should be updated here to also occur in the empty cells
+    
+    
+    %%%% DISTURBANCE
+    % the rest of the disturbance term is at the beggining of the code
+    D1=D(Time);
+    if D1== 1
+        'fire';
+%         %HIGH SEVERITY
+%         Lit(:,:)=0;
+        %LOW SEVERITY CHANGE PAR NAME PLEASE
+        Lit(:,:)=litLS*sum(sum(TC(Age>AgeMP)==1))/m/m*4; %leaves from the canopy fall creating a litter
+        %layer - for simplification purposes the litter in the soil is
+        %maintained - it is porportional to the canopy cover anyway
+        for i=1:m
+            for j=1:m
+                % PINES AND SEEDERS DIE; QUERCUS RESPROUTS IF OLDER OR
+                % EQUAL THEN Respage
+                % Kind IS A TRICK TO AVOID IF STRUCTURE (IF AGE>RespAge THEN RESPROUT)
+                kind=floor(AR(TC(i,j)+1)*Age(i,j)/RespAge);
+                kind=round(kind/(kind+eps));
+                TC(i,j)= TC(i,j)*kind;
+                Age(i,j)= Age(i,j)*kind;
+            end
+        end
+        % PINE CANOPY SEEDS FALL INTO SEEDBANK
+        SB(1)= SBPC; %the production of seeds when there is a fire is the total of the canopy seeds produced until that moment
+        SBP1=0;SBPC=0; %SBP2=0; Not needed to put sbp2 to zero
+    else
+        Lit=eflit*Lit; % effective litter, i.e. litter that is not degraded and remain for the years after - should be updated here to also occur in the empty cells
+    end
     
     % UPDATE OF THE PINE SEEDBANK
     SBP2=0.5*SBP1; % PINE SEED BANK OF TWO YEARS BEFORE IS 50%
