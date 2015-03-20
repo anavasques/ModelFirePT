@@ -125,7 +125,7 @@ SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment 
 
 %%%%% CODE FOR MULTIRUNS %%%%%%%
 %nruns=10;
-% maxseedSeed=10:100:1000; % makes runs changing the parameter of SB (2) between the three values determined and keeping all other values fixed
+%maxseedSeed=10:100:1000; % makes runs changing the parameter of SB (2) between the three values determined and keeping all other values fixed
 %BirdSeedN=1:5:50;
 % save('par.mat') % SAVE ALL THE PARS THAT ARE COMMON TO ALL THE RUNS
 %
