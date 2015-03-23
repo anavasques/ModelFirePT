@@ -293,7 +293,7 @@ while Time < EndTime
     
     % Store variables for plotting
     Pine=sum(sum(TC==1));
-    MatPine=sum(sum(TC==1&Age>AgeMP);
+    MatPine=sum(sum(TC==1&Age>AgeMP));
     Seeder=sum(sum(TC==2));
     Oak=sum(sum(TC==3));
     Litter=sum(sum(Lit(2:m+1,2:m+1)));

@@ -109,7 +109,7 @@ PosQSeed=zeros(m,m);      % NUMBER OF QUERCUS SEEDS PER CELL
 
 %PLANT PINES
 %TC(2:2:m-2,2:2:m-2)= 1;   % plants 1 pine every X meters - dense prodution stand excluding the borders
-TC(3:3:m-3,3:3:m-3)=1;  % pine is planted every 3 meters, there is no gap
+%TC(3:3:m-3,3:3:m-3)=1;  % pine is planted every 3 meters, there is no gap
 %between pines - homogeneous when canopy closes
 %TC(40:40:m-40,40:40:m-40)= 1; % plants 1 pine every X meters - for
 %experiments
@@ -243,7 +243,7 @@ while Time < EndTime
     
     % Store variables for plotting
     Pine=sum(sum(TC==1));
-    MatPine=sum(sum(TC==1&Age>AgeMP);
+    MatPine=sum(sum(TC==1&Age>AgeMP));
     Seeder=sum(sum(TC==2));
     Oak=sum(sum(TC==3));
     Litter=sum(sum(Lit(2:m+1,2:m+1)));
