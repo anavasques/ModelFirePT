@@ -22,11 +22,12 @@ SBP1=0;                   % !SBP1 and SBP2 are only ways of initializing the see
 SBP2=0;
 SBPC=0;                   % Initialization seed bank pine canopy
 Pine=0;                   % will count the number of cells with pine
+MatPine=0;
 
 %%% SEEDER
 AgeMS=3;                  % Age of maturity seeder % field obs Calluna 1 [year]; Cistus 3 years ref
 SeedFS=100;
-%SeedFS=2;             % Seed production per plant/occupied cell approx value ADJUST
+%SeedFS=2;                % Seed production per plant/occupied cell approx value ADJUST
 LSS=30;                   % Life span calluna % in woodland education centre [year]
 Seeder=0;                 % will count the number of cells with seeder
 
@@ -37,7 +38,7 @@ AgeMO=20;                 % According to Ramon an oak can produce acorns after 1
 SeedFQ=100;
 %SeedFQ=0;                % If FQ=0 oak does not produce seeds, it creates a reserve of saplings in the understory
 %BirdSeedN=0;
-BirdSeedN=5;           % Annual seed input by birds - average values Q. suber Pons and Pausas 2007 50seeds per hectar - this value depends on surrounding populations
+BirdSeedN=5;              % Annual seed input by birds - average values Q. suber Pons and Pausas 2007 50seeds per hectar - this value depends on surrounding populations
 %BirdSeedN=500;           % to experiment
 RespAge=1;                % ONLY OAKS OLDER THAN THIS AGE CAN RESPROUT
 %RespAge=10;              % RESPROUT ABILITY at X years - for experiments
@@ -52,8 +53,8 @@ maxG= [0.9 0.9 0.9];      % maximum germination first pine second seeder third o
 ProbPZeroL=0.7;           % Germination probability for pine when litter=0 cm
 LitThreshP=3;             % Litter threshold for Pine above which ~no germination (cm)
 LitThreshS=2;             % Litter threshold for seeders above which ~no germination (cm)
-lrate=0.7;                % These values were approximated to have a curve close to the sigmoid- indication from literature: rate of litter deposition [cm/year] Fernandes et al 2004 have 0.42; Indication from Ramon: after 20-30 litter stabilizes
-eflit=1-0.3;              % effective litter: if 0.90 then 0.10 of the total litter is decomposed - estimated value not from literature
+lrate=0.8;                % These values were approximated to have a curve close to the sigmoid- indication from literature: rate of litter deposition [cm/year] Fernandes et al 2004 have 0.42; Indication from Ramon: after 20-30 litter stabilizes
+eflit=1-0.4;              % effective litter: if 0.90 then 0.10 of the total litter is decomposed - estimated value not from literature
 %lrate=0.05
 ProbL=[0 0 0];            % probability of germination due to litter (first pine second seeder third oak)
 amp=[0.3 0.3 0];          % amplitude of curve interaction with litter
@@ -61,6 +62,8 @@ Litter=0;                 % to sum the number of cells with litter
 
 LitOn=1;                  % switch for litter on/off
 lconv=0.5*ones(3,3);lconv(2,2)=1; %convolution matrix for the litter around pine
+%%expanded matrix for litter
+%lconv=0.25*ones(5,5);lconv(2,2)=0.5;lconv(2,3)=0.5;lconv(2,4)=0.5;lconv(3,2)=0.5;lconv(3,3)=1;lconv(3,4)=0.5;lconv(4,2)=0.5;lconv(4,3)=0.5;lconv(4,4)=0.5;
 
 % GENERAL
 ProbG=[0 0 0];            % probability of germination first pine second seeder third oak
@@ -91,6 +94,7 @@ StoreSeeder=zeros(EndTime,1);
 StoreOak=zeros(EndTime,1);
 StoreLitter=zeros(EndTime,1);
 VectorTime=zeros(EndTime,1);
+StoreMatPine=zeros(EndTime,1);
 
 %%%------------------------------------------------------------------------
 %%%INICIALIZATION OF THE MATRICES
@@ -123,19 +127,19 @@ SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment 
 %initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 %SBP1=100*m*m %to start the seeds of pine
 
+%%%%%%%% SEE WITH MARA %%%%%%%%%
 %%%%% CODE FOR MULTIRUNS %%%%%%%
-%nruns=10;
-%maxseedSeed=10:100:1000; % makes runs changing the parameter of SB (2) between the three values determined and keeping all other values fixed
-%BirdSeedN=1:5:50;
-% save('par.mat') % SAVE ALL THE PARS THAT ARE COMMON TO ALL THE RUNS
-%
+% %nruns=10; %repeated runs for the same parameter
+% %for r=1:nruns
+% maxseedSeed=100:100:1000; % makes runs changing the parameter of SB (2) between the three values determined and keeping all other values fixed
+% % BirdSeedN=1:5:50;    % makes runs changing the parameter of BirdSeedN
+% % and keeps all the others constant
+% save('par.mat') % SAVES ALL THE PARS THAT ARE COMMON TO ALL THE RUNS
 % for k=1:length(maxseedSeed)
-% for x=1:length(BirdSeedN)
-%
+% % for  l=1:length(BirdSeedN)   
 %     SB=[0 maxseedSeed(k) 0+randi(BirdSeedN,1)];
-%     %     filename=strcat(['par',num2str(k),'.mat']);
-%     %     save(filename)
-
+%     filename=strcat(['par',num2str(k),'.mat']);
+%     save(filename)
 
 %--------------------------------------------------------------------------
 %%%%%%%%%%%%%%%%%%%%%DYNAMIC LOOP%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -239,6 +243,7 @@ while Time < EndTime
     
     % Store variables for plotting
     Pine=sum(sum(TC==1));
+    MatPine=sum(sum(TC==1&Age>AgeMP);
     Seeder=sum(sum(TC==2));
     Oak=sum(sum(TC==3));
     Litter=sum(sum(Lit(2:m+1,2:m+1)));
@@ -247,6 +252,7 @@ while Time < EndTime
     %AgeMTX=mean(mean(Age));
     
     StorePine(NrStore) = Pine; % NOTICE THESE VECTORS ARE AS LONG AS ENDTIMES, and as wide as 1 (vector not matrices)
+    StoreMatPine(NrStore)= MatPine;
     StoreSeeder(NrStore) = Seeder;
     StoreOak(NrStore) = Oak;
     StoreLitter(NrStore)= Litter;
@@ -255,25 +261,37 @@ while Time < EndTime
     NrStore = NrStore+1;
     StoreTime = StoreStep;
     
-    % %%%%Plot litter every time step
-    % figure
-    % imagesc(Lit(m,m))
-    % colorbar
-    % pause
+%     %%%%Plot litter every time step
+%     figure
+%     imagesc(Lit(2:m+1,2:m+1))
+%     colorbar
+%     pause
+%  
 end
-
-
-%%%%% MULTIRUNS CODE
-
-%     %     filename=strcat(['fire',num2str(k),'.mat' ]);
-%     %     save(filename,'StorePine','StoreSeeder','StoreOak','VectorTime','')
+%%%%%%% SEE WITH MARA
+% %%%%% MULTIRUNS CODE
+%     filename=strcat(['fire',num2str(k),'.mat' ]);
+%     save(filename,'StorePine','StoreSeeder','StoreOak','VectorTime','')
 %     filename=strcat(['seedstart',num2str(maxseedSeed(k)),'.mat' ]);
 %     save(filename,'StorePine','StoreSeeder','StoreOak','VectorTime','SB')
-%     %matr=[StorePine,StoreSeeder,StoreOak,VectorTime];
-%     %  save(filename,'matr','-ascii')
+%     matr=[StorePine,StoreSeeder,StoreOak,VectorTime];
+%     save(filename,'matr','-ascii')
+%%%% This part is only experimenting plotting (also for multiruns)
+% figure
+% hold on
+% for k=1:length(maxseedSeed)
+%     x(k)= VectorTime(k);
+%     p(k)= StorePine(k)/m/m;
+%     s(k)= StoreSeeder (k)/m/m;
+%     o(k)= StoreOak (k)/m/m;
+% plot(x(k),p(k),s(k),o(k))
+% 
 % end
-% end
-%%% Plots final figure of vegetation
+% end %for maxseedSeed
+% end %for BirdSeedN
+%end % end for the various runs
+
+   %%% Plots final figure of vegetation
 figure
 white=[1 1 1];
 blue=[0 0 1];
@@ -305,6 +323,13 @@ if LitOn==1
     set(gca,'fontsize',16, 'fontWeight','bold');
     xlabel('Time (year)');
     ylabel ('Cover (%)');
+    %     saveas(gcf,'figureTime.tif', num2str(k),'tif')
+    
+%%%%%%%%%%%%%%% Check with MARA Plot mature pine cover
+%     %%%%% Plot Mature pine cover
+%     figure
+%     plot(VectorTime,  StoreMatPine/m/m/9*100)
+
     
 else
     
