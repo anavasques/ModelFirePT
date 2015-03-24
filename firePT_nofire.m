@@ -121,7 +121,7 @@ PosQSeed=zeros(m,m);      % NUMBER OF QUERCUS SEEDS PER CELL
 % rp=randperm(m*m,s);
 % TC(rp)=2;
 
-SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment this on the multiruns
+SB=[0 0*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment this on the multiruns
 %SB=[0 0 0]; %starting seeds of oak and seeder changing to analyse one
 %species at a time
 %initial conditions for seeder and oak, pine is planted but can also be seeded randomly
@@ -167,7 +167,7 @@ while Time < EndTime
     SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1);
     %%%%%UNCOMENT TO ELIMINATE OAKS
     %SB(3)=0; %no oaks in the lattice
-    %%%% NEW WAY
+    %%% NEW WAY
     for kk=1:SB(3) %only happens if SB3 is bigger than 1
         cc=randi(m,1,2);%c2=randi(m,1,1);
         PosQSeed(cc(1),cc(2))=PosQSeed(cc(1),cc(2))+1;
