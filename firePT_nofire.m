@@ -26,8 +26,8 @@ MatPine=0;
 
 %%% SEEDER
 AgeMS=3;                  % Age of maturity seeder % field obs Calluna 1 [year]; Cistus 3 years ref
-SeedFS=100;
-%SeedFS=2;                % Seed production per plant/occupied cell approx value ADJUST
+%SeedFS=100;
+SeedFS=10;                % Seed production per plant/occupied cell approx value ADJUST
 LSS=30;                   % Life span calluna % in woodland education centre [year]
 Seeder=0;                 % will count the number of cells with seeder
 
@@ -80,7 +80,7 @@ AR= [0,0,0,1];            % Ability to resprout: first element is fake (bare soi
 
 % CONTROL CONSTANTS AND VARIABLES
 StartTime= 0;             % [year]
-EndTime= 2000;             % [year]
+EndTime= 500;             % [year]
 StoreTime = 1;            % [year]
 
 dt=1;                     % [year]
@@ -109,19 +109,19 @@ PosQSeed=zeros(m,m);      % NUMBER OF QUERCUS SEEDS PER CELL
 
 %PLANT PINES
 %TC(2:2:m-2,2:2:m-2)= 1;   % plants 1 pine every X meters - dense prodution stand excluding the borders
-%TC(3:3:m-3,3:3:m-3)=1;  % pine is planted every 3 meters, there is no gap
+TC(3:3:m-3,3:3:m-3)=1;  % pine is planted every 3 meters, there is no gap
 %between pines - homogeneous when canopy closes
 %TC(40:40:m-40,40:40:m-40)= 1; % plants 1 pine every X meters - for
 %experiments
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%CHECK WITH MARA%%%%%%%%%%%%%%%%
 
-% %Puts cover of seeder or oak randomly in the lattice
-% s=100;%puts a number of cells occupied with seeder or oak(in this case seeders in a random manner)
+%Puts cover of seeder or oak randomly in the lattice
+% s=1000;%puts a number of cells occupied with seeder or oak(in this case seeders in a random manner)
 % rp=randperm(m*m,s);
 % TC(rp)=2;
 
-SB=[5000 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment this on the multiruns
+SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment this on the multiruns
 %SB=[0 0 0]; %starting seeds of oak and seeder changing to analyse one
 %species at a time
 %initial conditions for seeder and oak, pine is planted but can also be seeded randomly
