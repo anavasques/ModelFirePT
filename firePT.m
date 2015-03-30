@@ -38,8 +38,8 @@ AgeMO=20;                 % According to Ramon an oak can produce acorns after 1
 SeedFQ=100;
 %SeedFQ=0;                % If FQ=0 oak does not produce seeds, it creates a reserve of saplings in the understory
 %BirdSeedN=0;
-BirdSeedN=5;           % Annual seed input by birds - average values Q. suber Pons and Pausas 2007 50seeds per hectar - this value depends on surrounding populations
-%BirdSeedN=500;           % to experiment
+%BirdSeedN=5;           % Annual seed input by birds - average values Q. suber Pons and Pausas 2007 50seeds per hectar - this value depends on surrounding populations
+BirdSeedN=1000;           % to experiment
 RespAge=1;                % ONLY OAKS OLDER THAN THIS AGE CAN RESPROUT
 %RespAge=10;              % RESPROUT ABILITY at X years - for experiments
 
@@ -81,7 +81,7 @@ D=0;                      % initialization of disturbance
 
 % CONTROL CONSTANTS AND VARIABLES
 StartTime= 0;             % [year]
-EndTime= 50;             % [year]
+EndTime= 500;             % [year]
 StoreTime = 1;            % [year]
 
 dt=1;                     % [year]
@@ -122,7 +122,7 @@ TC(3:3:m-3,3:3:m-3)=1;  % pine is planted every 3 meters, there is no gap
 % rp=randperm(m*m,s);
 % TC(rp)=2;
 
-SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment this on the multiruns
+SB=[0 1*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment this on the multiruns
 %SB=[0 0 0]; %starting seeds of oak and seeder changing to analyse one
 %species at a time
 %initial conditions for seeder and oak, pine is planted but can also be seeded randomly
@@ -147,7 +147,7 @@ SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment 
 D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
 %tf=40000    %no disturbance
 tf=40;                     %time without fires
-fireret=15                 %interval between fires - fire return
+fireret=15;                %interval between fires - fire return
 rand('state',121)
 
 while tf<EndTime % EndTime can be substituted for the time when disturbance should stop

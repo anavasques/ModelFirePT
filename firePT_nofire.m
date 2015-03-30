@@ -26,8 +26,8 @@ MatPine=0;
 
 %%% SEEDER
 AgeMS=3;                  % Age of maturity seeder % field obs Calluna 1 [year]; Cistus 3 years ref
-%SeedFS=100;
-SeedFS=10;                % Seed production per plant/occupied cell approx value ADJUST
+SeedFS=100;
+%SeedFS=2;                % Seed production per plant/occupied cell approx value ADJUST
 LSS=30;                   % Life span calluna % in woodland education centre [year]
 Seeder=0;                 % will count the number of cells with seeder
 
