@@ -150,7 +150,7 @@ tf=40;                     %time without fires
 fireret=15;                %interval between fires - fire return
 rand('state',121)
 
-while tf<EndTime % EndTime can be substituted for the time when disturbance should stop
+while tf< % EndTime can be substituted for the time when disturbance should stop
     %%%%%%%%%% SEE WITH MARA %%%%%%%%%%%%%%%%%%%%%
     %%Multiruns for fire return
     % varfireret= 4000,30,15,7;
