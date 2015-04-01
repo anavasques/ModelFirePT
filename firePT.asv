@@ -109,8 +109,8 @@ z= 8;                     % Number of neighbours
 PosQSeed=zeros(m,m);      % NUMBER OF QUERCUS SEEDS PER CELL
 
 %PLANT PINES
-%TC(2:2:m-2,2:2:m-2)= 1;   % plants 1 pine every X meters - dense prodution stand excluding the borders
-TC(3:3:m-3,3:3:m-3)=1;  % pine is planted every 3 meters, there is no gap
+TC(2:2:m-2,2:2:m-2)= 1;   % plants 1 pine every X meters - dense prodution stand excluding the borders
+%TC(3:3:m-3,3:3:m-3)=1;  % pine is planted every 3 meters, there is no gap
 %between pines - homogeneous when canopy closes
 %TC(40:40:m-40,40:40:m-40)= 1; % plants 1 pine every X meters - for
 %experiments
@@ -118,9 +118,9 @@ TC(3:3:m-3,3:3:m-3)=1;  % pine is planted every 3 meters, there is no gap
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%CHECK WITH MARA%%%%%%%%%%%%%%%%
 
 %Puts cover of seeder or oak randomly in the lattice
-s=100;%puts a number of cells occupied with seeder or oak(in this case seeders in a random manner)
-rp=randperm(m*m,s);
-TC(rp)=3;
+% s=100;%puts a number of cells occupied with seeder or oak(in this case seeders in a random manner)
+% rp=randperm(m*m,s);
+% TC(rp)=2;
 
 SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment this on the multiruns
 %SB=[0 0 0]; %starting seeds of oak and seeder changing to analyse one
@@ -150,7 +150,7 @@ tf=40;                     %time without fires
 fireret=15;                %interval between fires - fire return
 rand('state',121)
 
-while tf<EndTime % EndTime can be substituted for the time when disturbance should stop
+while tf<8 % EndTime can be substituted for the time when disturbance should stop
     %%%%%%%%%% SEE WITH MARA %%%%%%%%%%%%%%%%%%%%%
     %%Multiruns for fire return
     % varfireret= 4000,30,15,7;
