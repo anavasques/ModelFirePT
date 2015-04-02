@@ -118,7 +118,7 @@ TC(3:3:m-3,3:3:m-3)=1;  % pine is planted every 3 meters, there is no gap
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%CHECK WITH MARA%%%%%%%%%%%%%%%%
 
 %Puts cover of seeder or oak randomly in the lattice
-s=100;%puts a number of cells occupied with seeder or oak(in this case seeders in a random manner)
+s=1000;%puts a number of cells occupied with seeder or oak(in this case seeders in a random manner)
 rp=randperm(m*m,s);
 TC(rp)=3;
 
@@ -150,7 +150,7 @@ tf=40;                     %time without fires
 fireret=15;                %interval between fires - fire return
 rand('state',121)
 
-while tf<EndTime % EndTime can be substituted for the time when disturbance should stop
+while tf<80% EndTime can be substituted for the time when disturbance should stop
     %%%%%%%%%% SEE WITH MARA %%%%%%%%%%%%%%%%%%%%%
     %%Multiruns for fire return
     % varfireret= 4000,30,15,7;
