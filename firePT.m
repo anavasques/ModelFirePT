@@ -128,21 +128,6 @@ SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment 
 %initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 %SBP1=100*m*m %to start the seeds of pine
 
-
-% %%%%% CODE FOR MULTIRUNS %%%%%%%
-%%%%%%%%%%SEE WITH MARA
-% %nruns=10; %repeated runs for the same parameter
-% %for r=1:nruns
-% maxseedSeed=100:100:1000; % makes runs changing the parameter of SB (2) between the three values determined and keeping all other values fixed
-% % BirdSeedN=1:5:50;    % makes runs changing the parameter of BirdSeedN
-% % and keeps all the others constant
-% save('par.mat') % SAVES ALL THE PARS THAT ARE COMMON TO ALL THE RUNS
-% for k=1:length(maxseedSeed)
-% % for  l=1:length(BirdSeedN)   
-%     SB=[0 maxseedSeed(k) 0+randi(BirdSeedN,1)];
-%     filename=strcat(['par',num2str(k),'.mat']);
-%     save(filename)
-
 %%%VECTOR OF FIRE OCCURRENCE
 D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
 %tf=40000    %no disturbance
@@ -150,8 +135,8 @@ tf=40;                     %time without fires
 fireret=15;                %interval between fires - fire return
 rand('state',121)
 
-while tf<80% EndTime can be substituted for the time when disturbance should stop
-    %%%%%%%%%% SEE WITH MARA %%%%%%%%%%%%%%%%%%%%%
+while tf<EndTime% EndTime can be substituted for the time when disturbance should stop
+    %%%%%%%%%% CHECK WITH MARA %%%%%%%%%%%%%%%%%%%%%
     %%Multiruns for fire return
     % varfireret= 4000,30,15,7;
     % for r=1:length(varfireret)
@@ -320,35 +305,6 @@ while Time < EndTime
     % pause
 end
 
-%%%%%%%% SEE MULTIRUNS WITH MARA
-%%%%% NOTES for MULTIRUNS (Ana)
-%%% get the averages of cover (all species) for a certain time (e.g. 100) or period (e.g. 100-200
-%%% y) then get the average values of this time for all the iterations (10)
-%%% and plot these values against the fire return time (mean and standard
-%%% deviation)
-
-% %%%%% MULTIRUNS CODE
-%     filename=strcat(['fire',num2str(k),'.mat' ]);
-%     save(filename,'StorePine','StoreSeeder','StoreOak','VectorTime','')
-%     filename=strcat(['seedstart',num2str(maxseedSeed(k)),'.mat' ]);
-%     save(filename,'StorePine','StoreSeeder','StoreOak','VectorTime','SB')
-%     matr=[StorePine,StoreSeeder,StoreOak,VectorTime];
-%     save(filename,'matr','-ascii')
-% 
-% %%%% This part is only experimenting plotting (also for multiruns)
-% figure
-% hold on
-% for k=1:length(maxseedSeed)
-%     x(k)= VectorTime(k);
-%     p(k)= StorePine(k)/m/m;
-%     s(k)= StoreSeeder (k)/m/m;
-%     o(k)= StoreOak (k)/m/m;
-% plot(x(k),p(k),s(k),o(k))
-% 
-% end
-% end %for maxseedSeed
-% end %for BirdSeedN
-%end % end for the various runs
 
 %%% Plots final figure of vegetation
 figure
