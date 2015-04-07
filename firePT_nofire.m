@@ -227,7 +227,9 @@ while Time < EndTime
     end
       
     Lit=eflit*Lit; % effective litter, i.e. litter that is not degraded and remain for the years after - should be updated here to also occur in the empty cells
-   %%%%%%%%%%%%%%%%%%% UPDATING VARIABLES AND/OR RESETTING TO ZERO 
+   
+    %%%%%%%%%%%%%%%%%%% UPDATING VARIABLES AND/OR RESETTING TO ZERO 
+    
     % UPDATE OF THE PINE SEEDBANK
     SBP2=0.5*SBP1; % PINE SEED BANK OF TWO YEARS BEFORE IS 50%
     SBP1=SB(1);% PINE SEED BANK OF 1 YEAR BEFORE
@@ -239,12 +241,12 @@ while Time < EndTime
     %%% UNCOMMENT TO HAVE OAKS
     SB(3)=randi(BirdSeedN,1); %This is the term to get a new random number between 1-5 every year
     
-     % RESETS ProbG and other Probs to zero
+    % RESETS ProbG and other Probs to zero
     ProbG=[0 0 0];            % resets ProbG to zero
     ProbS=[0 0 0];           % to calculate probability based on seed prod
     ProbL=[0 0 0];           % to calculate probability based on seed prod
     
-      %%%%%%%% STORING VARIABLES %%%%%%%%%%%%
+    %%%%%%%% STORING VARIABLES %%%%%%%%%%%%
     % Store variables for plotting
     Pine=sum(sum(TC==1));
     MatPine=sum(sum(TC==1&Age>AgeMP));
@@ -320,8 +322,8 @@ if LitOn==1
     
     %%%Plotting over time
     figure
-    plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*', VectorTime,StoreLitter/m/m, 'k.')%, VectorTime,StoreAge,'gr')
-    legend('Pine','Seeder','Oak', 'Litter mean depth')%, 'Average age')
+    plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*')%, VectorTime,StoreAge,'gr')
+    legend('Pine','Seeder','Oak')%, 'Average age')
     set(gca,'fontsize',14, 'fontWeight','bold');
     set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
     set(gca,'fontsize',16, 'fontWeight','bold');
@@ -329,7 +331,7 @@ if LitOn==1
     ylabel ('Cover (%)');
     %     saveas(gcf,'figureTime.tif', num2str(k),'tif')
     
-%%%%%%%%%%%%%%% Check with MARA Plot mature pine cover
+%%%%%%%%%%%%%%% to plot mature pine cover
 %     %%%%% Plot Mature pine cover
 %     figure
 %     plot(VectorTime,  StoreMatPine/m/m/9*100)
@@ -340,6 +342,7 @@ else
     figure
     plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*')%, VectorTime,StoreAge,'gr')
     legend('Pine','Seeder','Oak') %, 'Average age')
+    title ('No litter')
     set(gca,'fontsize',14, 'fontWeight','bold');
     set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
     set(gca,'fontsize',16, 'fontWeight','bold');

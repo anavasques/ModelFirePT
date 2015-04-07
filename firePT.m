@@ -59,7 +59,7 @@ eflit=1-0.4;              % effective litter: if 0.90 then 0.10 of the total lit
 ProbL=[0 0 0];            % probability of germination due to litter (first pine second seeder third oak)
 amp=[0.3 0.3 0];          % amplitude of curve interaction with litter
 Litter=0;                 % to sum the number of cells with litter
-litLS=2;                  % litter at low severity
+litLS=4;                  % litter at low severity this term does not tell the final litter depth because it depends on pine cover
 
 LitOn=1;                  % switch for litter on/off
 lconv=0.5*ones(3,3);lconv(2,2)=1; %convolution matrix for the litter around pine
@@ -81,7 +81,7 @@ D=0;                      % initialization of disturbance
 
 % CONTROL CONSTANTS AND VARIABLES
 StartTime= 0;             % [year]
-EndTime= 500;             % [year]
+EndTime= 200;             % [year]
 StoreTime = 1;            % [year]
 
 dt=1;                     % [year]
@@ -132,7 +132,7 @@ SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment 
 D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
 %tf=40000    %no disturbance
 tf=40;                     %time without fires
-fireret=15;                %interval between fires - fire return
+fireret=7;                %interval between fires - fire return
 rand('state',121)
 
 while tf<EndTime% EndTime can be substituted for the time when disturbance should stop
@@ -244,9 +244,11 @@ while Time < EndTime
 %         %HIGH SEVERITY
 %         Lit(:,:)=0;
         %LOW SEVERITY
-        Lit(:,:)=litLS*sum(sum(TC(Age>AgeMP)==1))/m/m*4; %leaves from the canopy fall creating a litter
+        Lit(:,:)=litLS*sum(sum(TC(Age>AgeMP)==1))/m/m*8; %leaves from the canopy fall creating a litter
         %layer - for simplification purposes the litter in the soil is
-        %maintained - it is porportional to the canopy cover anyway
+        %maintained - it is porportional to the canopy cover; it multiplies
+        %by 4 to give a more approximated estimation of the effect of
+        %canopy cover (a mature pine virtually influencing 8 cells)
         for i=1:m
             for j=1:m
                 % PINES AND SEEDERS DIE; QUERCUS RESPROUTS IF OLDER OR
@@ -339,8 +341,8 @@ if LitOn==1
     
     %%%Plotting over time
     figure
-    plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*', VectorTime,StoreLitter/m/m, 'k.')%, VectorTime,StoreAge,'gr')
-    legend('Pine','Seeder','Oak', 'Litter mean depth')%, 'Average age')
+    plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*')%, VectorTime,StoreAge,'gr')
+    legend('Pine','Seeder','Oak')%, 'Average age')
     set(gca,'fontsize',14, 'fontWeight','bold');
     set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
     set(gca,'fontsize',16, 'fontWeight','bold');
@@ -348,7 +350,7 @@ if LitOn==1
     ylabel ('Cover (%)');
     %     saveas(gcf,'figureTime.png', num2str(k),'png')
     
-%    %%%%%%%%%%%%%%% Check with MARA plot mature pine cover
+%    %%%%%%%%%%%%%%% to plot mature pine cover
 %     %%%%% Plot Mature pine cover
 %     figure
 %     plot(VectorTime,  StoreMatPine/m/m/9*100)
@@ -357,6 +359,7 @@ else
     figure
     plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*')%, VectorTime,StoreAge,'gr')
     legend('Pine','Seeder','Oak') %, 'Average age')
+    title ('No litter')
     set(gca,'fontsize',14, 'fontWeight','bold');
     set(gcf,'Position',[374 407 981 410],'PaperPositionMode','auto');
     set(gca,'fontsize',16, 'fontWeight','bold');
