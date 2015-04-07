@@ -27,7 +27,7 @@ MatPine=0;
 %%% SEEDER
 AgeMS=3;                  % Age of maturity seeder % field obs Calluna 1 [year]; Cistus 3 years ref
 SeedFS=100;
-%SeedFS=2;             % Seed production per plant/occupied cell approx value ADJUST
+%SeedFS=2;                % Seed production per plant/occupied cell approx value ADJUST
 LSS=30;                   % Life span calluna % in woodland education centre [year]
 Seeder=0;                 % will count the number of cells with seeder
 
@@ -38,8 +38,8 @@ AgeMO=20;                 % According to Ramon an oak can produce acorns after 1
 SeedFQ=100;
 %SeedFQ=0;                % If FQ=0 oak does not produce seeds, it creates a reserve of saplings in the understory
 %BirdSeedN=0;
-BirdSeedN=5;           % Annual seed input by birds - average values Q. suber Pons and Pausas 2007 50seeds per hectar - this value depends on surrounding populations
-%BirdSeedN=1000;           % to experiment
+BirdSeedN=5;              % Annual seed input by birds - average values Q. suber Pons and Pausas 2007 50seeds per hectar - this value depends on surrounding populations
+%BirdSeedN=500;           % to experiment
 RespAge=1;                % ONLY OAKS OLDER THAN THIS AGE CAN RESPROUT
 %RespAge=10;              % RESPROUT ABILITY at X years - for experiments
 
@@ -59,7 +59,6 @@ eflit=1-0.4;              % effective litter: if 0.90 then 0.10 of the total lit
 ProbL=[0 0 0];            % probability of germination due to litter (first pine second seeder third oak)
 amp=[0.3 0.3 0];          % amplitude of curve interaction with litter
 Litter=0;                 % to sum the number of cells with litter
-litLS=2;                  % litter at low severity
 
 LitOn=1;                  % switch for litter on/off
 lconv=0.5*ones(3,3);lconv(2,2)=1; %convolution matrix for the litter around pine
@@ -77,7 +76,7 @@ nrsp=length(ProbG);                   % number of species used in the model - to
 mort=1./[LSP,LSS,LSO];    % MORTALITY of pine, seeder, oak = 1/lifespan
 AR= [0,0,0,1];            % Ability to resprout: first element is fake (bare soil); pine=0, seeder=0, oak=1;
 
-D=0;                      % initialization of disturbance
+%D=0;                      % initialization of disturbance
 
 % CONTROL CONSTANTS AND VARIABLES
 StartTime= 0;             % [year]
@@ -118,9 +117,9 @@ TC(3:3:m-3,3:3:m-3)=1;  % pine is planted every 3 meters, there is no gap
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%CHECK WITH MARA%%%%%%%%%%%%%%%%
 
 %Puts cover of seeder or oak randomly in the lattice
-s=1000;%puts a number of cells occupied with seeder or oak(in this case seeders in a random manner)
-rp=randperm(m*m,s);
-TC(rp)=3;
+% s=1000;%puts a number of cells occupied with seeder or oak(in this case seeders in a random manner)
+% rp=randperm(m*m,s);
+% TC(rp)=2;
 
 SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment this on the multiruns
 %SB=[0 0 0]; %starting seeds of oak and seeder changing to analyse one
@@ -128,26 +127,18 @@ SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment 
 %initial conditions for seeder and oak, pine is planted but can also be seeded randomly
 %SBP1=100*m*m %to start the seeds of pine
 
-%%%VECTOR OF FIRE OCCURRENCE
-D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
-%tf=40000    %no disturbance
-tf=40;                     %time without fires
-fireret=15;                %interval between fires - fire return
-rand('state',121)
+%%%%%%%% SEE WITH MARA %%%%%%%%%
+%%%%% CODE FOR MULTIRUNS %%%%%%%
+% maxseedSeed=100:100:1000; % makes runs changing the parameter of SB (2) between the three values determined and keeping all other values fixed
+% % BirdSeedN=1:5:50;    % makes runs changing the parameter of BirdSeedN
+% % and keeps all the others constant
+% save('par.mat') % SAVES ALL THE PARS THAT ARE COMMON TO ALL THE RUNS
+% for k=1:length(maxseedSeed)
+% % for  l=1:length(BirdSeedN)   
+%     SB=[0 maxseedSeed(k) 0+randi(BirdSeedN,1)];
+%     filename=strcat(['par',num2str(k),'.mat']);
+%     save(filename)
 
-while tf<EndTime% EndTime can be substituted for the time when disturbance should stop
-    %%%%%%%%%% CHECK WITH MARA %%%%%%%%%%%%%%%%%%%%%
-    %%Multiruns for fire return
-    % varfireret= 4000,30,15,7;
-    % for r=1:length(varfireret)
-    % for l=1:10
-    % tf=tf-varfireret(l,:)*log(rand(1,1));
-    % D(round(tf))=1
-    %end
-    %end
-    tf=tf-fireret*log(rand(1,1)); %stochastic fire recurrence Baudena et al 2010
-    D(round(tf))=1;
-end
 %--------------------------------------------------------------------------
 %%%%%%%%%%%%%%%%%%%%%DYNAMIC LOOP%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--------------------------------------------------------------------------
@@ -162,7 +153,7 @@ while Time < EndTime
         indAge=Age(x(i)-1,y(i)-1)>AgeMP;
         Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)=Lit(x(i)-1:x(i)+1,y(i)-1:y(i)+1)+lrate*lconv*dt*(indAge+(1-indAge)*.2); % .2 IS THE 20% OF THE MAXIMUM VALUE OF LITTER DEPOSITION RATE FOR PINE<AGEMP
     end
-
+    
     % SEED BANK CALCULATION (ONCE A YEAR)
     
     %PINE soil seeds (SB1) and canopy seeds (SBPC)
@@ -173,8 +164,8 @@ while Time < EndTime
     %OAK
     SB(3)=SeedFQ*(sum(sum(TC(Age>AgeMO)==3)))+randi(BirdSeedN,1);
     %%%%%UNCOMENT TO ELIMINATE OAKS
-    %%SB(3)=0; %no oaks in the lattice
-    %%%% NEW WAY
+    %SB(3)=0; %no oaks in the lattice
+    %%%%%% NEW WAY
     for kk=1:SB(3) %only happens if SB3 is bigger than 1
         cc=randi(m,1,2);%c2=randi(m,1,1);
         PosQSeed(cc(1),cc(2))=PosQSeed(cc(1),cc(2))+1;
@@ -234,40 +225,9 @@ while Time < EndTime
             end
         end
     end
-    
-    
-    %%%% DISTURBANCE
-    % the rest of the disturbance term is at the beggining of the code
-    D1=D(Time);
-    if D1== 1
-        'fire';
-%         %HIGH SEVERITY
-%         Lit(:,:)=0;
-        %LOW SEVERITY
-        Lit(:,:)=litLS*sum(sum(TC(Age>AgeMP)==1))/m/m*4; %leaves from the canopy fall creating a litter
-        %layer - for simplification purposes the litter in the soil is
-        %maintained - it is porportional to the canopy cover anyway
-        for i=1:m
-            for j=1:m
-                % PINES AND SEEDERS DIE; QUERCUS RESPROUTS IF OLDER OR
-                % EQUAL THEN Respage
-                % Kind IS A TRICK TO AVOID IF STRUCTURE (IF AGE>RespAge THEN RESPROUT)
-                kind=floor(AR(TC(i,j)+1)*Age(i,j)/RespAge);
-                kind=round(kind/(kind+eps));
-                TC(i,j)= TC(i,j)*kind;
-                Age(i,j)= Age(i,j)*kind;
-            end
-        end
-        %%%%%%%%%%%%%%%%%%% UPDATING VARIABLES AND/OR RESETTING TO ZERO
-        
-        % PINE CANOPY SEEDS FALL INTO SEEDBANK & RESETTING OTHER SEEDS
-        % NUMBERS
-        SB(1)= SBPC; %the production of seeds when there is a fire is the total of the canopy seeds produced until that moment
-        SBP1=0;SBPC=0; %SBP2=0; Not needed to put sbp2 to zero
-    else
-        Lit=eflit*Lit; % effective litter, i.e. litter that is not degraded and remain for the years after - should be updated here to also occur in the empty cells
-    end
-    
+      
+    Lit=eflit*Lit; % effective litter, i.e. litter that is not degraded and remain for the years after - should be updated here to also occur in the empty cells
+   %%%%%%%%%%%%%%%%%%% UPDATING VARIABLES AND/OR RESETTING TO ZERO 
     % UPDATE OF THE PINE SEEDBANK
     SBP2=0.5*SBP1; % PINE SEED BANK OF TWO YEARS BEFORE IS 50%
     SBP1=SB(1);% PINE SEED BANK OF 1 YEAR BEFORE
@@ -275,15 +235,10 @@ while Time < EndTime
     % RESETS NUMBER OF QUERCUS SEEDS TO ZERO FOR NEXT YEAR, REINITIALISE
     % EVERY YEAR THE NUMBER OF SEEDS COMING IN
     PosQSeed=0*PosQSeed;      % NUMBER OF QUERCUS SEEDS PER CELL
+    
     %%% UNCOMMENT TO HAVE OAKS
     SB(3)=randi(BirdSeedN,1); %This is the term to get a new random number between 1-5 every year
     
-    % RESETS ProbG and other Probs to zero
-    ProbG=[0 0 0];            % resets ProbG to zero
-    ProbS=[0 0 0];           % to calculate probability based on seed prod
-    ProbL=[0 0 0];           % to calculate probability based on seed prod
-    
-    %%%%%%%% STORING VARIABLES %%%%%%%%%%%%
     % Store variables for plotting
     Pine=sum(sum(TC==1));
     MatPine=sum(sum(TC==1&Age>AgeMP));
@@ -301,20 +256,40 @@ while Time < EndTime
     StoreLitter(NrStore)= Litter;
     %StoreAge(NrStore)=AgeMTX; %correct this
     VectorTime(NrStore)= Time;
-    %%% store for a period of 100 or 150 years for e.g.
-    %PeriodTime(NrStore==100)= Time
     NrStore = NrStore+1;
     StoreTime = StoreStep;
     
-   % %%%%Plot litter every time step
-    % figure
-    % imagesc(Lit(2:m+1,2:m+1))
-    % colorbar
-    % pause
+%     %%%%Plot litter every time step
+%     figure
+%     imagesc(Lit(2:m+1,2:m+1))
+%     colorbar
+%     pause
+%  
 end
+%%%%%%% SEE WITH MARA
+% %%%%% MULTIRUNS CODE
+%     filename=strcat(['fire',num2str(k),'.mat' ]);
+%     save(filename,'StorePine','StoreSeeder','StoreOak','VectorTime','')
+%     filename=strcat(['seedstart',num2str(maxseedSeed(k)),'.mat' ]);
+%     save(filename,'StorePine','StoreSeeder','StoreOak','VectorTime','SB')
+%     matr=[StorePine,StoreSeeder,StoreOak,VectorTime];
+%     save(filename,'matr','-ascii')
+%%%% This part is only experimenting plotting (also for multiruns)
+% figure
+% hold on
+% for k=1:length(maxseedSeed)
+%     x(k)= VectorTime(k);
+%     p(k)= StorePine(k)/m/m;
+%     s(k)= StoreSeeder (k)/m/m;
+%     o(k)= StoreOak (k)/m/m;
+% plot(x(k),p(k),s(k),o(k))
+% 
+% end
+% end %for maxseedSeed
+% end %for BirdSeedN
+%end % end for the various runs
 
-
-%%% Plots final figure of vegetation
+   %%% Plots final figure of vegetation
 figure
 white=[1 1 1];
 blue=[0 0 1];
@@ -346,12 +321,14 @@ if LitOn==1
     set(gca,'fontsize',16, 'fontWeight','bold');
     xlabel('Time (year)');
     ylabel ('Cover (%)');
-    %     saveas(gcf,'figureTime.png', num2str(k),'png')
+    %     saveas(gcf,'figureTime.tif', num2str(k),'tif')
     
-%    %%%%%%%%%%%%%%% Check with MARA plot mature pine cover
+%%%%%%%%%%%%%%% Check with MARA Plot mature pine cover
 %     %%%%% Plot Mature pine cover
 %     figure
 %     plot(VectorTime,  StoreMatPine/m/m/9*100)
+
+    
 else
     
     figure

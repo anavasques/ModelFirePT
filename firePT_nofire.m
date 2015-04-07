@@ -227,7 +227,7 @@ while Time < EndTime
     end
       
     Lit=eflit*Lit; % effective litter, i.e. litter that is not degraded and remain for the years after - should be updated here to also occur in the empty cells
-    
+   %%%%%%%%%%%%%%%%%%% UPDATING VARIABLES AND/OR RESETTING TO ZERO 
     % UPDATE OF THE PINE SEEDBANK
     SBP2=0.5*SBP1; % PINE SEED BANK OF TWO YEARS BEFORE IS 50%
     SBP1=SB(1);% PINE SEED BANK OF 1 YEAR BEFORE
@@ -239,6 +239,12 @@ while Time < EndTime
     %%% UNCOMMENT TO HAVE OAKS
     SB(3)=randi(BirdSeedN,1); %This is the term to get a new random number between 1-5 every year
     
+     % RESETS ProbG and other Probs to zero
+    ProbG=[0 0 0];            % resets ProbG to zero
+    ProbS=[0 0 0];           % to calculate probability based on seed prod
+    ProbL=[0 0 0];           % to calculate probability based on seed prod
+    
+      %%%%%%%% STORING VARIABLES %%%%%%%%%%%%
     % Store variables for plotting
     Pine=sum(sum(TC==1));
     MatPine=sum(sum(TC==1&Age>AgeMP));
