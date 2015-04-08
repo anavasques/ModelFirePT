@@ -118,9 +118,9 @@ TC(3:3:m-3,3:3:m-3)=1;  % pine is planted every 3 meters, there is no gap
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%CHECK WITH MARA%%%%%%%%%%%%%%%%
 
 %Puts cover of seeder or oak randomly in the lattice
-s=1000;%puts a number of cells occupied with seeder or oak(in this case seeders in a random manner)
-rp=randperm(m*m,s);
-TC(rp)=3;
+% s=1000;%puts a number of cells occupied with seeder or oak(in this case seeders in a random manner)
+% rp=randperm(m*m,s);
+% TC(rp)=3;
 
 SB=[0 100*m*m 0+randi(BirdSeedN,1)]; %NOT for pine!! initial seed bank %comment this on the multiruns
 %SB=[0 0 0]; %starting seeds of oak and seeder changing to analyse one
@@ -241,10 +241,10 @@ while Time < EndTime
     D1=D(Time);
     if D1== 1
         'fire';
-%         %HIGH SEVERITY
-%         Lit(:,:)=0;
+%         %%%HIGH SEVERITY
+        Lit(:,:)=0;
         %LOW SEVERITY
-        Lit(:,:)=litLS*sum(sum(TC(Age>AgeMP)==1))/m/m*8; %leaves from the canopy fall creating a litter
+%         Lit(:,:)=litLS*sum(sum(TC(Age>AgeMP)==1))/m/m*8; %leaves from the canopy fall creating a litter
         %layer - for simplification purposes the litter in the soil is
         %maintained - it is porportional to the canopy cover; it multiplies
         %by 4 to give a more approximated estimation of the effect of
@@ -280,7 +280,8 @@ while Time < EndTime
     %%% UNCOMMENT TO HAVE OAKS
     SB(3)=randi(BirdSeedN,1); %This is the term to get a new random number between 1-5 every year
     
-    % RESETS ProbG and other Probs to zero
+    % RESETS ProbG and other Probs to zero - not needed because it
+    % recalculates every year but just in case there is some memory
     ProbG=[0 0 0];            % resets ProbG to zero
     ProbS=[0 0 0];           % to calculate probability based on seed prod
     ProbL=[0 0 0];           % to calculate probability based on seed prod
