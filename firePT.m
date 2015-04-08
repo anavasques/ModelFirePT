@@ -219,7 +219,7 @@ while Time < EndTime
                 elseif test>ProbG(1)
                     TC(i,j)=2;
                     Age(i,j)=dt;
-                    SB(2)=SB(2)-100; % FOR EVERY ADULT SHRUB SEEDER OCCUPYING A CELL 100 (?) SEEDS ARE LOST
+                    SB(2)=SB(2)-100; % FOR EVERY ADULT SHRUB SEEDER OCCUPYING A CELL 100 SEEDS ARE LOST
                 else
                     TC(i,j)=1;
                     Age(i,j)=dt;
