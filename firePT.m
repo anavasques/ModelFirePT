@@ -12,7 +12,7 @@ clear all
 %PER SPECIES
 
 %%% PINE
-AgeMP=10;                 % Age of maturity pine %start at 6 and regularly 10-15 % in Cronk and Fuller, 1995 [year]
+AgeMP=10;                 % Age of maturity pine Tapias et al. 2001
 %SeedFP=1000;             % Seed production per pine mature tree number of seeds per cone (63)* cone per tree (15) Vega et al 2008
 SeedFP=100;               % Reduced in 10 times as in Quercus
 LSP= 100;                 % Life span of pine % in "practices centro pinus" [year]
@@ -26,7 +26,7 @@ MatPine=0;
 
 %%% SEEDER
 AgeMS=3;                  % Age of maturity seeder % field obs Calluna 1 [year]; Cistus 3 years ref
-SeedFS=100;
+SeedFS=1000;
 %SeedFS=2;             % Seed production per plant/occupied cell approx value ADJUST
 LSS=30;                   % Life span calluna % in woodland education centre [year]
 Seeder=0;                 % will count the number of cells with seeder
@@ -35,7 +35,7 @@ Seeder=0;                 % will count the number of cells with seeder
 %AgeMO=50;                % Age of maturity % Kew % [year]% !Pausas 1999 has maturity = 15!
 AgeMO=20;                 % According to Ramon an oak can produce acorns after 15-20 years
 %SeedFQ=12;               % Seed production oak per occupied cell - 120 acorns per tree refered in Martin?k et al. 2014% [n/m2/year]
-SeedFQ=100;
+SeedFQ=10;
 %SeedFQ=0;                % If FQ=0 oak does not produce seeds, it creates a reserve of saplings in the understory
 %BirdSeedN=0;
 BirdSeedN=5;           % Annual seed input by birds - average values Q. suber Pons and Pausas 2007 50seeds per hectar - this value depends on surrounding populations
@@ -223,6 +223,7 @@ while Time < EndTime
                 else
                     TC(i,j)=1;
                     Age(i,j)=dt;
+                    SB(1)=SB(1)-10;
                 end
             else
                 Age(i,j)=Age(i,j)+dt;
