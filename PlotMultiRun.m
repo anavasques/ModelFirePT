@@ -2,15 +2,15 @@
 
 clear all
 
-nruns=3;
+nruns=10;
 m=100;
-maxseedSeed=200:200:2000; % makes runs changing the parameter of SB (2) between the three values determined and keeping all other values fixed
+maxseedSeed=100:100000:1000000; % makes runs changing the parameter of SB (2) between the three values determined and keeping all other values fixed
 pineTimeM=zeros(nruns,length(maxseedSeed));pineTimestd=pineTimeM;
 
 for k=1:2%length(maxseedSeed)
     figure(k)
        for irun=1:nruns
-           filename=strcat(['.\nofire_maxseed',num2str(maxseedSeed(k)),'_',num2str(irun),'.mat' ]);%loads the file in the current directory %%name of directory should correspond; can load many directories
+           filename=strcat(['cd ..\firePT_NOF_MAXSS_OS',num2str(maxseedSeed(k)),'_',num2str(irun),'.mat' ]);%loads the file in the current directory %%name of directory should correspond; can load many directories
            load (filename)% command to load only certain variables: load(filename,variables) e.g. %'StorePine','StoreSeeder','StoreOak','StoreLitter','VectorTime')
 %            figure
            plot(VectorTime,StorePine/m/m*100,'b', VectorTime,StoreSeeder/m/m*100, 'r--.', VectorTime,StoreOak/m/m*100, 'g*')%, VectorTime,StoreAge,'gr')
