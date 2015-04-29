@@ -63,9 +63,9 @@ stdOak=std(matrix3,0,2); %different command for std (than that one of mean) but 
 %plot(VectorTime, avPine/m/m*100,'k')
 errorbar(VectorTime,avPine/m/m*100,stdPine/m/m*100,'k') %same plot than before but with errorbar (stdev)
 %plot(VectorTime, avSeeder/m/m*100,'k')
-errorbar(VectorTime,avSeeder/m/m*100,stdPine/m/m*100,'k') %same plot than before but with errorbar (stdev)
+errorbar(VectorTime,avSeeder/m/m*100,stdSeeder/m/m*100,'k') %same plot than before but with errorbar (stdev)
 %plot(VectorTime, avOak/m/m*100,'k')
-errorbar(VectorTime,avOak/m/m*100,stdPine/m/m*100,'k') %same plot than before but with errorbar (stdev)
+errorbar(VectorTime,avOak/m/m*100,stdOak/m/m*100,'k') %same plot than before but with errorbar (stdev)
 
 hold off
 pause     
