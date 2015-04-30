@@ -46,8 +46,5 @@
                   pause
                   
 % ALL TOGETHER
-plot(Lit,ProbGP, 'b', Lit,ProbGS, 'r--.', Lit,ProbGQ, 'g*','LineWidth',5)
-set(gca,'fontsize',20, 'fontWeight','bold')
+plot(Lit,ProbGP, 'b.', Lit,ProbGS, 'r--.', Lit,ProbGQ, 'g*')
 legend('Pine','Seeder','Oak')
-xlabel('Litter depth (cm)'), ylabel('Probability of establishment')
-axis([0 6 0 1])
