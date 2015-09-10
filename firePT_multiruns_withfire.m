@@ -167,7 +167,7 @@ for k=1:length(maxseedSeed)
         %%%VECTOR OF FIRE OCCURRENCE
 D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
 %tf=40000    %no disturbance
-tf=40;                     %time without fires
+tf=100;                     %time without fires
 fireret=15;                %interval between fires - fire return
 rand('state',121)
 
