@@ -165,25 +165,25 @@ for k=1:length(maxseedSeed)
         
         
         %%%VECTOR OF FIRE OCCURRENCE
-D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
-%tf=40000    %no disturbance
-tf=100;                     %time without fires
-fireret=15;                %interval between fires - fire return
-rand('state',121)
-
-while tf<EndTime% EndTime can be substituted for the time when disturbance should stop
-    %%%%%%%%%% CHECK WITH MARA %%%%%%%%%%%%%%%%%%%%%
-    %%Multiruns for fire return
-    % varfireret= 4000,30,15,7;
-    % for r=1:length(varfireret)
-    % for l=1:10
-    % tf=tf-varfireret(l,:)*log(rand(1,1));
-    % D(round(tf))=1
-    %end
-    %end
-    tf=tf-fireret*log(rand(1,1)); %stochastic fire recurrence Baudena et al 2010
-    D(round(tf))=1;
-end
+        D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
+        %tf=40000    %no disturbance
+        tf=100;                     %time without fires
+        fireret=15;                %interval between fires - fire return
+        rand('state',121)           % if you move this to l.107 (right before the loop over the runs) you will have also different fire sequences in the runs
+        
+        while tf<EndTime% EndTime can be substituted for the time when disturbance should stop
+            %%%%%%%%%% CHECK WITH MARA %%%%%%%%%%%%%%%%%%%%%
+            %%Multiruns for fire return
+            % varfireret= 4000,30,15,7;
+            % for r=1:length(varfireret)
+            % for l=1:10
+            % tf=tf-varfireret(l,:)*log(rand(1,1));
+            % D(round(tf))=1
+            %end
+            %end
+            tf=tf-fireret*log(rand(1,1)); %stochastic fire recurrence Baudena et al 2010
+            D(round(tf))=1;
+        end
         
         %--------------------------------------------------------------------------
         %%%%%%%%%%%%%%%%%%%%%DYNAMIC LOOP%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
