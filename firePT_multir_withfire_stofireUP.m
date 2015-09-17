@@ -102,11 +102,26 @@ maxseedSeed=100:100000:1000000; % makes runs changing the parameter of SB (2) be
 %     TC(pd:pd:m-pd,pd:pd:m-pd)=1
 %%%%MaxSeedSeeder
         %%%VECTOR OF FIRE OCCURRENCE
+%%%VECTOR OF FIRE OCCURRENCE
 D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
 %tf=40000    %no disturbance
 tf=100;                     %time without fires
 fireret=15;                %interval between fires - fire return
-rand('state',121)
+rand('state',121)           % if you move this to l.107 (right before the loop over the runs) you will have also different fire sequences in the runs
+
+while tf<EndTime% EndTime can be substituted for the time when disturbance should stop
+    %%%%%%%%%% CHECK WITH MARA %%%%%%%%%%%%%%%%%%%%%
+    %%Multiruns for fire return
+    % varfireret= 4000,30,15,7;
+    % for r=1:length(varfireret)
+    % for l=1:10
+    % tf=tf-varfireret(l,:)*log(rand(1,1));
+    % D(round(tf))=1
+    %end
+    %end
+    tf=tf-fireret*log(rand(1,1)); %stochastic fire recurrence Baudena et al 2010
+    D(round(tf))=1;
+end
 
 for k=1:length(maxseedSeed)
     SB=[0 maxseedSeed(k) 0+randi(BirdSeedN,1)];
@@ -171,20 +186,10 @@ for k=1:length(maxseedSeed)
         %SBP1=100*m*m %to start the seeds of pine
         
         
-%%%The Fire part was here
-while tf<EndTime% EndTime can be substituted for the time when disturbance should stop
-    %%%%%%%%%% CHECK WITH MARA %%%%%%%%%%%%%%%%%%%%%
-    %%Multiruns for fire return
-    % varfireret= 4000,30,15,7;
-    % for r=1:length(varfireret)
-    % for l=1:10
-    % tf=tf-varfireret(l,:)*log(rand(1,1));
-    % D(round(tf))=1
-    %end
-    %end
-    tf=tf-fireret*log(rand(1,1)); %stochastic fire recurrence Baudena et al 2010
-    D(round(tf))=1;
-end
+% %%%The Fire part was here -> MB: SINCE FOR THESE EXPERIMENTS YOU WANT TO
+% HAVE THE SAME FIRE SERIES, YOU NEED TO CREAD D ONLY ONCE (SEE ABOVE). IF
+% YOU CREATE IT HERE WITH ONLY ONE INITIALISATION (UP) EACH RUN WILL HAVE
+% DIFFERENT FIRE SEQUENCES -> THAT' WHY I MOVED IT UP
         
         %--------------------------------------------------------------------------
         %%%%%%%%%%%%%%%%%%%%%DYNAMIC LOOP%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
