@@ -103,13 +103,15 @@ maxseedSeed=100:100000:1000000; % makes runs changing the parameter of SB (2) be
 %%%%MaxSeedSeeder
         %%%VECTOR OF FIRE OCCURRENCE
 %%%VECTOR OF FIRE OCCURRENCE
-for b=121:131;
-D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
-%tf=40000    %no disturbance
 tf=100;                     %time without fires
+%tf=40000    %no disturbance
+
 fireret=15;                %interval between fires - fire return
+
+for b=121:131
+D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
 rand('state',b)           % if you move this to l.107 (right before the loop over the runs) you will have also different fire sequences in the runs
-end
+
 while tf<EndTime% EndTime can be substituted for the time when disturbance should stop
     %%%%%%%%%% CHECK WITH MARA %%%%%%%%%%%%%%%%%%%%%
     %%Multiruns for fire return
@@ -392,4 +394,5 @@ for k=1:length(maxseedSeed)
 %     saveas(gcf,filename,'tif')% saves one figure for each output
     %end
 end % maxseeds
+end
     
