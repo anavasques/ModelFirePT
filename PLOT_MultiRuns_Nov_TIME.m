@@ -1,22 +1,22 @@
 clear all
 
-nruns=100;
+nruns=20;
 m=100;
 %keeping all other values fixed
-BirdSeedNv=[1 5 20 100];
-FR=[7 15 30 2000];
+BirdSeedNv=[0 1 2 5 10 20 50 100 200 500];
+F=[7 15 30 2000];
 
 % IMAGINE YOU SAVE THIS .M FILE IN THE SAME FOLDER WHERE THERE ARE ALL THE
 % FOLDERS OF FIRE RECURRENCE THEN AFTER THE FIRST FOR LOOP YOU CAN MOVE IN
 % THE FIRE RECURRENCE FOLDER OF YOUR CHOICE
 
-for i=1:length(FR) % fire recurrence 
-    foldername=strcat% I don't know your foldername but you can here use the FR(i) to create your folder name
+for i=1:length(F) % fire recurrence 
+    foldername=strcat('firePT_F',num2str(F(i)),'LS_BIRS_FS')% I don't know your foldername but you can here use the FR(i) to create your folder name
     cd(foldername) % to be tested for windows..
     for k=1:length(BirdSeedNv)
          
         for irun=1:nruns
-            filename=strcat(['firePT_FIRE',num2str(FR(i),'LS_BIRS_FS',num2str(BirdSeedNv(k)),'_',num2str(irun),'.mat' ]);%loads the file in the current directory %%name of directory should correspond; can load many directories
+            filename=strcat(['firePT_F',num2str(F(i)),'LS_BIRS_FS',num2str(BirdSeedNv(k)),'_',num2str(irun),'.mat' ]);%loads the file in the current directory %%name of directory should correspond; can load many directories
             load (filename)% command to load only certain variables: load(filename,variables) e.g. %'StorePine','StoreSeeder','StoreOak','StoreLitter','VectorTime')
             
             % this is not needed (to me, for the purpose of the plotting)
@@ -27,28 +27,36 @@ for i=1:length(FR) % fire recurrence
 %             eval(['matrixStoreOak',int2str(k),'(:,irun)=StoreOak;'])
             
             %%%%%%calculates the time when pine cover is equal to zero
-            pineTime(irun)=(StoreTime(StorePine==0));
             
+
+targetPine = 0;
+XPine = StorePine;
+ind = find((StorePine==0));
+XtargetPine= XPine(ind);
+StoretimeTargetPine=Storetime(XtargetPine(1,1));
+pineTime(irun)= StoretimeTargetPine(irun);
+
             %%%%%%calculates the time when oak cover is equal or higher than
             %%%%%%50%
-            oakTime(irun)=(StoreTime(StoreOak>=50));
+            %oakTime(irun)=(irun, VectorTime(StoreOak>=50));
         end
         avPineTime=mean(pineTime); %makes the mean per row the command simple (without 2) makes mean per column
         stdPineTime=std(pineTime); %different command for std (than that one of mean) but does the same
-        avOakTime=mean(oakTime); %makes the mean per row the command simple (without 2) makes mean per column
-        stdOakTime=std(oakTime); %different command for std (than that one of mean) but does the same
+        %avOakTime=mean(oakTime); %makes the mean per row the command simple (without 2) makes mean per column
+        %stdOakTime=std(oakTime); %different command for std (than that one of mean) but does the same
         
         figure(k)
+        %title(['oak seeds= ',num2str(k)])
         bar(i,avPineTime), hold on
         errorbar(i,avPineTime,stdPineTime)
         xlabel('Fire recurrence (years)');
         ylabel ('Cover (%)');
-        title(['oak seeds= ',num2str(k)])
-        figure(100+k)
-        bar(FR(i),avOakTime), hold on
-        errorbar(FR(i),stdOakTime)
-        xlabel('Fire recurrence (years)');
-        ylabel ('Cover (%)');
+        %title(['oak seeds= ',num2str(k)])
+        %figure(100+k)
+        %bar(FR(i),avOakTime), hold on
+        %errorbar(FR(i),stdOakTime)
+        %xlabel('Fire recurrence (years)');
+        %ylabel ('Cover (%)');
     end
 end
 
