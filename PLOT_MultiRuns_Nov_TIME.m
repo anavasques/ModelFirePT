@@ -6,12 +6,16 @@ m=100;
 BirdSeedNv=[0 1 2 5 10 20 50 100 200 500];
 F=[7 15 30 2000];
 
+storeMatr=zeros(length(F)*length(BirdSeedNv)*nruns,7);
+iii=0;
+
 % IMAGINE YOU SAVE THIS .M FILE IN THE SAME FOLDER WHERE THERE ARE ALL THE
 % FOLDERS OF FIRE RECURRENCE THEN AFTER THE FIRST FOR LOOP YOU CAN MOVE IN
 % THE FIRE RECURRENCE FOLDER OF YOUR CHOICE
 
 for i=1:length(F) % fire recurrence 
-    foldername=strcat('firePT_F',num2str(F(i)),'LS_BIRS_FS')% I don't know your foldername but you can here use the FR(i) to create your folder name
+    foldername=strcat('firePT_F',num2str(F(i)),'LS_BIRS_FS');
+    % I don't know your foldername but you can here use the FR(i) to create your folder name
     cd(foldername) % to be tested for windows..
     for k=1:length(BirdSeedNv)
          
@@ -28,22 +32,44 @@ for i=1:length(F) % fire recurrence
             
             %%%%%%calculates the time when pine cover is equal to zero
             
-
-targetPine = 0;
-XPine = StorePine;
-ind = find((StorePine==0));
-XtargetPine= XPine(ind);
-StoretimeTargetPine=Storetime(XtargetPine(1,1));
-pineTime(irun)= StoretimeTargetPine(irun);
-
+% ANA, SORRY. THIS IS MAYBE CORRECT, BUT FOR A STRANGE THING WITH GITUHUB I
+% DIDN' FIND THIS FILE AT FIRST AND MODIFIED IT MYSELF IN A DIFFERENT WAY..
+% SORRY (SEE BELOW). IF YOU THINK YOUR NOTATION WORKS, YOU CAN KEEP IT...!
+% targetPine = 0;
+% XPine = StorePine;
+% ind = find((StorePine==0));
+% XtargetPine= XPine(ind);
+% StoretimeTargetPine=Storetime(XtargetPine(1,1));
+% pineTime(irun)= StoretimeTargetPine(irun);
+            vec=StoreTime(StorePine==0);
+            if isempty(vec)
+                pineTime(irun)=NaN; % if you don' like NaN you could also put -9999 (any negative number I mean)
+            else
+                pineTime(irun)=vec(1);
+            end
+            
             %%%%%%calculates the time when oak cover is equal or higher than
             %%%%%%50%
-            %oakTime(irun)=(irun, VectorTime(StoreOak>=50));
+            vec=StoreTime(StoreOak>=50);
+            if isempty(vec)
+                oakTime(irun)=NaN;
+            else
+                oakTime(irun)=vec(1);
+            end
         end
         avPineTime=mean(pineTime); %makes the mean per row the command simple (without 2) makes mean per column
         stdPineTime=std(pineTime); %different command for std (than that one of mean) but does the same
         %avOakTime=mean(oakTime); %makes the mean per row the command simple (without 2) makes mean per column
         %stdOakTime=std(oakTime); %different command for std (than that one of mean) but does the same
+        
+        storeMatr(iii,1)=F(i);
+        storeMatr(iii,2)=BirdSeedNv(k);
+        storeMatr(iii,3)=irun;
+        storeMatr(iii,4)=avPineTime;
+        storeMatr(iii,5)=stdPineTime;
+        storeMatr(iii,6)=avOakTime;
+        storeMatr(iii,7)=stdOakTime;
+        
         
         figure(k)
         %title(['oak seeds= ',num2str(k)])
@@ -66,6 +92,9 @@ for k=1:length(BirdSeedNv)
     figure(100+k)
     set(gca,'xtick',1:4,'xticklabel',['  7 '; ' 15 '; ' 30 '; '2000'])
 end
+
+
+save storeMatr.txt storeMatr -ASCII
 %     %%% stores the matrices outside the loop - to later calculate
 %     %%% averages
 %       this needs to be corrected to make it work
