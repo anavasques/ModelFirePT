@@ -1,26 +1,29 @@
 clear all
 
-nruns=20;
+nruns=100;
 m=100;
 %keeping all other values fixed
-BirdSeedNv=[0 1 2 5 10 20 50 100 200 500];
-F=[7 15 30 2000];
+BirdSeedNv=[1 5 20 100];
+F=[15 30];
 
-storeMatr=zeros(length(F)*length(BirdSeedNv)*nruns,7);
+storeMatr=zeros(length(F)*length(BirdSeedNv)*nruns,5);
+storeMatrAv=zeros(length(F)*length(BirdSeedNv),6);
 iii=0;
+ii=0;
 
 % IMAGINE YOU SAVE THIS .M FILE IN THE SAME FOLDER WHERE THERE ARE ALL THE
 % FOLDERS OF FIRE RECURRENCE THEN AFTER THE FIRST FOR LOOP YOU CAN MOVE IN
 % THE FIRE RECURRENCE FOLDER OF YOUR CHOICE
 
 for i=1:length(F) % fire recurrence 
-    foldername=strcat('firePT_F',num2str(F(i)),'LS_BIRS_FS');
+    foldername=strcat('firePT_F',num2str(F(i)),'HS_BIRS_OS');
     % I don't know your foldername but you can here use the FR(i) to create your folder name
     cd(foldername) % to be tested for windows..
     for k=1:length(BirdSeedNv)
-         
+         ii=ii+1;
         for irun=1:nruns
-            filename=strcat(['firePT_F',num2str(F(i)),'LS_BIRS_FS',num2str(BirdSeedNv(k)),'_',num2str(irun),'.mat' ]);%loads the file in the current directory %%name of directory should correspond; can load many directories
+         iii=iii+1;
+            filename=strcat(['firePT_F',num2str(F(i)),'HS_BIRS_OS',num2str(BirdSeedNv(k)),'_',num2str(irun),'.mat' ]);%loads the file in the current directory %%name of directory should correspond; can load many directories
             load (filename)% command to load only certain variables: load(filename,variables) e.g. %'StorePine','StoreSeeder','StoreOak','StoreLitter','VectorTime')
             
             % this is not needed (to me, for the purpose of the plotting)
@@ -41,7 +44,7 @@ for i=1:length(F) % fire recurrence
 % XtargetPine= XPine(ind);
 % StoretimeTargetPine=Storetime(XtargetPine(1,1));
 % pineTime(irun)= StoretimeTargetPine(irun);
-            vec=StoreTime(StorePine==0);
+            vec=VectorTime(StorePine==0);
             if isempty(vec)
                 pineTime(irun)=NaN; % if you don' like NaN you could also put -9999 (any negative number I mean)
             else
@@ -50,51 +53,65 @@ for i=1:length(F) % fire recurrence
             
             %%%%%%calculates the time when oak cover is equal or higher than
             %%%%%%50%
-            vec=StoreTime(StoreOak>=50);
+            vec=VectorTime(StoreOak>=50);
             if isempty(vec)
                 oakTime(irun)=NaN;
             else
                 oakTime(irun)=vec(1);
             end
-        end
-        avPineTime=mean(pineTime); %makes the mean per row the command simple (without 2) makes mean per column
-        stdPineTime=std(pineTime); %different command for std (than that one of mean) but does the same
-        %avOakTime=mean(oakTime); %makes the mean per row the command simple (without 2) makes mean per column
-        %stdOakTime=std(oakTime); %different command for std (than that one of mean) but does the same
-        
-        storeMatr(iii,1)=F(i);
+ 	storeMatr(iii,1)=F(i);
         storeMatr(iii,2)=BirdSeedNv(k);
         storeMatr(iii,3)=irun;
-        storeMatr(iii,4)=avPineTime;
-        storeMatr(iii,5)=stdPineTime;
-        storeMatr(iii,6)=avOakTime;
-        storeMatr(iii,7)=stdOakTime;
+        storeMatr(iii,4)=pineTime(irun);
+        storeMatr(iii,5)=oakTime(irun);
+        
+
+        end
+
+	
+
+        avPineTime=mean(pineTime); %makes the mean per row the command simple (without 2) makes mean per column
+        stdPineTime=std(pineTime); %different command for std (than that one of mean) but does the same
+        avOakTime=mean(oakTime); %makes the mean per row the command simple (without 2) makes mean per column
+        stdOakTime=std(oakTime); %different command for std (than that one of mean) but does the same
+       
+       storeMatrAv(ii,1)=F(i);
+       storeMatrAv(ii,2)=BirdSeedNv(k);
+       storeMatrAv(ii,3)=avPineTime;
+       storeMatrAv(ii,4)=stdPineTime;
+       storeMatrAv(ii,5)=avOakTime;
+       storeMatrAv(ii,6)=stdOakTime;
         
         
         figure(k)
-        %title(['oak seeds= ',num2str(k)])
+        
         bar(i,avPineTime), hold on
         errorbar(i,avPineTime,stdPineTime)
         xlabel('Fire recurrence (years)');
-        ylabel ('Cover (%)');
-        %title(['oak seeds= ',num2str(k)])
-        %figure(100+k)
-        %bar(FR(i),avOakTime), hold on
-        %errorbar(FR(i),stdOakTime)
-        %xlabel('Fire recurrence (years)');
-        %ylabel ('Cover (%)');
+        ylabel ('Time (y)');
+        
+        figure(100+k)
+        bar(i,avOakTime), hold on
+        errorbar(i,avOakTime,stdOakTime)
+        xlabel('Fire recurrence (years)');
+        ylabel ('Time (y)');
     end
+    cd ..
 end
 
 for k=1:length(BirdSeedNv)
     figure(k)
-    set(gca,'xtick',1:4,'xticklabel',['  7 '; ' 15 '; ' 30 '; '2000'])
+    title(['Pine time =0; oak seeds= ',num2str(BirdSeedNv(k))])
+    set(gca,'xtick',1:4,'xticklabel',['  7 '; ' 15 '; ' 30 '; '2000'],'ylim',[0 500])
     figure(100+k)
-    set(gca,'xtick',1:4,'xticklabel',['  7 '; ' 15 '; ' 30 '; '2000'])
+    title(['Oak time <50; oak seeds= ',num2str(BirdSeedNv(k))])
+    set(gca,'xtick',1:4,'xticklabel',['  7 '; ' 15 '; ' 30 '; '2000'],'ylim',[0 500])
 end
 
 
 save storeMatr.txt storeMatr -ASCII
+save storeMatrAv.txt storeMatrAv -ASCII
+
 %     %%% stores the matrices outside the loop - to later calculate
 %     %%% averages
 %       this needs to be corrected to make it work
