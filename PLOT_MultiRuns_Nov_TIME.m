@@ -4,7 +4,7 @@ nruns=100;
 m=100;
 %keeping all other values fixed
 BirdSeedNv=[1 5 20 100];
-F=[15 30];
+F=[0 7 15 30];
 
 storeMatr=zeros(length(F)*length(BirdSeedNv)*nruns,5);
 storeMatrAv=zeros(length(F)*length(BirdSeedNv),6);
@@ -83,18 +83,18 @@ for i=1:length(F) % fire recurrence
        storeMatrAv(ii,6)=stdOakTime;
         
         
-        figure(k)
-        
-        bar(i,avPineTime), hold on
-        errorbar(i,avPineTime,stdPineTime)
-        xlabel('Fire recurrence (years)');
-        ylabel ('Time (y)');
-        
-        figure(100+k)
-        bar(i,avOakTime), hold on
-        errorbar(i,avOakTime,stdOakTime)
-        xlabel('Fire recurrence (years)');
-        ylabel ('Time (y)');
+%         figure(k)
+%         
+%         bar(i,avPineTime), hold on
+%         errorbar(i,avPineTime,stdPineTime)
+%         xlabel('Fire recurrence (years)');
+%         ylabel ('Time (y)');
+%         
+%         figure(100+k)
+%         bar(i,avOakTime), hold on
+%         errorbar(i,avOakTime,stdOakTime)
+%         xlabel('Fire recurrence (years)');
+%         ylabel ('Time (y)');
     end
     cd ..
 end
