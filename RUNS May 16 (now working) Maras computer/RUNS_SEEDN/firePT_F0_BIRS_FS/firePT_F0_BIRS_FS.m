@@ -60,7 +60,7 @@ nrsp=length(SeedLoss);    % Number of species used in the model - variable that 
 mort=1./[LSP,LSS,LSO];    % Yearly mortality (1/lifespan) (1 pine 2 seeder 3 oak)
 
 % DISTURBANCE
-AR= [0,0,0,1];            % Ability to resprout (0= not able; 1 = able) (first element is fake (bare soil); 2 pine, 3 seeder, 4 oak)
+AR= [0,0,1,1];            % Ability to resprout (0= not able; 1 = able) (first element is fake (bare soil); 2 pine, 3 seeder, 4 oak)
 
 %D=0;                     % initialization of disturbance
 
@@ -79,7 +79,7 @@ m= 100;                   % number of cells in lattice
 % here we can vary the values that will be used for the repetitions of the
 % runs 
 
-BirdSeedNv=[1 5 20 200];
+BirdSeedNv=[1 5 20 200]; 
 %maxseedSeed=100:100000:1000000; % makes runs changing the parameter of SB (2) between the three values determined and keeping all other values fixed
 
 %pd=3:10:43
@@ -90,8 +90,8 @@ nruns=20;                % number of repetitions of each run (exactly the same c
 
 %%%% VECTOR FOR MULTIPLE RUNS WITH DIFFEREENT NUMBER OF SEEDS 
 % oak
-for k=BirdSeedNv
-    BirdSeedN=BirdSeedNv;
+    for k=1:length(BirdSeedNv)
+    BirdSeedN=BirdSeedNv(k);
 % initial pine density
 % for k=1:length(pd)
 %     TC(pd:pd:m-pd,pd:pd:m-pd)=1;
@@ -105,7 +105,7 @@ for k=BirdSeedNv
 
 for b=122;
 D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
-tf=4000;                  % time without fires
+tf=4000;                   % time without fires
 fireret=7;                % average interval between fires (fires are still stochastic)
 rng(b); % INITIALISE THE RAND COMMANDS TO OBTAIN A SPECIF FIRE SEQUENCE         
 
@@ -189,8 +189,8 @@ end %while loop tf
             
             %%%%%% Small loop only to spread the acorns over the lattice
             for kk=1:SB(3)      %only happens if SB3 is bigger than 1
-            cc=randi(m*m);  % MARA May17 2016: I CHANGED THIS TO GENERATE ONE RAND NUMBER ONLY BTW 1 AND m*m AND USING THE FACT THAT MATLAB CAN READ MATRICES AS LONG VECTOR (SO YOU CAN GIVE ONE COORDINATE ONLY FOR EACH CELL)
-                    PosQSeed(cc)=PosQSeed(cc)+1;
+                 cc=randi(m*m);  % MARA May17 2016: I CHANGED THIS TO GENERATE ONE RAND NUMBER ONLY BTW 1 AND m*m AND USING THE FACT THAT MATLAB CAN READ MATRICES AS LONG VECTOR (SO YOU CAN GIVE ONE COORDINATE ONLY FOR EACH CELL)
+                 PosQSeed(cc)=PosQSeed(cc)+1;
             end %end of the loop seeds oak
             
             %------------------------------------------------------------------
@@ -333,7 +333,7 @@ end %while loop tf
         end % end of the main dynamic loop
         
         %%%%%% MULTIRUNS CODE
-        filename=strcat(['firePT_F0_BIRS_OS',num2str(BirdSeedNv),'_',num2str(irun),'_',num2str(b),'.mat' ]);
+        filename=strcat(['firePT_F0_BIRS_FS',num2str(BirdSeedN),'_',num2str(irun),'_',num2str(b),'.mat' ]);
         save(filename,'StorePine','StoreSeeder','StoreOak','StoreLitter','VectorTime')
 
     end % stochastic runs

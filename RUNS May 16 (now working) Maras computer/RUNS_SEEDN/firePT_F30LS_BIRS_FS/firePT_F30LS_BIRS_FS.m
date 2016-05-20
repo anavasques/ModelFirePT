@@ -90,8 +90,8 @@ nruns=20;                % number of repetitions of each run (exactly the same c
 
 %%%% VECTOR FOR MULTIPLE RUNS WITH DIFFEREENT NUMBER OF SEEDS 
 % oak
-for k=BirdSeedNv
-    BirdSeedN=BirdSeedNv;
+for k=1:length(BirdSeedNv)
+    BirdSeedN=BirdSeedNv(k);
 % initial pine density
 % for k=1:length(pd)
 %     TC(pd:pd:m-pd,pd:pd:m-pd)=1;
@@ -106,8 +106,8 @@ for k=BirdSeedNv
 for b=122;
 D=0*[StartTime:dt:EndTime];%#ok<NBRAK>
 tf=100;                   % time without fires
-fireret=7;                % average interval between fires (fires are still stochastic)
-rng(b); % INITIALISE THE RAND COMMANDS TO OBTAIN A SPECIF FIRE SEQUENCE      
+fireret=30;                % average interval between fires (fires are still stochastic)
+rng(b); % INITIALISE THE RAND COMMANDS TO OBTAIN A SPECIF FIRE SEQUENCE;   
 
 % Multiruns
       for irun=1:nruns;
@@ -189,7 +189,7 @@ end %while loop tf
             
             %%%%%% Small loop only to spread the acorns over the lattice
             for kk=1:SB(3)      %only happens if SB3 is bigger than 1
-            cc=randi(m*m);  % MARA May17 2016: I CHANGED THIS TO GENERATE ONE RAND NUMBER ONLY BTW 1 AND m*m AND USING THE FACT THAT MATLAB CAN READ MATRICES AS LONG VECTOR (SO YOU CAN GIVE ONE COORDINATE ONLY FOR EACH CELL)
+                cc=randi(m*m);  % MARA May17 2016: I CHANGED THIS TO GENERATE ONE RAND NUMBER ONLY BTW 1 AND m*m AND USING THE FACT THAT MATLAB CAN READ MATRICES AS LONG VECTOR (SO YOU CAN GIVE ONE COORDINATE ONLY FOR EACH CELL)
                     PosQSeed(cc)=PosQSeed(cc)+1;
             end %end of the loop seeds oak
             
@@ -257,10 +257,10 @@ end %while loop tf
         'fire'; % can be written when a fire occurs
 
         %HIGH SEVERITY
-        Lit(:,:)=0;
+        %Lit(:,:)=0;
         
         %LOW SEVERITY
-        %Lit(:,:)=litLS*sum(sum(TC(Age>AgeMP)==1))/m/m*8; %leaves from the canopy fall creating a litter
+        Lit(:,:)=litLS*sum(sum(TC(Age>AgeMP)==1))/m/m*8; %leaves from the canopy fall creating a litter
         %layer - for simplification purposes the litter in the soil is
         %maintained - it is porportional to the canopy cover anyway - canopy effect on 8
         %neightbours
@@ -333,7 +333,7 @@ end %while loop tf
         end % end of the main dynamic loop
         
         %%%%%% MULTIRUNS CODE
-        filename=strcat(['firePT_F7HS_BIRS_FS',num2str(BirdSeedNv),'_',num2str(irun),'_',num2str(b),'.mat' ]);,'.mat' ]);
+        filename=strcat(['firePT_F30LS_BIRS_FS',num2str(BirdSeedN),'_',num2str(irun),'_',num2str(b),'.mat' ]);
         save(filename,'StorePine','StoreSeeder','StoreOak','StoreLitter','VectorTime')
 
     end % stochastic runs

@@ -90,8 +90,8 @@ nruns=20;                % number of repetitions of each run (exactly the same c
 
 %%%% VECTOR FOR MULTIPLE RUNS WITH DIFFEREENT NUMBER OF SEEDS 
 % oak
-for k=BirdSeedNv
-    BirdSeedN=BirdSeedNv;
+for k=1:length(BirdSeedNv)
+    BirdSeedN=BirdSeedNv(k);
 % initial pine density
 % for k=1:length(pd)
 %     TC(pd:pd:m-pd,pd:pd:m-pd)=1;
@@ -333,7 +333,7 @@ end %while loop tf
         end % end of the main dynamic loop
         
         %%%%%% MULTIRUNS CODE
-        filename=strcat(['firePT_F7HS_BIRS_OS',num2str(BirdSeedNv),'_',num2str(irun),'_',num2str(b),'.mat' ]);
+        filename=strcat(['firePT_F7HS_BIRS_OS',num2str(BirdSeedN),'_',num2str(irun),'_',num2str(b),'.mat' ]);
         save(filename,'StorePine','StoreSeeder','StoreOak','StoreLitter','VectorTime')
 
     end % stochastic runs
